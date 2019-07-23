@@ -4,7 +4,7 @@ return [
     'class' => 'yii\db\Connection',
     'dsn' => 'mysql:host=localhost;dbname=chivo-cuate',
     'username' => 'chivo-cuate',
-    'password' => 'chivo-cuate',
+    'password' => 'ChivoCuate123*',
     'charset' => 'utf8',
 
     // Schema cache options (for production environment)

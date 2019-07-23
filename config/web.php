@@ -20,7 +20,7 @@ $config = [
             ]
         ],
         'response' => [
-            'format' => yii\web\Response::FORMAT_JSON,
+            //'format' => yii\web\Response::FORMAT_JSON,
             'charset' => 'UTF-8',
         ]
         ,
@@ -54,12 +54,10 @@ $config = [
         ],
         'db' => $db,
         'urlManager' => [
-            'enablePrettyUrl' => true,
-            //'enableStrictParsing' => true,
-            'showScriptName' => false,
-                'rules' => [
-                    //['class' => 'yii\rest\UrlRule', 'controller' => 'user'],
-            ],
+            'enablePrettyUrl' => false,
+            'showScriptName' => true,
+            //'enableStrictParsing' => false,
+            
         ],
     ],
     'params' => $params,
