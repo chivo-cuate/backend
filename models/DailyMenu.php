@@ -9,7 +9,9 @@ use Yii;
  *
  * @property int $id
  * @property string $date
+ * @property int $branch_id
  *
+ * @property Branch $branch
  * @property DailyMenuProduct[] $dailyMenuProducts
  * @property Product[] $products
  */
@@ -29,9 +31,11 @@ class DailyMenu extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['date'], 'required'],
+            [['date', 'branch_id'], 'required'],
             [['date'], 'safe'],
+            [['branch_id'], 'integer'],
             [['date'], 'unique'],
+            [['branch_id'], 'exist', 'skipOnError' => true, 'targetClass' => Branch::className(), 'targetAttribute' => ['branch_id' => 'id']],
         ];
     }
 
@@ -43,7 +47,16 @@ class DailyMenu extends \yii\db\ActiveRecord
         return [
             'id' => Yii::t('app', 'ID'),
             'date' => Yii::t('app', 'Date'),
+            'branch_id' => Yii::t('app', 'Branch ID'),
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBranch()
+    {
+        return $this->hasOne(Branch::className(), ['id' => 'branch_id']);
     }
 
     /**

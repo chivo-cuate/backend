@@ -9,8 +9,11 @@ use Yii;
  *
  * @property int $id
  * @property string $name
+ * @property int $branch_id
  *
+ * @property Branch $branch
  * @property Stock $stock
+ * @property Branch[] $branches
  */
 class Ingredient extends \yii\db\ActiveRecord
 {
@@ -28,9 +31,11 @@ class Ingredient extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name'], 'required'],
+            [['name', 'branch_id'], 'required'],
+            [['branch_id'], 'integer'],
             [['name'], 'string', 'max' => 255],
             [['name'], 'unique'],
+            [['branch_id'], 'exist', 'skipOnError' => true, 'targetClass' => Branch::className(), 'targetAttribute' => ['branch_id' => 'id']],
         ];
     }
 
@@ -42,7 +47,16 @@ class Ingredient extends \yii\db\ActiveRecord
         return [
             'id' => Yii::t('app', 'ID'),
             'name' => Yii::t('app', 'Name'),
+            'branch_id' => Yii::t('app', 'Branch ID'),
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBranch()
+    {
+        return $this->hasOne(Branch::className(), ['id' => 'branch_id']);
     }
 
     /**
@@ -51,5 +65,13 @@ class Ingredient extends \yii\db\ActiveRecord
     public function getStock()
     {
         return $this->hasOne(Stock::className(), ['ingredient_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBranches()
+    {
+        return $this->hasMany(Branch::className(), ['id' => 'branch_id'])->viaTable('stock', ['ingredient_id' => 'id']);
     }
 }

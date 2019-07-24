@@ -71,6 +71,7 @@ class SiteController extends Controller
      */
     public function actionLogin()
     {
+        $pp = Yii::$app->user;
         if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }

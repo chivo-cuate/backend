@@ -9,14 +9,14 @@ $config = [
     'bootstrap' => ['log'],
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
-        '@npm'   => '@vendor/npm-asset',
+        '@npm' => '@vendor/npm-asset',
     ],
     'components' => [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'elhruihih4398qpcm2894u3894p4mj39jnw',
             'parsers' => [
-                'application/json' => 'yii\web\JsonParser',
+                'application/json' => yii\web\JsonParser::class,
             ]
         ],
         'response' => [
@@ -46,7 +46,7 @@ $config = [
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
             'targets' => [
-                [
+                    [
                     'class' => 'yii\log\FileTarget',
                     'levels' => ['error', 'warning'],
                 ],
@@ -57,8 +57,15 @@ $config = [
             'enablePrettyUrl' => false,
             'showScriptName' => true,
             //'enableStrictParsing' => false,
-            
+            'rules' => [
+            /* '<controller:\w+>/<id:\d+>' => '<controller>/view',
+              '<controller:\w+>/<action:\w+>/<id:\d+>' => '<controller>/<action>',
+              '<controller:\w+>/<action:\w+>' => '<controller>/<action>', */
+            ],
         ],
+    ],
+    'as corsFilter' => [
+        'class' => yii\filters\Cors::class,
     ],
     'params' => $params,
 ];
@@ -68,15 +75,15 @@ if (YII_ENV_DEV) {
     $config['bootstrap'][] = 'debug';
     $config['modules']['debug'] = [
         'class' => 'yii\debug\Module',
-        // uncomment the following to add your IP if you are not connecting from localhost.
-        //'allowedIPs' => ['127.0.0.1', '::1'],
+            // uncomment the following to add your IP if you are not connecting from localhost.
+            //'allowedIPs' => ['127.0.0.1', '::1'],
     ];
 
     $config['bootstrap'][] = 'gii';
     $config['modules']['gii'] = [
         'class' => 'yii\gii\Module',
-        // uncomment the following to add your IP if you are not connecting from localhost.
-        //'allowedIPs' => ['127.0.0.1', '::1'],
+            // uncomment the following to add your IP if you are not connecting from localhost.
+            //'allowedIPs' => ['127.0.0.1', '::1'],
     ];
 }
 

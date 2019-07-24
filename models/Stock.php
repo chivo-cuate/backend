@@ -8,11 +8,12 @@ use Yii;
  * This is the model class for table "stock".
  *
  * @property int $id
- * @property int $ingredient_id
  * @property double $quantity
  * @property string $measure_unit
- * @property double $availability
+ * @property int $ingredient_id
+ * @property int $branch_id
  *
+ * @property Branch $branch
  * @property Ingredient $ingredient
  */
 class Stock extends \yii\db\ActiveRecord
@@ -31,12 +32,14 @@ class Stock extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['ingredient_id', 'quantity', 'measure_unit'], 'required'],
-            [['ingredient_id'], 'integer'],
-            [['quantity', 'availability'], 'number'],
+            [['quantity'], 'number'],
+            [['measure_unit', 'ingredient_id', 'branch_id'], 'required'],
+            [['ingredient_id', 'branch_id'], 'integer'],
             [['measure_unit'], 'string', 'max' => 255],
-            [['ingredient_id'], 'unique'],
             [['measure_unit'], 'unique'],
+            [['ingredient_id'], 'unique'],
+            [['ingredient_id', 'branch_id'], 'unique', 'targetAttribute' => ['ingredient_id', 'branch_id']],
+            [['branch_id'], 'exist', 'skipOnError' => true, 'targetClass' => Branch::className(), 'targetAttribute' => ['branch_id' => 'id']],
             [['ingredient_id'], 'exist', 'skipOnError' => true, 'targetClass' => Ingredient::className(), 'targetAttribute' => ['ingredient_id' => 'id']],
         ];
     }
@@ -48,11 +51,19 @@ class Stock extends \yii\db\ActiveRecord
     {
         return [
             'id' => Yii::t('app', 'ID'),
-            'ingredient_id' => Yii::t('app', 'Ingredient ID'),
             'quantity' => Yii::t('app', 'Quantity'),
             'measure_unit' => Yii::t('app', 'Measure Unit'),
-            'availability' => Yii::t('app', 'Availability'),
+            'ingredient_id' => Yii::t('app', 'Ingredient ID'),
+            'branch_id' => Yii::t('app', 'Branch ID'),
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBranch()
+    {
+        return $this->hasOne(Branch::className(), ['id' => 'branch_id']);
     }
 
     /**

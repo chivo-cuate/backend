@@ -2,73 +2,166 @@
 
 namespace app\controllers;
 
-use Yii;
-use yii\rest\Controller;
-use yii\web\ForbiddenHttpException;
-use yii\filters\auth\HttpBearerAuth;
-use yii\web\IdentityInterface;
+use app\models\LoginForm;
 use app\models\User;
+use Exception;
+use Firebase\JWT\JWT;
+use Yii;
+use yii\filters\AccessControl;
+use yii\filters\auth\HttpBearerAuth;
+use yii\filters\ContentNegotiator;
+use yii\filters\Cors;
+use yii\rest\ActiveController;
+use yii\web\ForbiddenHttpException;
+use yii\web\Response;
 
-class AuthController extends Controller/* implements IdentityInterface*/
-{
+class AuthController extends ActiveController {
 
-    public function behaviors()
-    {
+    private $key = "vUrQrZL50m7qL3uosytRJbeW8fzSwUqd";
+    protected $userInfo = ['code' => null, 'msg' => null, 'user' => null];
+    protected $request;
+    public $enableCsrfValidation = false;
+    public $modelClass = User::class;
+
+    public function beforeAction($action) {
+        $this->request = Yii::$app->getRequest();
+        $this->getUserInfo();
+        //$this->checkAccess($action->controller->id . '/' . $actionId, $requiresAuth);
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function behaviors() {
         $behaviors = parent::behaviors();
-        $behaviors['authenticator'] = [
+
+        $auth = $behaviors['authenticator'] = [
             'class' => HttpBearerAuth::className(),
+            'only' => ['dashboard'],
         ];
+        $behaviors['contentNegotiator'] = [
+            'class' => ContentNegotiator::className(),
+            'formats' => [
+                'application/json' => Response::FORMAT_JSON,
+            ],
+        ];
+        $access = $behaviors['access'] = [
+            'class' => AccessControl::className(),
+            'only' => ['login'],
+            'rules' => [
+                    [
+                    'actions' => ['login'],
+                    'allow' => true,
+                    'roles' => ['?'],
+                ],
+            ],
+        ];
+
+        unset($behaviors['authenticator']);
+        unset($behaviors['access']);
+
+        $behaviors['corsFilter'] = [
+            'class' => Cors::className(),
+            'cors' => [
+                // restrict access to
+                'Access-Control-Allow-Origin' => ['*'],
+                'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
+                // Allow only POST and PUT methods
+                'Access-Control-Allow-Headers' => ['*'],
+                // Allow only headers 'X-Wsse'
+                'Access-Control-Allow-Credentials' => '*',
+                // Allow OPTIONS caching
+                'Access-Control-Max-Age' => 86400,
+                // Allow the X-Pagination-Current-Page header to be exposed to the browser.
+                'Access-Control-Expose-Headers' => [],
+            ]
+        ];
+
+        // re-add authentication filter
+        $behaviors['authenticator'] = $auth;
+        $behaviors['access'] = $access;
+        // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
+        $behaviors['authenticator']['except'] = ['options'];
+
         return $behaviors;
     }
 
-    public function beforeAction($action) {
-        $actionId = $action->id;
-        
-        switch ($actionId) {
-            case 'login':
-            case 'test':
-                $requiresAuth = false;
-                break;
-            default:
-                $requiresAuth = true;
-                break;
+    public function encodeJWT($payload) {
+        try {
+            return JWT::encode($payload, $this->key);
+        } catch (Exception $exc) {
+            return null;
         }
-        $this->checkAccess($actionId, $requiresAuth);
-        return true;
-    }
-    
-    public function actionTest() {
-        return 123;
     }
 
-    public function actionLogin() {
-        $token = 't1';
-        return User::findIdentityByAccessToken($token);
+    public function decodeJWT($jwt) {
+        try {
+            $payload = JWT::decode($jwt, $this->key, ['HS256']);
+            return ($payload->exp > time()) ? $payload : null;
+        } catch (Exception $exc) {
+            return null;
+        }
     }
 
     public function checkAccess($action, $requiresAuth = true, $model = null, $params = []) {
-        if (Yii::$app->user->isGuest === $requiresAuth)
-            throw new ForbiddenHttpException('Acceso denegado');
+        if (!$this->userInfo['user'] === $requiresAuth) {
+            throw new ForbiddenHttpException('Acceso denegado.');
+        }
+        if ($this->userInfo['user']) {
+            $roles = $this->userInfo['user']->getRoles();
+        }
     }
 
-    /*public static function findIdentityByAccessToken($token, $type = null) {
-        return new User(['username' => 'pepe']);
+    public function getRequestParams() {
+        return array_merge($this->request->get(), $this->request->post());
     }
 
-    public static function findIdentity($id) {
-        return new User(['username' => 'pepe']);
+    public function getUserInfo() {
+        try {
+            $jwt = str_replace('Bearer ', '', $this->request->getHeaders()->get('Authorization'));
+            $payload = $this->decodeJWT($jwt);
+            if ($payload->exp > time() && $payload->ip === $this->request->getUserIP()) {
+                $user = User::findOne($payload->user_id);
+                $this->userInfo = $user ? ['code' => 'success', 'msg' => 'User verified', 'user' => $user] : ['code' => 'error', 'msg' => 'Invalid credentials.', 'user' => null];
+            }
+        } catch (Exception $exc) {
+            $this->userInfo = ['code' => 'error', 'msg' => $exc->getMessage(), 'user' => null];
+        }
     }
 
-    public function getId() {
-        return 1;
-    }
+    public function actionLogin() {
+        try {
+            $params = $this->getRequestParams();
+            $loginFormModel = new LoginForm(['username' => $params['username'], 'password' => $params['password']]);
+            //$loginFormModel = new LoginForm(['username' => $params['username'], 'password' => $params['password']]);
+            if ($loginFormModel->validate()) {
+                $this->userInfo = ['code' => 'success', 'msg' => 'Credentials verified', 'user' => $loginFormModel->getAuthenticatedUser()];
+                $now = time();
+                $homeUrl = Yii::$app->getUrlManager()->getBaseUrl();
+                $payload = [
+                    'iss' => $homeUrl,
+                    'aud' => $homeUrl,
+                    'iat' => $now,
+                    'exp' => $now + 43200, //12 hours
+                    'user_id' => $this->userInfo['user']->id,
+                    'ip' => $this->request->getUserIP(),
+                ];
+                $jwt = $this->encodeJWT($payload);
 
-    public function getAuthKey() {
-        return '34rpij';
+                return $jwt ? ['code' => 'success', 'msg' => 'Credenciales verificadas.', 'data' => [
+                        'is_guest' => false,
+                        'email' => $this->userInfo['user']->email,
+                        'jwt' => $jwt,
+                        'roles' => $this->userInfo['user']->getRolesArray(),
+                        'token' => $this->userInfo['user']->verification_token,
+                    ]] : ['code' => 'error', 'msg' => 'Your data could not be encoded.', 'data' => []];
+            }
+            return ['code' => 'error', 'msg' => 'Credenciales incorrectas.', 'data' => null];
+        } catch (Exception $exc) {
+            return $exc->getMessage();
+        }
     }
-
-    public function validateAuthKey($authKey) {
-        return true;
-    }*/
 
 }
