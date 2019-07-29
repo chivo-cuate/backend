@@ -14,7 +14,7 @@ class m190722_201503_create_branch_table extends Migration
     {
         $this->createTable('{{%branch}}', [
             'id' => $this->primaryKey(),
-            'name' => $this->integer()->notNull(),
+            'name' => $this->string(50)->notNull(),
             'tables' => $this->integer()->notNull(),
             'description' => $this->string(128),
         ]);

@@ -14,10 +14,13 @@ class m190722_200117_create_auth_permission_table extends Migration
     {
         $this->createTable('{{%auth_permission}}', [
             'id' => $this->primaryKey(),
-            'name' => $this->string()->notNull()->unique(),
-            'route' => $this->string()->notNull()->unique(),
+            'name' => $this->string()->notNull(),
+            'route' => $this->string()->notNull(),
             'description' => $this->string(),
+            'module_id' => $this->integer()->notNull(),
         ]);
+        
+        $this->addForeignKey('fk_authperm_module', 'auth_permission', 'module_id', 'auth_module', 'id', 'cascade', 'cascade');
     }
 
     /**

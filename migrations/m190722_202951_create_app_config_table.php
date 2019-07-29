@@ -11,8 +11,12 @@ class m190722_202951_create_app_config_table extends Migration {
             'app_title' => $this->string(50)->notNull(),
             'about' => $this->string(350)->notNull(),
             'address' => $this->string(250),
-            'email' => $this->string(50),
             'phone' => $this->string(50),
+            'email_address' => $this->string(),
+            'email_password' => $this->string(),
+            'email_host' => $this->string(),
+            'email_port' => $this->integer(),
+            'email_encryption' => $this->string(5),
         ], $tableOptions);
     }
 

@@ -12,6 +12,8 @@ use yii\web\IdentityInterface;
  *
  * @property int $id
  * @property string $username
+ * @property string $first_name
+ * @property string $last_name
  * @property string $phone_number
  * @property string $auth_key
  * @property string $verification_token
@@ -42,14 +44,14 @@ class User extends ActiveRecord implements IdentityInterface {
      */
     public function rules() {
         return [
-                [['username', 'auth_key', 'verification_token', 'password_hash', 'email', 'created_at', 'updated_at'], 'required'],
+                [['username', 'first_name', 'last_name', 'auth_key', 'verification_token', 'password_hash', 'email', 'created_at', 'updated_at'], 'required'],
                 [['status', 'created_at', 'updated_at'], 'integer'],
-                [['username', 'phone_number', 'password_hash', 'email'], 'string', 'max' => 255],
+                [['username', 'first_name', 'last_name', 'phone_number', 'password_hash', 'email'], 'string', 'max' => 255],
                 [['auth_key', 'verification_token', 'password_reset_token'], 'string', 'max' => 32],
-                [['username'], 'unique'],
+                [['username'], 'unique', 'message' => 'Ya existe un usuario con ese nombre.'],
                 [['auth_key'], 'unique'],
                 [['verification_token'], 'unique'],
-                [['email'], 'unique'],
+                [['email'], 'unique', 'message' => 'Ya existe un usuario con ese correo.'],
                 [['password_reset_token'], 'unique'],
         ];
     }
@@ -61,6 +63,8 @@ class User extends ActiveRecord implements IdentityInterface {
         return [
             'id' => Yii::t('app', 'ID'),
             'username' => Yii::t('app', 'Username'),
+            'first_name' => Yii::t('app', 'First Name'),
+            'last_name' => Yii::t('app', 'Last Name'),
             'phone_number' => Yii::t('app', 'Phone Number'),
             'auth_key' => Yii::t('app', 'Auth Key'),
             'verification_token' => Yii::t('app', 'Verification Token'),
@@ -74,35 +78,35 @@ class User extends ActiveRecord implements IdentityInterface {
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getAuthUserRoles() {
         return $this->hasMany(AuthUserRole::className(), ['user_id' => 'id']);
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getRoles() {
         return $this->hasMany(AuthRole::className(), ['id' => 'role_id'])->viaTable('auth_user_role', ['user_id' => 'id']);
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getBranchUsers() {
         return $this->hasMany(BranchUser::className(), ['user_id' => 'id']);
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getBranches() {
         return $this->hasMany(Branch::className(), ['id' => 'branch_id'])->viaTable('branch_user', ['user_id' => 'id']);
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getOrders() {
         return $this->hasMany(Order::className(), ['user_id' => 'id']);
@@ -170,6 +174,18 @@ class User extends ActiveRecord implements IdentityInterface {
      */
     public function validatePassword($password) {
         return Yii::$app->security->validatePassword($password, $this->password_hash);
+    }
+
+    public function hasRole($roleId) {
+        return AuthUserRole::findOne(['user_id' => $this->id, 'role_id' => $roleId]);
+    }
+
+    public function getFullName() {
+        return $this->first_name . ' ' . $this->last_name;
+    }
+
+    public function getUsersByRole($roleId) {
+        return AuthUser::find()->join('INNER JOIN', 'auth_user_role', ['auth_user.id' => 'auth_user_role.user_id'], ['auth_user_role.role_id' => $roleId])->all();
     }
 
 }

@@ -9,6 +9,8 @@ use Yii;
  *
  * @property int $id
  * @property string $username
+ * @property string $first_name
+ * @property string $last_name
  * @property string $phone_number
  * @property string $auth_key
  * @property string $verification_token
@@ -25,42 +27,41 @@ use Yii;
  * @property Branch[] $branches
  * @property Order[] $orders
  */
-class AuthUser extends \yii\db\ActiveRecord
-{
+class AuthUser extends \yii\db\ActiveRecord {
+
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
-    {
+    public static function tableName() {
         return 'auth_user';
     }
 
     /**
      * {@inheritdoc}
      */
-    public function rules()
-    {
+    public function rules() {
         return [
-            [['username', 'auth_key', 'verification_token', 'password_hash', 'email', 'created_at', 'updated_at'], 'required'],
-            [['status', 'created_at', 'updated_at'], 'integer'],
-            [['username', 'phone_number', 'password_hash', 'email'], 'string', 'max' => 255],
-            [['auth_key', 'verification_token', 'password_reset_token'], 'string', 'max' => 32],
-            [['username'], 'unique'],
-            [['auth_key'], 'unique'],
-            [['verification_token'], 'unique'],
-            [['email'], 'unique'],
-            [['password_reset_token'], 'unique'],
+                [['username', 'first_name', 'last_name', 'auth_key', 'verification_token', 'password_hash', 'email', 'created_at', 'updated_at'], 'required'],
+                [['status', 'created_at', 'updated_at'], 'integer'],
+                [['username', 'first_name', 'last_name', 'phone_number', 'password_hash', 'email'], 'string', 'max' => 255],
+                [['auth_key', 'verification_token', 'password_reset_token'], 'string', 'max' => 32],
+                [['username'], 'unique'],
+                [['auth_key'], 'unique'],
+                [['verification_token'], 'unique'],
+                [['email'], 'unique'],
+                [['password_reset_token'], 'unique'],
         ];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => Yii::t('app', 'ID'),
             'username' => Yii::t('app', 'Username'),
+            'first_name' => Yii::t('app', 'First Name'),
+            'last_name' => Yii::t('app', 'Last Name'),
             'phone_number' => Yii::t('app', 'Phone Number'),
             'auth_key' => Yii::t('app', 'Auth Key'),
             'verification_token' => Yii::t('app', 'Verification Token'),
@@ -76,40 +77,36 @@ class AuthUser extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getAuthUserRoles()
-    {
+    public function getAuthUserRoles() {
         return $this->hasMany(AuthUserRole::className(), ['user_id' => 'id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getRoles()
-    {
+    public function getRoles() {
         return $this->hasMany(AuthRole::className(), ['id' => 'role_id'])->viaTable('auth_user_role', ['user_id' => 'id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getBranchUsers()
-    {
+    public function getBranchUsers() {
         return $this->hasMany(BranchUser::className(), ['user_id' => 'id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getBranches()
-    {
+    public function getBranches() {
         return $this->hasMany(Branch::className(), ['id' => 'branch_id'])->viaTable('branch_user', ['user_id' => 'id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getOrders()
-    {
+    public function getOrders() {
         return $this->hasMany(Order::className(), ['user_id' => 'id']);
     }
+
 }
