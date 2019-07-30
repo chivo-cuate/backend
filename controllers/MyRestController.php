@@ -2,8 +2,8 @@
 
 namespace app\controllers;
 
-use app\models\LoginForm;
 use app\models\User;
+use app\utilities\Security;
 use Exception;
 use Firebase\JWT\JWT;
 use Yii;
@@ -27,8 +27,13 @@ class MyRestController extends ActiveController {
         $this->request = Yii::$app->getRequest();
         $this->getUserInfo();
         $this->getRequestParams();
+        
         //$this->checkAccess($action->controller->id . '/' . $actionId, $requiresAuth);
         Yii::$app->response->format = Response::FORMAT_JSON;
+        $actionId = $action->controller->id . '/' . $action->id;
+        if ($action->controller->id !== 'auth') {
+            return Security::verifyUserPermission($this->userInfo['user'], $actionId);
+        }
         return true;
     }
 
@@ -104,12 +109,9 @@ class MyRestController extends ActiveController {
         }
     }
 
-    public function checkAccess($action, $requiresAuth = true, $model = null, $params = []) {
+    public function checkAccess($action, $requiresAuth = true, $model = null) {
         if (!$this->userInfo['user'] === $requiresAuth) {
             throw new ForbiddenHttpException('Acceso denegado.');
-        }
-        if ($this->userInfo['user']) {
-            $roles = $this->userInfo['user']->getRoles();
         }
     }
 

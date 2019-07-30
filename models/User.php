@@ -48,10 +48,10 @@ class User extends ActiveRecord implements IdentityInterface {
                 [['status', 'created_at', 'updated_at'], 'integer'],
                 [['username', 'first_name', 'last_name', 'phone_number', 'password_hash', 'email'], 'string', 'max' => 255],
                 [['auth_key', 'verification_token', 'password_reset_token'], 'string', 'max' => 32],
-                [['username'], 'unique', 'message' => 'Ya existe un usuario con ese nombre.'],
+                [['username'], 'unique'],
                 [['auth_key'], 'unique'],
                 [['verification_token'], 'unique'],
-                [['email'], 'unique', 'message' => 'Ya existe un usuario con ese correo.'],
+                [['email'], 'unique'],
                 [['password_reset_token'], 'unique'],
         ];
     }
@@ -78,35 +78,35 @@ class User extends ActiveRecord implements IdentityInterface {
     }
 
     /**
-     * @return ActiveQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getAuthUserRoles() {
         return $this->hasMany(AuthUserRole::className(), ['user_id' => 'id']);
     }
 
     /**
-     * @return ActiveQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getRoles() {
         return $this->hasMany(AuthRole::className(), ['id' => 'role_id'])->viaTable('auth_user_role', ['user_id' => 'id']);
     }
 
     /**
-     * @return ActiveQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getBranchUsers() {
         return $this->hasMany(BranchUser::className(), ['user_id' => 'id']);
     }
 
     /**
-     * @return ActiveQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getBranches() {
         return $this->hasMany(Branch::className(), ['id' => 'branch_id'])->viaTable('branch_user', ['user_id' => 'id']);
     }
 
     /**
-     * @return ActiveQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getOrders() {
         return $this->hasMany(Order::className(), ['user_id' => 'id']);

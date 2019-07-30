@@ -4,6 +4,8 @@ namespace app\controllers;
 
 use app\models\LoginForm;
 use app\models\User;
+use app\utilities\Security;
+use app\utilities\Utilities;
 use Exception;
 use Yii;
 
@@ -42,12 +44,13 @@ class AuthController extends MyRestController {
                             'branches' => $userBranches,
                             'jwt' => $jwt,
                             'roles' => $this->userInfo['user']->getRolesArray(),
+                            'permissions' => Security::getUserPermissions($this->userInfo['user']),
                     ]];
                 }
 
                 return ['code' => 'error', 'msg' => 'Your data could not be encoded.', 'data' => []];
             }
-            return ['code' => 'error', 'msg' => 'Credenciales incorrectas.', 'data' => null];
+            return ['code' => 'error', 'msg' => 'Credenciales incorrectas.', 'data' => []];
         } catch (Exception $exc) {
             return $exc->getMessage();
         }
@@ -61,17 +64,13 @@ class AuthController extends MyRestController {
                 $user->setAttributes($data);
                 $user->save();
                 if ($user->hasErrors()) {
-                    $errors = '';
-                    foreach ($user->getErrors() as $key => $value) {
-                        $errors .= ($value[0] . ' ');
-                    }
-                    return ['code' => 'error', 'msg' => $errors, 'data' => null];
+                    return ['code' => 'error', 'msg' => Utilities::getModelErrorsString($user), 'data' => []];
                 }
-                return ['code' => 'success', 'msg' => 'Datos actualizados.', 'data' => null];
+                return ['code' => 'success', 'msg' => 'Datos actualizados.', 'data' => []];
             }
-            return ['code' => 'error', 'msg' => 'Credenciales incorrectas.', 'data' => null];
+            return ['code' => 'error', 'msg' => 'Credenciales incorrectas.', 'data' => []];
         } catch (Exception $exc) {
-            return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => null];
+            return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
         }
     }
     
@@ -81,7 +80,7 @@ class AuthController extends MyRestController {
                 $res = User::find()->select('id, first_name, last_name, username, email, phone_number')->where(['id' => $this->userInfo['user']->id])->one();
                 return ['code' => 'success', 'msg' => 'Datos cargados.', 'data' => $res];
             }
-            return ['code' => 'error', 'msg' => 'Credenciales incorrectas.', 'data' => null];
+            return ['code' => 'error', 'msg' => 'Credenciales incorrectas.', 'data' => []];
         } catch (Exception $exc) {
             return $exc->getMessage();
         }
@@ -98,17 +97,17 @@ class AuthController extends MyRestController {
                         $newPassword = Yii::$app->security->generatePasswordHash($data['password']);
                         $this->userInfo['user']->password_hash = $newPassword;
                         $this->userInfo['user']->save();
-                        return ['code' => 'success', 'msg' => 'Clave actualizada.', 'data' => null];
+                        return ['code' => 'success', 'msg' => 'Clave actualizada.', 'data' => []];
                     } else {
-                        return ['code' => 'error', 'msg' => 'Las claves no coinciden.', 'data' => null];
+                        return ['code' => 'error', 'msg' => 'Las claves no coinciden.', 'data' => []];
                     }
                 } else {
-                    return ['code' => 'error', 'msg' => 'La clave actual no es correcta.', 'data' => null];
+                    return ['code' => 'error', 'msg' => 'La clave actual no es correcta.', 'data' => []];
                 }
             }
-            return ['code' => 'error', 'msg' => 'Credenciales incorrectas.', 'data' => null];
+            return ['code' => 'error', 'msg' => 'Credenciales incorrectas.', 'data' => []];
         } catch (Exception $exc) {
-            return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => null];
+            return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
         }
     }
 

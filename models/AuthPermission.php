@@ -9,9 +9,11 @@ use Yii;
  *
  * @property int $id
  * @property string $name
- * @property string $route
+ * @property string $slug
  * @property string $description
+ * @property int $module_id
  *
+ * @property AuthModule $module
  * @property AuthPermissionRole[] $authPermissionRoles
  * @property AuthRole[] $roles
  */
@@ -31,10 +33,10 @@ class AuthPermission extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'route'], 'required'],
-            [['name', 'route', 'description'], 'string', 'max' => 255],
-            [['name'], 'unique'],
-            [['route'], 'unique'],
+            [['name', 'slug', 'module_id'], 'required'],
+            [['module_id'], 'integer'],
+            [['name', 'slug', 'description'], 'string', 'max' => 255],
+            [['module_id'], 'exist', 'skipOnError' => true, 'targetClass' => AuthModule::className(), 'targetAttribute' => ['module_id' => 'id']],
         ];
     }
 
@@ -46,9 +48,18 @@ class AuthPermission extends \yii\db\ActiveRecord
         return [
             'id' => Yii::t('app', 'ID'),
             'name' => Yii::t('app', 'Name'),
-            'route' => Yii::t('app', 'Route'),
+            'slug' => Yii::t('app', 'Route'),
             'description' => Yii::t('app', 'Description'),
+            'module_id' => Yii::t('app', 'Module ID'),
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getModule()
+    {
+        return $this->hasOne(AuthModule::className(), ['id' => 'module_id']);
     }
 
     /**

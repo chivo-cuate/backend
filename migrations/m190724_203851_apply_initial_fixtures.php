@@ -14,10 +14,10 @@ class m190724_203851_apply_initial_fixtures extends Migration {
         $now = time();
 
         //Roles
-        $this->insert('auth_role', ['name' => 'Administrador']);
-        $this->insert('auth_role', ['name' => 'Gerente']);
-        $this->insert('auth_role', ['name' => 'Mesero']);
-        $this->insert('auth_role', ['name' => 'Elaborador']);
+        $this->insert('auth_role', ['name' => 'Administrador del Sistema', 'description' => 'Edita las sucursales y administra el acceso a la aplicación.']);
+        $this->insert('auth_role', ['name' => 'Gerente de Sucursal', 'description' => 'Edita los datos de su sucursal.']);
+        $this->insert('auth_role', ['name' => 'Mesero', 'description' => 'Atiende a los clientes y toma sus órdenes.']);
+        $this->insert('auth_role', ['name' => 'Elaborador', 'description' => 'Elabora las órdenes de los clientes.']);
 
         //Administrador
         $this->insert('auth_user', [
@@ -121,12 +121,21 @@ class m190724_203851_apply_initial_fixtures extends Migration {
             'created_at' => $now,
             'updated_at' => $now
         ]);
+        
+        //Superusuario - todos los roles
+        $this->insert('auth_user', [
+            'first_name' => 'Brandon', 'last_name' => 'Stark', 'username' => 'superadmin',
+            'auth_key' => Yii::$app->security->generateRandomString(32),
+            'verification_token' => Yii::$app->security->generateRandomString(32),
+            'password_hash' => Yii::$app->security->generatePasswordHash('a'),
+            'email' => 'superadmin@server.com',
+            'status' => 10,
+            'created_at' => $now,
+            'updated_at' => $now
+        ]);
 
         //Roles y usuarios
         $this->insert('auth_user_role', ['user_id' => 1, 'role_id' => 1]);
-        $this->insert('auth_user_role', ['user_id' => 1, 'role_id' => 2]);
-        $this->insert('auth_user_role', ['user_id' => 1, 'role_id' => 3]);
-        $this->insert('auth_user_role', ['user_id' => 1, 'role_id' => 4]);
         $this->insert('auth_user_role', ['user_id' => 2, 'role_id' => 2]);
         $this->insert('auth_user_role', ['user_id' => 3, 'role_id' => 2]);
         $this->insert('auth_user_role', ['user_id' => 4, 'role_id' => 3]);
@@ -135,70 +144,77 @@ class m190724_203851_apply_initial_fixtures extends Migration {
         $this->insert('auth_user_role', ['user_id' => 7, 'role_id' => 4]);
         $this->insert('auth_user_role', ['user_id' => 8, 'role_id' => 4]);
         $this->insert('auth_user_role', ['user_id' => 9, 'role_id' => 4]);
+        $this->insert('auth_user_role', ['user_id' => 10, 'role_id' => 1]);
+        $this->insert('auth_user_role', ['user_id' => 10, 'role_id' => 2]);
+        $this->insert('auth_user_role', ['user_id' => 10, 'role_id' => 3]);
+        $this->insert('auth_user_role', ['user_id' => 10, 'role_id' => 4]);
         
-        //Modulos
-        $this->insert('auth_module', ['name' => 'Seguridad', 'slug' => 'seguridad']);
-        $this->insert('auth_module', ['name' => 'Administracion de Sucursal', 'slug' => 'sucursal']);
-        $this->insert('auth_module', ['name' => 'Clientes', 'slug' => 'ordenes']);
-        $this->insert('auth_module', ['name' => 'Sucursales', 'slug' => 'sucursales', 'parent_id' => 1]);   //4
-        $this->insert('auth_module', ['name' => 'Roles', 'slug' => 'roles', 'parent_id' => 1]);        //5
-        $this->insert('auth_module', ['name' => 'Usuarios', 'slug' => 'usuarios', 'parent_id' => 1]);     //6
-        $this->insert('auth_module', ['name' => 'Ingredientes', 'slug' => 'ingredientes', 'parent_id' => 2]); //7
-        $this->insert('auth_module', ['name' => 'Almacén', 'slug' => 'almacen', 'parent_id' => 2]);      //8
-        $this->insert('auth_module', ['name' => 'Productos', 'slug' => 'productos', 'parent_id' => 2]);    //9
-        $this->insert('auth_module', ['name' => 'Menú diario', 'slug' => 'menu-diario', 'parent_id' => 2]);  //10
-        $this->insert('auth_module', ['name' => 'Ordenes', 'slug' => 'ordenes', 'parent_id' => 3]);  //11
+        //Módulos
+        $this->insert('auth_module', ['name' => 'Seguridad', 'slug' => 'seguridad', 'icon' => 'security']);
+        $this->insert('auth_module', ['name' => 'Administración de Sucursal', 'slug' => 'sucursal', 'icon' => 'settings']);
+        $this->insert('auth_module', ['name' => 'Clientes', 'slug' => 'ordenes', 'icon' => 'face']);
+        $this->insert('auth_module', ['name' => 'Sucursales', 'slug' => 'sucursales', 'parent_id' => 1, 'icon' => 'domain']);   //4
+        $this->insert('auth_module', ['name' => 'Roles', 'slug' => 'roles', 'parent_id' => 1, 'icon' => 'assignment_ind']);        //5
+        $this->insert('auth_module', ['name' => 'Usuarios', 'slug' => 'usuarios', 'parent_id' => 1, 'icon' => 'supervisor_account']);     //6
+        $this->insert('auth_module', ['name' => 'Ingredientes', 'slug' => 'ingredientes', 'parent_id' => 2, 'icon' => 'local_library']); //7
+        $this->insert('auth_module', ['name' => 'Almacén', 'slug' => 'almacén', 'parent_id' => 2, 'icon' => 'store']);      //8
+        $this->insert('auth_module', ['name' => 'Productos', 'slug' => 'productos', 'parent_id' => 2, 'icon' => 'shopping_cart']);    //9
+        $this->insert('auth_module', ['name' => 'Menú diario', 'slug' => 'menu-diario', 'parent_id' => 2, 'icon' => 'assignment']);  //10
+        $this->insert('auth_module', ['name' => 'Órdenes', 'slug' => 'ordenes', 'parent_id' => 3, 'icon' => 'local_dining']);  //11
         
-        //Permisos del submodulo "Sucursales"
-        $this->insert('auth_permission', ['name' => 'Mostrar', 'route' => 'listar', 'module_id' => 4]);
-        $this->insert('auth_permission', ['name' => 'Crear', 'route' => 'crear', 'module_id' => 4]);
-        $this->insert('auth_permission', ['name' => 'Editar', 'route' => 'editar', 'module_id' => 4]);
-        $this->insert('auth_permission', ['name' => 'Eliminar', 'route' => 'eliminar', 'module_id' => 4]);
+        //Permisos del submódulo "Sucursales"
+        $this->insert('auth_permission', ['name' => 'Mostrar', 'slug' => 'listar', 'module_id' => 4]);
+        $this->insert('auth_permission', ['name' => 'Crear', 'slug' => 'crear', 'module_id' => 4]);
+        $this->insert('auth_permission', ['name' => 'Editar', 'slug' => 'editar', 'module_id' => 4]);
+        $this->insert('auth_permission', ['name' => 'Eliminar', 'slug' => 'eliminar', 'module_id' => 4]);
         
-        //Permisos del submodulo "Roles"
-        $this->insert('auth_permission', ['name' => 'Mostrar', 'route' => 'listar', 'module_id' => 5]);
-        $this->insert('auth_permission', ['name' => 'Crear', 'route' => 'crear', 'module_id' => 5]);
-        $this->insert('auth_permission', ['name' => 'Editar', 'route' => 'editar', 'module_id' => 5]);
-        $this->insert('auth_permission', ['name' => 'Eliminar', 'route' => 'eliminar', 'module_id' => 5]);
+        //Permisos del submódulo "Roles"
+        $this->insert('auth_permission', ['name' => 'Mostrar', 'slug' => 'listar', 'module_id' => 5]);
+        $this->insert('auth_permission', ['name' => 'Crear', 'slug' => 'crear', 'module_id' => 5]);
+        $this->insert('auth_permission', ['name' => 'Editar', 'slug' => 'editar', 'module_id' => 5]);
+        $this->insert('auth_permission', ['name' => 'Eliminar', 'slug' => 'eliminar', 'module_id' => 5]);
         
-        //Permisos del submodulo "Usuarios"
-        $this->insert('auth_permission', ['name' => 'Mostrar', 'route' => 'listar', 'module_id' => 6]);
-        $this->insert('auth_permission', ['name' => 'Crear', 'route' => 'crear', 'module_id' => 6]);
-        $this->insert('auth_permission', ['name' => 'Editar', 'route' => 'editar', 'module_id' => 6]);
-        $this->insert('auth_permission', ['name' => 'Eliminar', 'route' => 'eliminar', 'module_id' => 6]);
+        //Permisos del submódulo "Usuarios"
+        $this->insert('auth_permission', ['name' => 'Mostrar', 'slug' => 'listar', 'module_id' => 6]);
+        $this->insert('auth_permission', ['name' => 'Crear', 'slug' => 'crear', 'module_id' => 6]);
+        $this->insert('auth_permission', ['name' => 'Editar', 'slug' => 'editar', 'module_id' => 6]);
+        $this->insert('auth_permission', ['name' => 'Eliminar', 'slug' => 'eliminar', 'module_id' => 6]);
         
-        //Permisos del submodulo "Ingredientes"
-        $this->insert('auth_permission', ['name' => 'Mostrar', 'route' => 'listar', 'module_id' => 7]);
-        $this->insert('auth_permission', ['name' => 'Crear', 'route' => 'crear', 'module_id' => 7]);
-        $this->insert('auth_permission', ['name' => 'Editar', 'route' => 'editar', 'module_id' => 7]);
-        $this->insert('auth_permission', ['name' => 'Eliminar', 'route' => 'eliminar', 'module_id' => 7]);
+        //Permisos del submódulo "Ingredientes"
+        $this->insert('auth_permission', ['name' => 'Mostrar', 'slug' => 'listar', 'module_id' => 7]);
+        $this->insert('auth_permission', ['name' => 'Crear', 'slug' => 'crear', 'module_id' => 7]);
+        $this->insert('auth_permission', ['name' => 'Editar', 'slug' => 'editar', 'module_id' => 7]);
+        $this->insert('auth_permission', ['name' => 'Eliminar', 'slug' => 'eliminar', 'module_id' => 7]);
         
-        //Permisos del submodulo "Almacen"
-        $this->insert('auth_permission', ['name' => 'Mostrar contenido', 'route' => 'listar', 'module_id' => 8]);
-        $this->insert('auth_permission', ['name' => 'Crear', 'route' => 'crear', 'module_id' => 8]);
-        $this->insert('auth_permission', ['name' => 'Editar', 'route' => 'editar', 'module_id' => 8]);
-        $this->insert('auth_permission', ['name' => 'Eliminar', 'route' => 'eliminar', 'module_id' => 8]);
+        //Permisos del submódulo "Almacén"
+        $this->insert('auth_permission', ['name' => 'Mostrar contenido', 'slug' => 'listar', 'module_id' => 8]);
+        $this->insert('auth_permission', ['name' => 'Crear', 'slug' => 'crear', 'module_id' => 8]);
+        $this->insert('auth_permission', ['name' => 'Editar', 'slug' => 'editar', 'module_id' => 8]);
+        $this->insert('auth_permission', ['name' => 'Eliminar', 'slug' => 'eliminar', 'module_id' => 8]);
         
-        //Permisos del submodulo "Productos"
-        $this->insert('auth_permission', ['name' => 'Mostrar', 'route' => 'listar', 'module_id' => 9]);
-        $this->insert('auth_permission', ['name' => 'Crear', 'route' => 'crear', 'module_id' => 9]);
-        $this->insert('auth_permission', ['name' => 'Editar', 'route' => 'editar', 'module_id' => 9]);
-        $this->insert('auth_permission', ['name' => 'Eliminar', 'route' => 'eliminar', 'module_id' => 9]);
+        //Permisos del submódulo "Productos"
+        $this->insert('auth_permission', ['name' => 'Mostrar', 'slug' => 'listar', 'module_id' => 9]);
+        $this->insert('auth_permission', ['name' => 'Crear', 'slug' => 'crear', 'module_id' => 9]);
+        $this->insert('auth_permission', ['name' => 'Editar', 'slug' => 'editar', 'module_id' => 9]);
+        $this->insert('auth_permission', ['name' => 'Eliminar', 'slug' => 'eliminar', 'module_id' => 9]);
         
-        //Permisos del submodulo "Menu diario"
-        $this->insert('auth_permission', ['name' => 'Mostrar menu de hoy', 'route' => 'listar', 'module_id' => 10]);
-        $this->insert('auth_permission', ['name' => 'Mostrar menu anterior', 'route' => 'anterior', 'module_id' => 10]);
-        $this->insert('auth_permission', ['name' => 'Crear', 'route' => 'crear', 'module_id' => 10]);
-        $this->insert('auth_permission', ['name' => 'Editar', 'route' => 'editar', 'module_id' => 10]);
-        $this->insert('auth_permission', ['name' => 'Eliminar', 'route' => 'eliminar', 'module_id' => 10]);
+        //Permisos del submódulo "Menú diario"
+        $this->insert('auth_permission', ['name' => 'Mostrar menú de hoy', 'slug' => 'listar', 'module_id' => 10]);
+        $this->insert('auth_permission', ['name' => 'Mostrar menú anterior', 'slug' => 'anterior', 'module_id' => 10]);
+        $this->insert('auth_permission', ['name' => 'Crear', 'slug' => 'crear', 'module_id' => 10]);
+        $this->insert('auth_permission', ['name' => 'Editar', 'slug' => 'editar', 'module_id' => 10]);
+        $this->insert('auth_permission', ['name' => 'Eliminar', 'slug' => 'eliminar', 'module_id' => 10]);
 
-        //Permisos del submodulo "Ordenes"
-        $this->insert('auth_permission', ['name' => 'Listar', 'route' => 'listar', 'module_id' => 11]);
-        $this->insert('auth_permission', ['name' => 'Crear', 'route' => 'crear', 'module_id' => 11]);
-        $this->insert('auth_permission', ['name' => 'Editar', 'route' => 'editar', 'module_id' => 11]);
-        $this->insert('auth_permission', ['name' => 'Cancelar', 'route' => 'eliminar', 'module_id' => 11]);
-        $this->insert('auth_permission', ['name' => 'Elaborar', 'route' => 'elaborar', 'module_id' => 11]);
-        $this->insert('auth_permission', ['name' => 'Cerrar cuenta', 'route' => 'cerrar', 'module_id' => 11]);
+        //Permisos del submódulo "Órdenes"
+        $this->insert('auth_permission', ['name' => 'Listar', 'slug' => 'listar', 'module_id' => 11]);
+        $this->insert('auth_permission', ['name' => 'Crear', 'slug' => 'crear', 'module_id' => 11]);
+        $this->insert('auth_permission', ['name' => 'Editar', 'slug' => 'editar', 'module_id' => 11]);
+        $this->insert('auth_permission', ['name' => 'Cancelar', 'slug' => 'eliminar', 'module_id' => 11]);
+        $this->insert('auth_permission', ['name' => 'Elaborar', 'slug' => 'elaborar', 'module_id' => 11]);
+        $this->insert('auth_permission', ['name' => 'Cerrar cuenta', 'slug' => 'cerrar', 'module_id' => 11]);
+        
+        //Permisos extra
+        $this->insert('auth_permission', ['name' => 'Editar permisos', 'slug' => 'editar-permisos', 'module_id' => 5]); //ID 36 - Editar permisos del rol
         
         //Permisos del Administrador
         $this->insert('auth_permission_role', ['perm_id' => 1, 'role_id' => 1]);
@@ -213,6 +229,7 @@ class m190724_203851_apply_initial_fixtures extends Migration {
         $this->insert('auth_permission_role', ['perm_id' => 10, 'role_id' => 1]);
         $this->insert('auth_permission_role', ['perm_id' => 11, 'role_id' => 1]);
         $this->insert('auth_permission_role', ['perm_id' => 12, 'role_id' => 1]);
+        $this->insert('auth_permission_role', ['perm_id' => 36, 'role_id' => 1]);
         
         //Permisos del Gerente
         $this->insert('auth_permission_role', ['perm_id' => 13, 'role_id' => 2]);

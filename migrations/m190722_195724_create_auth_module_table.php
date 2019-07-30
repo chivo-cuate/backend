@@ -15,6 +15,7 @@ class m190722_195724_create_auth_module_table extends Migration {
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
             'slug' => $this->string(25),
+            'icon' => $this->string(50),
             'parent_id' => $this->integer(),
             'description' => $this->string(100),
         ]);

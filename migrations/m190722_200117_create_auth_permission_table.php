@@ -15,7 +15,7 @@ class m190722_200117_create_auth_permission_table extends Migration
         $this->createTable('{{%auth_permission}}', [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
-            'route' => $this->string()->notNull(),
+            'slug' => $this->string()->notNull(),
             'description' => $this->string(),
             'module_id' => $this->integer()->notNull(),
         ]);
