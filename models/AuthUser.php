@@ -11,7 +11,10 @@ use Yii;
  * @property string $username
  * @property string $first_name
  * @property string $last_name
+ * @property string $ine
+ * @property string $address
  * @property string $phone_number
+ * @property string $sex
  * @property string $auth_key
  * @property string $verification_token
  * @property string $password_hash
@@ -43,11 +46,13 @@ class AuthUser extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['username', 'first_name', 'last_name', 'auth_key', 'verification_token', 'password_hash', 'email', 'created_at', 'updated_at'], 'required'],
+            [['username', 'first_name', 'last_name', 'ine', 'auth_key', 'verification_token', 'password_hash', 'email', 'created_at', 'updated_at'], 'required'],
             [['status', 'created_at', 'updated_at'], 'integer'],
-            [['username', 'first_name', 'last_name', 'phone_number', 'password_hash', 'email'], 'string', 'max' => 255],
+            [['username', 'first_name', 'last_name', 'ine', 'address', 'phone_number', 'password_hash', 'email'], 'string', 'max' => 255],
+            [['sex'], 'string', 'max' => 1],
             [['auth_key', 'verification_token', 'password_reset_token'], 'string', 'max' => 32],
             [['username'], 'unique'],
+            [['ine'], 'unique'],
             [['auth_key'], 'unique'],
             [['verification_token'], 'unique'],
             [['email'], 'unique'],
@@ -61,19 +66,22 @@ class AuthUser extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('app', 'ID'),
-            'username' => Yii::t('app', 'Username'),
-            'first_name' => Yii::t('app', 'First Name'),
-            'last_name' => Yii::t('app', 'Last Name'),
-            'phone_number' => Yii::t('app', 'Phone Number'),
-            'auth_key' => Yii::t('app', 'Auth Key'),
-            'verification_token' => Yii::t('app', 'Verification Token'),
-            'password_hash' => Yii::t('app', 'Password Hash'),
-            'password_reset_token' => Yii::t('app', 'Password Reset Token'),
-            'email' => Yii::t('app', 'Email'),
-            'status' => Yii::t('app', 'Status'),
-            'created_at' => Yii::t('app', 'Created At'),
-            'updated_at' => Yii::t('app', 'Updated At'),
+            'id' => 'ID',
+            'username' => 'Username',
+            'first_name' => 'First Name',
+            'last_name' => 'Last Name',
+            'ine' => 'Ine',
+            'address' => 'Address',
+            'phone_number' => 'Phone Number',
+            'sex' => 'Sex',
+            'auth_key' => 'Auth Key',
+            'verification_token' => 'Verification Token',
+            'password_hash' => 'Password Hash',
+            'password_reset_token' => 'Password Reset Token',
+            'email' => 'Email',
+            'status' => 'Status',
+            'created_at' => 'Created At',
+            'updated_at' => 'Updated At',
         ];
     }
 

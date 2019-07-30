@@ -27,6 +27,8 @@ class m190724_203851_apply_initial_fixtures extends Migration {
             'password_hash' => Yii::$app->security->generatePasswordHash('a'),
             'email' => 'admin@server.com',
             'status' => 10,
+            'sex' => 'M',
+            'ine' => strtoupper(Yii::$app->security->generateRandomString(10)),
             'created_at' => $now,
             'updated_at' => $now
         ]);
@@ -39,6 +41,8 @@ class m190724_203851_apply_initial_fixtures extends Migration {
             'password_hash' => Yii::$app->security->generatePasswordHash('a'),
             'email' => 'gerente1@server.com',
             'status' => 10,
+            'sex' => 'F',
+            'ine' => strtoupper(Yii::$app->security->generateRandomString(10)),
             'created_at' => $now,
             'updated_at' => $now
         ]);
@@ -50,6 +54,8 @@ class m190724_203851_apply_initial_fixtures extends Migration {
             'password_hash' => Yii::$app->security->generatePasswordHash('a'),
             'email' => 'gerente2@server.com',
             'status' => 10,
+            'sex' => 'F',
+            'ine' => strtoupper(Yii::$app->security->generateRandomString(10)),
             'created_at' => $now,
             'updated_at' => $now
         ]);
@@ -62,6 +68,8 @@ class m190724_203851_apply_initial_fixtures extends Migration {
             'password_hash' => Yii::$app->security->generatePasswordHash('a'),
             'email' => 'mesero1@server.com',
             'status' => 10,
+            'sex' => 'M',
+            'ine' => strtoupper(Yii::$app->security->generateRandomString(10)),
             'created_at' => $now,
             'updated_at' => $now
         ]);
@@ -73,6 +81,8 @@ class m190724_203851_apply_initial_fixtures extends Migration {
             'password_hash' => Yii::$app->security->generatePasswordHash('a'),
             'email' => 'mesero2@server.com',
             'status' => 10,
+            'sex' => 'M',
+            'ine' => strtoupper(Yii::$app->security->generateRandomString(10)),
             'created_at' => $now,
             'updated_at' => $now
         ]);
@@ -84,6 +94,8 @@ class m190724_203851_apply_initial_fixtures extends Migration {
             'password_hash' => Yii::$app->security->generatePasswordHash('a'),
             'email' => 'mesero3@server.com',
             'status' => 10,
+            'sex' => 'M',
+            'ine' => strtoupper(Yii::$app->security->generateRandomString(10)),
             'created_at' => $now,
             'updated_at' => $now
         ]);
@@ -96,6 +108,8 @@ class m190724_203851_apply_initial_fixtures extends Migration {
             'password_hash' => Yii::$app->security->generatePasswordHash('a'),
             'email' => 'elab1@server.com',
             'status' => 10,
+            'sex' => 'F',
+            'ine' => strtoupper(Yii::$app->security->generateRandomString(10)),
             'created_at' => $now,
             'updated_at' => $now
         ]);
@@ -107,6 +121,8 @@ class m190724_203851_apply_initial_fixtures extends Migration {
             'password_hash' => Yii::$app->security->generatePasswordHash('a'),
             'email' => 'elab2@server.com',
             'status' => 10,
+            'sex' => 'M',
+            'ine' => strtoupper(Yii::$app->security->generateRandomString(10)),
             'created_at' => $now,
             'updated_at' => $now
         ]);
@@ -118,6 +134,8 @@ class m190724_203851_apply_initial_fixtures extends Migration {
             'password_hash' => Yii::$app->security->generatePasswordHash('a'),
             'email' => 'elab3@server.com',
             'status' => 10,
+            'sex' => 'M',
+            'ine' => strtoupper(Yii::$app->security->generateRandomString(10)),
             'created_at' => $now,
             'updated_at' => $now
         ]);
@@ -130,6 +148,8 @@ class m190724_203851_apply_initial_fixtures extends Migration {
             'password_hash' => Yii::$app->security->generatePasswordHash('a'),
             'email' => 'superadmin@server.com',
             'status' => 10,
+            'sex' => 'M',
+            'ine' => strtoupper(Yii::$app->security->generateRandomString(10)),
             'created_at' => $now,
             'updated_at' => $now
         ]);
@@ -214,7 +234,7 @@ class m190724_203851_apply_initial_fixtures extends Migration {
         $this->insert('auth_permission', ['name' => 'Cerrar cuenta', 'slug' => 'cerrar', 'module_id' => 11]);
         
         //Permisos extra
-        $this->insert('auth_permission', ['name' => 'Editar permisos', 'slug' => 'editar-permisos', 'module_id' => 5]); //ID 36 - Editar permisos del rol
+        $this->insert('auth_permission', ['name' => 'Editar permisos', 'slug' => 'editar-permisos', 'module_id' => 5]); //id 36 - Editar permisos del rol
         
         //Permisos del Administrador
         $this->insert('auth_permission_role', ['perm_id' => 1, 'role_id' => 1]);
