@@ -38,10 +38,10 @@ class Branch extends \yii\db\ActiveRecord
     {
         return [
             [['name', 'tables'], 'required'],
-            [['name', ], 'unique'],
             [['tables'], 'integer'],
             [['name'], 'string', 'max' => 50],
             [['description'], 'string', 'max' => 128],
+            [['name'], 'unique'],
         ];
     }
 
@@ -51,10 +51,10 @@ class Branch extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('app', 'ID'),
-            'name' => Yii::t('app', 'Name'),
-            'tables' => Yii::t('app', 'Tables'),
-            'description' => Yii::t('app', 'Description'),
+            'id' => 'ID',
+            'name' => 'Name',
+            'tables' => 'Tables',
+            'description' => 'Description',
         ];
     }
 

@@ -1,1 +1,17 @@
-yii gii/model  --tableName=auth_user --modelClass=AuthUser --ns=app\models --db=db
+start yii gii/model  --tableName=app_config --modelClass=AppConfig --ns=app\models --db=db
+start yii gii/model  --tableName=auth_module --modelClass=AuthModule --ns=app\models --db=db
+start yii gii/model  --tableName=auth_permission --modelClass=AuthPermission --ns=app\models --db=db
+start yii gii/model  --tableName=auth_permission_role --modelClass=AuthPermissionRole --ns=app\models --db=db
+start yii gii/model  --tableName=auth_role --modelClass=AuthRole --ns=app\models --db=db
+start yii gii/model  --tableName=auth_user --modelClass=AuthUser --ns=app\models --db=db
+start yii gii/model  --tableName=auth_user_role --modelClass=AuthUserRole --ns=app\models --db=db
+start yii gii/model  --tableName=branch --modelClass=Branch --ns=app\models --db=db
+start yii gii/model  --tableName=branch_user --modelClass=BranchUser --ns=app\models --db=db
+start yii gii/model  --tableName=daily_menu --modelClass=DailyMenu --ns=app\models --db=db
+start yii gii/model  --tableName=daily_menu_product --modelClass=DailyMenuProduct --ns=app\models --db=db
+start yii gii/model  --tableName=ingredient --modelClass=Ingredient --ns=app\models --db=db
+start yii gii/model  --tableName=order --modelClass=Order --ns=app\models --db=db
+start yii gii/model  --tableName=order_product --modelClass=OrderProduct --ns=app\models --db=db
+start yii gii/model  --tableName=product --modelClass=Product --ns=app\models --db=db
+start yii gii/model  --tableName=stock --modelClass=Stock --ns=app\models --db=db
+start yii gii/model  --tableName=measure_unit --modelClass=MeasureUnit --ns=app\models --db=db

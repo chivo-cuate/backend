@@ -2,16 +2,16 @@
 
 namespace app\controllers;
 
-use app\models\Ingredient;
+use app\models\Product;
 use app\utilities\Utilities;
 use Exception;
 
-class IngredientesController extends MyRestController {
+class ProductosController extends MyRestController {
 
-    public $modelClass = Ingredient::class;
+    public $modelClass = Product::class;
 
     private function _getItems() {
-        return Ingredient::findAll(['branch_id' => $this->requestParams['branch_id']]);
+        return Product::findAll(['branch_id' => $this->requestParams['branch_id']]);
     }
 
     public function actionListar() {
@@ -24,7 +24,7 @@ class IngredientesController extends MyRestController {
 
     public function actionCrear() {
         try {
-            $item = new Ingredient(['name' => $this->requestParams['item']['name'], 'branch_id' => $this->requestParams['branch_id']]);
+            $item = new Product(['name' => $this->requestParams['item']['name'], 'branch_id' => $this->requestParams['branch_id']]);
             if ($item->validate()) {
                 $item->save();
                 return ['code' => 'success', 'msg' => 'Operación realizada con éxito.', 'data' => $this->_getItems()];
@@ -37,7 +37,7 @@ class IngredientesController extends MyRestController {
 
     public function actionEditar() {
         try {
-            $item = Ingredient::findOne($this->requestParams['item']['id']);
+            $item = Product::findOne($this->requestParams['item']['id']);
             if (!$item) {
                 return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => []];
             }
@@ -54,7 +54,7 @@ class IngredientesController extends MyRestController {
 
     public function actionEliminar() {
         try {
-            $item = Ingredient::findOne($this->requestParams['id']);
+            $item = Product::findOne($this->requestParams['id']);
             if (!$item) {
                 return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => []];
             }

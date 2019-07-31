@@ -46,11 +46,11 @@ class AuthPermission extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('app', 'ID'),
-            'name' => Yii::t('app', 'Name'),
-            'slug' => Yii::t('app', 'Route'),
-            'description' => Yii::t('app', 'Description'),
-            'module_id' => Yii::t('app', 'Module ID'),
+            'id' => 'ID',
+            'name' => 'Name',
+            'slug' => 'Slug',
+            'description' => 'Description',
+            'module_id' => 'Module ID',
         ];
     }
 

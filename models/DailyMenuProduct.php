@@ -47,11 +47,11 @@ class DailyMenuProduct extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('app', 'ID'),
-            'menu_id' => Yii::t('app', 'Menu ID'),
-            'product_id' => Yii::t('app', 'Product ID'),
-            'price' => Yii::t('app', 'Price'),
-            'grams' => Yii::t('app', 'Grams'),
+            'id' => 'ID',
+            'menu_id' => 'Menu ID',
+            'product_id' => 'Product ID',
+            'price' => 'Price',
+            'grams' => 'Grams',
         ];
     }
 

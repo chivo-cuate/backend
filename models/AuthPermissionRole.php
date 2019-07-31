@@ -44,9 +44,9 @@ class AuthPermissionRole extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('app', 'ID'),
-            'perm_id' => Yii::t('app', 'Perm ID'),
-            'role_id' => Yii::t('app', 'Role ID'),
+            'id' => 'ID',
+            'perm_id' => 'Perm ID',
+            'role_id' => 'Role ID',
         ];
     }
 

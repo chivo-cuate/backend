@@ -12,7 +12,7 @@ use Yii;
  * @property int $branch_id
  *
  * @property Branch $branch
- * @property Stock $stock
+ * @property Stock[] $stocks
  * @property Branch[] $branches
  */
 class Ingredient extends \yii\db\ActiveRecord
@@ -45,9 +45,9 @@ class Ingredient extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('app', 'ID'),
-            'name' => Yii::t('app', 'Name'),
-            'branch_id' => Yii::t('app', 'Branch ID'),
+            'id' => 'ID',
+            'name' => 'Name',
+            'branch_id' => 'Branch ID',
         ];
     }
 
@@ -62,9 +62,9 @@ class Ingredient extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getStock()
+    public function getStocks()
     {
-        return $this->hasOne(Stock::className(), ['ingredient_id' => 'id']);
+        return $this->hasMany(Stock::className(), ['ingredient_id' => 'id']);
     }
 
     /**

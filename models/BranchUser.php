@@ -44,9 +44,9 @@ class BranchUser extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('app', 'ID'),
-            'branch_id' => Yii::t('app', 'Branch ID'),
-            'user_id' => Yii::t('app', 'User ID'),
+            'id' => 'ID',
+            'branch_id' => 'Branch ID',
+            'user_id' => 'User ID',
         ];
     }
 

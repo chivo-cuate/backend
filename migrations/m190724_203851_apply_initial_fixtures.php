@@ -171,23 +171,24 @@ class m190724_203851_apply_initial_fixtures extends Migration {
         
         //Módulos
         $this->insert('auth_module', ['name' => 'Seguridad', 'slug' => 'seguridad', 'icon' => 'security']);
-        $this->insert('auth_module', ['name' => 'Administración de Sucursal', 'slug' => 'sucursal', 'icon' => 'settings']);
+        $this->insert('auth_module', ['name' => 'Mi Sucursal', 'slug' => 'sucursal', 'icon' => 'location_city']);
         $this->insert('auth_module', ['name' => 'Clientes', 'slug' => 'ordenes', 'icon' => 'face']);
-        $this->insert('auth_module', ['name' => 'Sucursales', 'slug' => 'sucursales', 'parent_id' => 1, 'icon' => 'domain']);   //4
+        $this->insert('auth_module', ['name' => 'Sucursales', 'slug' => 'sucursales', 'icon' => 'domain']);
         $this->insert('auth_module', ['name' => 'Roles', 'slug' => 'roles', 'parent_id' => 1, 'icon' => 'assignment_ind']);        //5
         $this->insert('auth_module', ['name' => 'Usuarios', 'slug' => 'usuarios', 'parent_id' => 1, 'icon' => 'supervisor_account']);     //6
-        $this->insert('auth_module', ['name' => 'Ingredientes', 'slug' => 'ingredientes', 'parent_id' => 2, 'icon' => 'local_library']); //7
-        $this->insert('auth_module', ['name' => 'Almacén', 'slug' => 'almacén', 'parent_id' => 2, 'icon' => 'store']);      //8
-        $this->insert('auth_module', ['name' => 'Productos', 'slug' => 'productos', 'parent_id' => 2, 'icon' => 'shopping_cart']);    //9
+        $this->insert('auth_module', ['name' => 'Ingredientes', 'slug' => 'ingredientes', 'parent_id' => 2, 'icon' => 'mdi-food-variant']); //7
+        $this->insert('auth_module', ['name' => 'Almacén', 'slug' => 'almacen', 'parent_id' => 2, 'icon' => 'store']);      //8
+        $this->insert('auth_module', ['name' => 'Productos', 'slug' => 'productos', 'parent_id' => 2, 'icon' => 'mdi-food']);    //9
         $this->insert('auth_module', ['name' => 'Menú diario', 'slug' => 'menu-diario', 'parent_id' => 2, 'icon' => 'assignment']);  //10
         $this->insert('auth_module', ['name' => 'Órdenes', 'slug' => 'ordenes', 'parent_id' => 3, 'icon' => 'local_dining']);  //11
+        $this->insert('auth_module', ['name' => 'Sucursales', 'slug' => 'sucursales', 'parent_id' => 4, 'icon' => 'domain']);  //12
         
         //Permisos del submódulo "Sucursales"
-        $this->insert('auth_permission', ['name' => 'Mostrar', 'slug' => 'listar', 'module_id' => 4]);
-        $this->insert('auth_permission', ['name' => 'Crear', 'slug' => 'crear', 'module_id' => 4]);
-        $this->insert('auth_permission', ['name' => 'Editar', 'slug' => 'editar', 'module_id' => 4]);
-        $this->insert('auth_permission', ['name' => 'Eliminar', 'slug' => 'eliminar', 'module_id' => 4]);
-        
+        $this->insert('auth_permission', ['name' => 'Mostrar', 'slug' => 'listar', 'module_id' => 12]);
+        $this->insert('auth_permission', ['name' => 'Crear', 'slug' => 'crear', 'module_id' => 12]);
+        $this->insert('auth_permission', ['name' => 'Editar', 'slug' => 'editar', 'module_id' => 12]);
+        $this->insert('auth_permission', ['name' => 'Eliminar', 'slug' => 'eliminar', 'module_id' => 12]);
+
         //Permisos del submódulo "Roles"
         $this->insert('auth_permission', ['name' => 'Mostrar', 'slug' => 'listar', 'module_id' => 5]);
         $this->insert('auth_permission', ['name' => 'Crear', 'slug' => 'crear', 'module_id' => 5]);
@@ -297,7 +298,12 @@ class m190724_203851_apply_initial_fixtures extends Migration {
         $this->insert('branch_user', ['branch_id' => 2, 'user_id' => 8]);
         $this->insert('branch_user', ['branch_id' => 2, 'user_id' => 9]);
         
-        //Params globales
+        //Unidades de medida
+        $this->insert('measure_unit', ['name' => 'Kilogramos', 'abbr' => 'kgs']);
+        $this->insert('measure_unit', ['name' => 'Litros', 'abbr' => 'lts']);
+        $this->insert('measure_unit', ['name' => 'Unidades', 'abbr' => 'u']);
+        
+        //Parámetros globales
         $this->insert('app_config', [
             'app_title' => 'Taquería "El Chivo Cuate"',
             'about' => 'Aplicación para mi taquería',

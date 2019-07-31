@@ -50,16 +50,16 @@ class AppConfig extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('app', 'ID'),
-            'app_title' => Yii::t('app', 'App Title'),
-            'about' => Yii::t('app', 'About'),
-            'address' => Yii::t('app', 'Address'),
-            'phone' => Yii::t('app', 'Phone'),
-            'email_address' => Yii::t('app', 'Email Address'),
-            'email_password' => Yii::t('app', 'Email Password'),
-            'email_host' => Yii::t('app', 'Email Host'),
-            'email_port' => Yii::t('app', 'Email Port'),
-            'email_encryption' => Yii::t('app', 'Email Encryption'),
+            'id' => 'ID',
+            'app_title' => 'App Title',
+            'about' => 'About',
+            'address' => 'Address',
+            'phone' => 'Phone',
+            'email_address' => 'Email Address',
+            'email_password' => 'Email Password',
+            'email_host' => 'Email Host',
+            'email_port' => 'Email Port',
+            'email_encryption' => 'Email Encryption',
         ];
     }
 }

@@ -45,9 +45,9 @@ class DailyMenu extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('app', 'ID'),
-            'date' => Yii::t('app', 'Date'),
-            'branch_id' => Yii::t('app', 'Branch ID'),
+            'id' => 'ID',
+            'date' => 'Date',
+            'branch_id' => 'Branch ID',
         ];
     }
 

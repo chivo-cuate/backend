@@ -90,18 +90,22 @@ class SucursalesController extends MyRestController {
             } else {
                 return ['code' => 'error', 'msg' => Utilities::getModelErrorsString($item), 'data' => []];
             }
-            $newManager = User::findOne($params['manager_id']);
-            if (!$newManager || !$newManager->hasRole(2)) {
-                return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => []];
-            }
+
+            $newManager = User::findOne(isset($params['manager_id']) ? $params['manager_id'] : null);
             $currManager = $this->_getBranchManager($item);
             if ($currManager !== $newManager) {
                 if ($currManager) {
                     $branchUser = BranchUser::findOne(['branch_id' => $item->id, 'user_id' => $currManager->id]);
-                    $branchUser->delete();
+                    if ($branchUser) {
+                        $branchUser->delete();
+                    }
                 }
-                $newBranchUser = new BranchUser(['branch_id' => $item->id, 'user_id' => $newManager->id]);
-                $newBranchUser->save();
+                if ($newManager && $newManager->hasRole(2)) {
+                    $newBranchUser = new BranchUser(['branch_id' => $item->id, 'user_id' => $newManager->id]);
+                    if ($newBranchUser) {
+                        $newBranchUser->save();
+                    }
+                }
             }
             return ['code' => 'success', 'msg' => 'Operación realizada con éxito.', 'data' => $this->_getBranchesAndManagers()];
         } catch (Exception $exc) {
@@ -118,12 +122,13 @@ class SucursalesController extends MyRestController {
             } else {
                 return ['code' => 'error', 'msg' => Utilities::getModelErrorsString($item), 'data' => []];
             }
-            $newManager = User::findOne($params['manager_id']);
-            if (!$newManager || !$newManager->hasRole(2)) {
-                return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => []];
+            $newManager = User::findOne(isset($params['manager_id']) ? $params['manager_id'] : null);
+            if ($newManager && $newManager->hasRole(2)) {
+                $newBranchUser = new BranchUser(['branch_id' => $item->id, 'user_id' => $newManager->id]);
+                if ($newBranchUser) {
+                    $newBranchUser->save();
+                }
             }
-            $newBranchUser = new BranchUser(['branch_id' => $item->id, 'user_id' => $newManager->id]);
-            $newBranchUser->save();
             return ['code' => 'success', 'msg' => 'Operación realizada con éxito.', 'data' => $this->_getBranchesAndManagers()];
         } catch (Exception $exc) {
             return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];

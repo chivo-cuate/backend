@@ -48,12 +48,12 @@ class Order extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('app', 'ID'),
-            'date_time' => Yii::t('app', 'Date Time'),
-            'table_number' => Yii::t('app', 'Table Number'),
-            'status' => Yii::t('app', 'Status'),
-            'branch_id' => Yii::t('app', 'Branch ID'),
-            'user_id' => Yii::t('app', 'User ID'),
+            'id' => 'ID',
+            'date_time' => 'Date Time',
+            'table_number' => 'Table Number',
+            'status' => 'Status',
+            'branch_id' => 'Branch ID',
+            'user_id' => 'User ID',
         ];
     }
 
