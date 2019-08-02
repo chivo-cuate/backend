@@ -9,12 +9,13 @@ use Yii;
  *
  * @property int $id
  * @property double $quantity
- * @property int $ingredient_id
+ * @property double $price_in
+ * @property int $asset_id
  * @property int $measure_unit_id
  * @property int $branch_id
  *
+ * @property Asset $asset
  * @property Branch $branch
- * @property Ingredient $ingredient
  * @property MeasureUnit $measureUnit
  */
 class Stock extends \yii\db\ActiveRecord
@@ -33,12 +34,12 @@ class Stock extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['quantity'], 'number'],
-            [['ingredient_id', 'measure_unit_id', 'branch_id'], 'required'],
-            [['ingredient_id', 'measure_unit_id', 'branch_id'], 'integer'],
-            [['ingredient_id', 'branch_id'], 'unique', 'targetAttribute' => ['ingredient_id', 'branch_id']],
+            [['quantity', 'price_in'], 'number'],
+            [['asset_id', 'measure_unit_id', 'branch_id'], 'required'],
+            [['asset_id', 'measure_unit_id', 'branch_id'], 'integer'],
+            [['asset_id', 'branch_id', 'price_in'], 'unique', 'targetAttribute' => ['asset_id', 'branch_id', 'price_in']],
+            [['asset_id'], 'exist', 'skipOnError' => true, 'targetClass' => Asset::className(), 'targetAttribute' => ['asset_id' => 'id']],
             [['branch_id'], 'exist', 'skipOnError' => true, 'targetClass' => Branch::className(), 'targetAttribute' => ['branch_id' => 'id']],
-            [['ingredient_id'], 'exist', 'skipOnError' => true, 'targetClass' => Ingredient::className(), 'targetAttribute' => ['ingredient_id' => 'id']],
             [['measure_unit_id'], 'exist', 'skipOnError' => true, 'targetClass' => MeasureUnit::className(), 'targetAttribute' => ['measure_unit_id' => 'id']],
         ];
     }
@@ -51,7 +52,8 @@ class Stock extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'quantity' => 'Quantity',
-            'ingredient_id' => 'Ingredient ID',
+            'price_in' => 'Price In',
+            'asset_id' => 'Asset ID',
             'measure_unit_id' => 'Measure Unit ID',
             'branch_id' => 'Branch ID',
         ];
@@ -60,17 +62,17 @@ class Stock extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getBranch()
+    public function getAsset()
     {
-        return $this->hasOne(Branch::className(), ['id' => 'branch_id']);
+        return $this->hasOne(Asset::className(), ['id' => 'asset_id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getIngredient()
+    public function getBranch()
     {
-        return $this->hasOne(Ingredient::className(), ['id' => 'ingredient_id']);
+        return $this->hasOne(Branch::className(), ['id' => 'branch_id']);
     }
 
     /**

@@ -2,7 +2,8 @@
 
 namespace app\controllers;
 
-use app\models\Ingredient;
+use app\models\Asset;
+use app\models\AssetType;
 use app\models\MeasureUnit;
 use app\models\Stock;
 use app\utilities\Utilities;
@@ -12,20 +13,54 @@ class AlmacenController extends MyRestController {
 
     public $modelClass = Stock::class;
 
-    private function _getItems() {
+    private function _getStockItems() {
         $stockItems = Stock::find()->where(['branch_id' => $this->requestParams['branch_id']])->asArray()->all();
         foreach ($stockItems as &$stockItem) {
-            $stockItem['ingredient_name'] = Ingredient::findOne($stockItem['ingredient_id'])->name;
+            $stockItem['asset_name'] = Asset::findOne($stockItem['asset_id'])->name;
             $stockItem['measure_unit_name'] = MeasureUnit::findOne($stockItem['measure_unit_id'])->name;
+            $stockItem['quantity_desc'] = $stockItem['quantity'] . " " . strtolower($stockItem['measure_unit_name']);
         }
-        $ingredients = Ingredient::find()->where(['branch_id' => $this->requestParams['branch_id']])->asArray()->all();
-        $measureUnits = MeasureUnit::find()->asArray()->all();
-        return [$stockItems, $ingredients, $measureUnits];
+        return $stockItems;
+    }
+
+    private function _getActiveAssets() {
+        $assetTypes = AssetType::find()->orderBy(['name' => SORT_ASC])->all();
+        $assets = [];
+        foreach ($assetTypes as $assetType) {
+            $assetsByType = Asset::find()->where(['branch_id' => $this->requestParams['branch_id'], 'asset_type_id' => $assetType->id, 'status' => 1,])->asArray()->all();
+            if (count($assetsByType) > 0) {
+                $assets[]['header'] = $assetType->name;
+                foreach ($assetsByType as $assetByType) {
+                    $assets[] = [
+                        'id' => $assetByType['id'],
+                        'name' => $assetByType['name'],
+                        'group' => $assetType['name'],
+                    ];
+                }
+                $assets[]['divider'] = true;
+            }
+        }
+        if (count($assets) > 0) {
+            unset($assets[count($assets) - 1]);
+        }
+        return $assets;
+    }
+
+    private function _getReturnData() {
+        return [$this->_getStockItems(), $this->_getActiveAssets(), MeasureUnit::find()->asArray()->all()];
+    }
+
+    private function _getExisitingAssetInStock($assetId, $priceIn) {
+        return Stock::findOne([
+                    'asset_id' => $assetId,
+                    'price_in' => $priceIn,
+                    'branch_id' => $this->requestParams['branch_id'],
+        ]);
     }
 
     public function actionListar() {
         try {
-            return ['code' => 'success', 'msg' => 'Datos cargados.', 'data' => $this->_getItems()];
+            return ['code' => 'success', 'msg' => 'Datos cargados.', 'data' => $this->_getReturnData()];
         } catch (Exception $exc) {
             return $exc->getMessage();
         }
@@ -33,18 +68,19 @@ class AlmacenController extends MyRestController {
 
     public function actionCrear() {
         try {
-            $item = new Stock([
-                'quantity' => $this->requestParams['item']['quantity'],
-                'measure_unit_id' => $this->requestParams['item']['measure_unit_id'],
-                'ingredient_id' => $this->requestParams['item']['ingredient_id'],
-                'branch_id' => $this->requestParams['branch_id'],
-            ]);
-
-            if ($item->validate()) {
-                $item->save();
-                return ['code' => 'success', 'msg' => 'Operación realizada con éxito.', 'data' => $this->_getItems()];
+            $existingModel = $this->_getExisitingAssetInStock($this->requestParams['item']['asset_id'], $this->requestParams['item']['price_in']);
+            if ($existingModel) {
+                $existingModel->quantity += $this->requestParams['item']['quantity'];
+                $existingModel->save();
+                return ['code' => 'success', 'msg' => 'Operación realizada con éxito.', 'data' => $this->_getReturnData()];
             }
-            return ['code' => 'error', 'msg' => Utilities::getModelErrorsString($item), 'data' => []];
+            $model = new Stock();
+            $this->_setModelAttributes($model);
+            if ($model->validate()) {
+                $model->save();
+                return ['code' => 'success', 'msg' => 'Operación realizada con éxito.', 'data' => $this->_getReturnData()];
+            }
+            return ['code' => 'error', 'msg' => Utilities::getModelErrorsString($model), 'data' => []];
         } catch (Exception $exc) {
             return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
         }
@@ -59,11 +95,12 @@ class AlmacenController extends MyRestController {
             $item->setAttributes([
                 'quantity' => $this->requestParams['item']['quantity'],
                 'measure_unit_id' => $this->requestParams['item']['measure_unit_id'],
-                'ingredient_id' => $this->requestParams['item']['ingredient_id'],
+                'price_in' => $this->requestParams['item']['price_in'],
+                'asset_id' => $this->requestParams['item']['asset_id'],
             ]);
             if ($item->validate()) {
                 $item->save();
-                return ['code' => 'success', 'msg' => 'Operación realizada con éxito.', 'data' => $this->_getItems()];
+                return ['code' => 'success', 'msg' => 'Operación realizada con éxito.', 'data' => $this->_getReturnData()];
             }
             return ['code' => 'error', 'msg' => Utilities::getModelErrorsString($item), 'data' => []];
         } catch (Exception $exc) {
@@ -78,7 +115,7 @@ class AlmacenController extends MyRestController {
                 return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => []];
             }
             $item->delete();
-            return ['code' => 'success', 'msg' => 'Elemento eliminado.', 'data' => $this->_getItems()];
+            return ['code' => 'success', 'msg' => 'Elemento eliminado.', 'data' => $this->_getReturnData()];
         } catch (Exception $exc) {
             return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
         }

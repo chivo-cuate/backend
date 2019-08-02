@@ -16,8 +16,8 @@ use Yii;
  *
  * @property Branch $branch
  * @property AuthUser $user
- * @property OrderProduct[] $orderProducts
- * @property Product[] $products
+ * @property OrderAsset[] $orderAssets
+ * @property Asset[] $assets
  */
 class Order extends \yii\db\ActiveRecord
 {
@@ -76,16 +76,16 @@ class Order extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getOrderProducts()
+    public function getOrderAssets()
     {
-        return $this->hasMany(OrderProduct::className(), ['order_id' => 'id']);
+        return $this->hasMany(OrderAsset::className(), ['order_id' => 'id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getProducts()
+    public function getAssets()
     {
-        return $this->hasMany(Product::className(), ['id' => 'product_id'])->viaTable('order_product', ['order_id' => 'id']);
+        return $this->hasMany(Asset::className(), ['id' => 'asset_id'])->viaTable('order_asset', ['order_id' => 'id']);
     }
 }

@@ -21,7 +21,9 @@ class m190724_203851_apply_initial_fixtures extends Migration {
 
         //Administrador
         $this->insert('auth_user', [
-            'first_name' => 'Jon', 'last_name' => 'Snow', 'username' => 'admin',
+            'first_name' => 'Jorge',
+            'last_name' => 'Martínez',
+            'username' => 'admin',
             'auth_key' => Yii::$app->security->generateRandomString(32),
             'verification_token' => Yii::$app->security->generateRandomString(32),
             'password_hash' => Yii::$app->security->generatePasswordHash('a'),
@@ -35,7 +37,9 @@ class m190724_203851_apply_initial_fixtures extends Migration {
         
         //Gerentes
         $this->insert('auth_user', [
-            'first_name' => 'Arya', 'last_name' => 'Stark', 'username' => 'gerente1',
+            'first_name' => 'Joanna',
+            'last_name' => 'González',
+            'username' => 'gerente1',
             'auth_key' => Yii::$app->security->generateRandomString(32),
             'verification_token' => Yii::$app->security->generateRandomString(32),
             'password_hash' => Yii::$app->security->generatePasswordHash('a'),
@@ -48,7 +52,9 @@ class m190724_203851_apply_initial_fixtures extends Migration {
         ]);
         
         $this->insert('auth_user', [
-            'first_name' => 'Sansa', 'last_name' => 'Stark', 'username' => 'gerente2',
+            'first_name' => 'Jenny',
+            'last_name' => 'Echemendía',
+            'username' => 'gerente2',
             'auth_key' => Yii::$app->security->generateRandomString(32),
             'verification_token' => Yii::$app->security->generateRandomString(32),
             'password_hash' => Yii::$app->security->generatePasswordHash('a'),
@@ -62,20 +68,24 @@ class m190724_203851_apply_initial_fixtures extends Migration {
         
         //Meseros
         $this->insert('auth_user', [
-            'first_name' => 'Joffrey', 'last_name' => 'Baratheon', 'username' => 'mesero1',
+            'first_name' => 'Janet',
+            'last_name' => 'Rodríguez',
+            'username' => 'mesero1',
             'auth_key' => Yii::$app->security->generateRandomString(32),
             'verification_token' => Yii::$app->security->generateRandomString(32),
             'password_hash' => Yii::$app->security->generatePasswordHash('a'),
             'email' => 'mesero1@server.com',
             'status' => 10,
-            'sex' => 'M',
+            'sex' => 'F',
             'ine' => strtoupper(Yii::$app->security->generateRandomString(10)),
             'created_at' => $now,
             'updated_at' => $now
         ]);
         
         $this->insert('auth_user', [
-            'first_name' => 'Ramsay', 'last_name' => 'Snow', 'username' => 'mesero2',
+            'first_name' => 'Pedro',
+            'last_name' => 'Romero',
+            'username' => 'mesero2',
             'auth_key' => Yii::$app->security->generateRandomString(32),
             'verification_token' => Yii::$app->security->generateRandomString(32),
             'password_hash' => Yii::$app->security->generatePasswordHash('a'),
@@ -88,7 +98,9 @@ class m190724_203851_apply_initial_fixtures extends Migration {
         ]);
         
         $this->insert('auth_user', [
-            'first_name' => 'Euron', 'last_name' => 'Greyjoy', 'username' => 'mesero3',
+            'first_name' => 'Gabriel',
+            'last_name' => 'González',
+            'username' => 'mesero3',
             'auth_key' => Yii::$app->security->generateRandomString(32),
             'verification_token' => Yii::$app->security->generateRandomString(32),
             'password_hash' => Yii::$app->security->generatePasswordHash('a'),
@@ -102,7 +114,9 @@ class m190724_203851_apply_initial_fixtures extends Migration {
         
         //Elaboradores
         $this->insert('auth_user', [
-            'first_name' => 'Cersei', 'last_name' => 'Lannister', 'username' => 'elab1',
+            'first_name' => 'María',
+            'last_name' => 'Labrador',
+            'username' => 'elab1',
             'auth_key' => Yii::$app->security->generateRandomString(32),
             'verification_token' => Yii::$app->security->generateRandomString(32),
             'password_hash' => Yii::$app->security->generatePasswordHash('a'),
@@ -115,20 +129,24 @@ class m190724_203851_apply_initial_fixtures extends Migration {
         ]);
         
         $this->insert('auth_user', [
-            'first_name' => 'Jaime', 'last_name' => 'Lannister', 'username' => 'elab2',
+            'first_name' => 'Sofía',
+            'last_name' => 'Carrasco',
+            'username' => 'elab2',
             'auth_key' => Yii::$app->security->generateRandomString(32),
             'verification_token' => Yii::$app->security->generateRandomString(32),
             'password_hash' => Yii::$app->security->generatePasswordHash('a'),
             'email' => 'elab2@server.com',
             'status' => 10,
-            'sex' => 'M',
+            'sex' => 'F',
             'ine' => strtoupper(Yii::$app->security->generateRandomString(10)),
             'created_at' => $now,
             'updated_at' => $now
         ]);
         
         $this->insert('auth_user', [
-            'first_name' => 'Tywin', 'last_name' => 'Lannister', 'username' => 'elab3',
+            'first_name' => 'José',
+            'last_name' => 'Vega',
+            'username' => 'elab3',
             'auth_key' => Yii::$app->security->generateRandomString(32),
             'verification_token' => Yii::$app->security->generateRandomString(32),
             'password_hash' => Yii::$app->security->generatePasswordHash('a'),
@@ -142,7 +160,9 @@ class m190724_203851_apply_initial_fixtures extends Migration {
         
         //Superusuario - todos los roles
         $this->insert('auth_user', [
-            'first_name' => 'Brandon', 'last_name' => 'Stark', 'username' => 'superadmin',
+            'first_name' => 'Marlon',
+            'last_name' => 'Pérez',
+            'username' => 'superadmin',
             'auth_key' => Yii::$app->security->generateRandomString(32),
             'verification_token' => Yii::$app->security->generateRandomString(32),
             'password_hash' => Yii::$app->security->generatePasswordHash('a'),
@@ -177,8 +197,9 @@ class m190724_203851_apply_initial_fixtures extends Migration {
         $this->insert('auth_module', ['name' => 'Roles', 'slug' => 'roles', 'parent_id' => 1, 'icon' => 'assignment_ind']);        //5
         $this->insert('auth_module', ['name' => 'Usuarios', 'slug' => 'usuarios', 'parent_id' => 1, 'icon' => 'supervisor_account']);     //6
         $this->insert('auth_module', ['name' => 'Ingredientes', 'slug' => 'ingredientes', 'parent_id' => 2, 'icon' => 'mdi-food-variant']); //7
-        $this->insert('auth_module', ['name' => 'Almacén', 'slug' => 'almacen', 'parent_id' => 2, 'icon' => 'store']);      //8
-        $this->insert('auth_module', ['name' => 'Productos', 'slug' => 'productos', 'parent_id' => 2, 'icon' => 'mdi-food']);    //9
+        $this->insert('auth_module', ['name' => 'Productos', 'slug' => 'productos', 'parent_id' => 2, 'icon' => 'mdi-food']);    //8
+        $this->insert('auth_module', ['name' => 'Almacén', 'slug' => 'almacen', 'parent_id' => 2, 'icon' => 'store']);      //9
+        
         $this->insert('auth_module', ['name' => 'Menú diario', 'slug' => 'menu-diario', 'parent_id' => 2, 'icon' => 'assignment']);  //10
         $this->insert('auth_module', ['name' => 'Órdenes', 'slug' => 'ordenes', 'parent_id' => 3, 'icon' => 'local_dining']);  //11
         $this->insert('auth_module', ['name' => 'Sucursales', 'slug' => 'sucursales', 'parent_id' => 4, 'icon' => 'domain']);  //12
@@ -207,13 +228,13 @@ class m190724_203851_apply_initial_fixtures extends Migration {
         $this->insert('auth_permission', ['name' => 'Editar', 'slug' => 'editar', 'module_id' => 7]);
         $this->insert('auth_permission', ['name' => 'Eliminar', 'slug' => 'eliminar', 'module_id' => 7]);
         
-        //Permisos del submódulo "Almacén"
-        $this->insert('auth_permission', ['name' => 'Mostrar contenido', 'slug' => 'listar', 'module_id' => 8]);
+        //Permisos del submódulo "Productos"
+        $this->insert('auth_permission', ['name' => 'Mostrar', 'slug' => 'listar', 'module_id' => 8]);
         $this->insert('auth_permission', ['name' => 'Crear', 'slug' => 'crear', 'module_id' => 8]);
         $this->insert('auth_permission', ['name' => 'Editar', 'slug' => 'editar', 'module_id' => 8]);
         $this->insert('auth_permission', ['name' => 'Eliminar', 'slug' => 'eliminar', 'module_id' => 8]);
         
-        //Permisos del submódulo "Productos"
+        //Permisos del submódulo "Almacén"
         $this->insert('auth_permission', ['name' => 'Mostrar', 'slug' => 'listar', 'module_id' => 9]);
         $this->insert('auth_permission', ['name' => 'Crear', 'slug' => 'crear', 'module_id' => 9]);
         $this->insert('auth_permission', ['name' => 'Editar', 'slug' => 'editar', 'module_id' => 9]);
@@ -302,6 +323,10 @@ class m190724_203851_apply_initial_fixtures extends Migration {
         $this->insert('measure_unit', ['name' => 'Kilogramos', 'abbr' => 'kgs']);
         $this->insert('measure_unit', ['name' => 'Litros', 'abbr' => 'lts']);
         $this->insert('measure_unit', ['name' => 'Unidades', 'abbr' => 'u']);
+        
+        //Tipos de recursos
+        $this->insert('asset_type', ['name' => 'Ingrediente']);
+        $this->insert('asset_type', ['name' => 'Producto']);
         
         //Parámetros globales
         $this->insert('app_config', [

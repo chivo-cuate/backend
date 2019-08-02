@@ -5,24 +5,24 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "ingredient".
+ * This is the model class for table "menu".
  *
  * @property int $id
- * @property string $name
+ * @property string $date
  * @property int $branch_id
  *
  * @property Branch $branch
- * @property Stock[] $stocks
- * @property Branch[] $branches
+ * @property MenuAsset[] $menuAssets
+ * @property Asset[] $assets
  */
-class Ingredient extends \yii\db\ActiveRecord
+class Menu extends \yii\db\ActiveRecord
 {
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
-        return 'ingredient';
+        return 'menu';
     }
 
     /**
@@ -31,10 +31,10 @@ class Ingredient extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'branch_id'], 'required'],
+            [['date', 'branch_id'], 'required'],
+            [['date'], 'safe'],
             [['branch_id'], 'integer'],
-            [['name'], 'string', 'max' => 255],
-            [['name'], 'unique'],
+            [['date'], 'unique'],
             [['branch_id'], 'exist', 'skipOnError' => true, 'targetClass' => Branch::className(), 'targetAttribute' => ['branch_id' => 'id']],
         ];
     }
@@ -46,7 +46,7 @@ class Ingredient extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'name' => 'Name',
+            'date' => 'Date',
             'branch_id' => 'Branch ID',
         ];
     }
@@ -62,16 +62,16 @@ class Ingredient extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getStocks()
+    public function getMenuAssets()
     {
-        return $this->hasMany(Stock::className(), ['ingredient_id' => 'id']);
+        return $this->hasMany(MenuAsset::className(), ['menu_id' => 'id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getBranches()
+    public function getAssets()
     {
-        return $this->hasMany(Branch::className(), ['id' => 'branch_id'])->viaTable('stock', ['ingredient_id' => 'id']);
+        return $this->hasMany(Asset::className(), ['id' => 'asset_id'])->viaTable('menu_asset', ['menu_id' => 'id']);
     }
 }

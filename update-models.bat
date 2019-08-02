@@ -7,11 +7,11 @@ start yii gii/model  --tableName=auth_user --modelClass=AuthUser --ns=app\models
 start yii gii/model  --tableName=auth_user_role --modelClass=AuthUserRole --ns=app\models --db=db
 start yii gii/model  --tableName=branch --modelClass=Branch --ns=app\models --db=db
 start yii gii/model  --tableName=branch_user --modelClass=BranchUser --ns=app\models --db=db
-start yii gii/model  --tableName=daily_menu --modelClass=DailyMenu --ns=app\models --db=db
-start yii gii/model  --tableName=daily_menu_product --modelClass=DailyMenuProduct --ns=app\models --db=db
-start yii gii/model  --tableName=ingredient --modelClass=Ingredient --ns=app\models --db=db
+start yii gii/model  --tableName=menu --modelClass=Menu --ns=app\models --db=db
+start yii gii/model  --tableName=menu_asset --modelClass=MenuAsset --ns=app\models --db=db
 start yii gii/model  --tableName=order --modelClass=Order --ns=app\models --db=db
-start yii gii/model  --tableName=order_product --modelClass=OrderProduct --ns=app\models --db=db
-start yii gii/model  --tableName=product --modelClass=Product --ns=app\models --db=db
+start yii gii/model  --tableName=order_asset --modelClass=OrderAsset --ns=app\models --db=db
+start yii gii/model  --tableName=asset --modelClass=Asset --ns=app\models --db=db
+start yii gii/model  --tableName=asset_type --modelClass=AssetType --ns=app\models --db=db
 start yii gii/model  --tableName=stock --modelClass=Stock --ns=app\models --db=db
 start yii gii/model  --tableName=measure_unit --modelClass=MeasureUnit --ns=app\models --db=db

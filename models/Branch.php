@@ -12,14 +12,12 @@ use Yii;
  * @property int $tables
  * @property string $description
  *
+ * @property Asset[] $assets
  * @property BranchUser[] $branchUsers
  * @property AuthUser[] $users
- * @property DailyMenu[] $dailyMenus
- * @property Ingredient[] $ingredients
+ * @property Menu[] $menus
  * @property Order[] $orders
- * @property Product[] $products
  * @property Stock[] $stocks
- * @property Ingredient[] $ingredients0
  */
 class Branch extends \yii\db\ActiveRecord
 {
@@ -61,6 +59,14 @@ class Branch extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getAssets()
+    {
+        return $this->hasMany(Asset::className(), ['branch_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getBranchUsers()
     {
         return $this->hasMany(BranchUser::className(), ['branch_id' => 'id']);
@@ -77,17 +83,9 @@ class Branch extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getDailyMenus()
+    public function getMenus()
     {
-        return $this->hasMany(DailyMenu::className(), ['branch_id' => 'id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getIngredients()
-    {
-        return $this->hasMany(Ingredient::className(), ['branch_id' => 'id']);
+        return $this->hasMany(Menu::className(), ['branch_id' => 'id']);
     }
 
     /**
@@ -101,24 +99,8 @@ class Branch extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getProducts()
-    {
-        return $this->hasMany(Product::className(), ['branch_id' => 'id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
     public function getStocks()
     {
         return $this->hasMany(Stock::className(), ['branch_id' => 'id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getIngredients0()
-    {
-        return $this->hasMany(Ingredient::className(), ['id' => 'ingredient_id'])->viaTable('stock', ['branch_id' => 'id']);
     }
 }

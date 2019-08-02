@@ -2,25 +2,38 @@
 
 namespace app\controllers;
 
-use app\models\Ingredient;
-use app\models\MeasureUnit;
-use app\models\DailyMenu;
+use app\models\Asset;
+use app\models\Menu;
+use app\models\MenuAsset;
 use app\utilities\Utilities;
 use Exception;
 
 class MenuDiarioController extends MyRestController {
 
-    public $modelClass = DailyMenu::class;
+    public $modelClass = Menu::class;
+    
+    private function _getCurrMenu() {
+        return Menu::find()->where(['branch_id' => $this->requestParams['branch_id']])->orderBy(['date' => SORT_DESC])->one();
+    }
 
     private function _getItems() {
-        $stockItems = DailyMenu::find()->where(['branch_id' => $this->requestParams['branch_id']])->asArray()->all();
-        foreach ($stockItems as &$stockItem) {
-            $stockItem['ingredient_name'] = Ingredient::findOne($stockItem['ingredient_id'])->name;
-            $stockItem['measure_unit_name'] = MeasureUnit::findOne($stockItem['measure_unit_id'])->name;
+        $model = $this->_getCurrMenu();
+        $menuEntries = [];
+        if ($model) {
+            $menuEntries = $model->getMenuAssets()->asArray()->all();
+            foreach ($menuEntries as &$menuEntry) {
+                $asset = Asset::findOne($menuEntry['asset_id']);
+                $menuEntry['date'] = $model->date;
+                $menuEntry['asset_name'] = $asset->name;
+            }
         }
-        $ingredients = Ingredient::find()->where(['branch_id' => $this->requestParams['branch_id']])->asArray()->all();
-        $measureUnits = MeasureUnit::find()->asArray()->all();
-        return [$stockItems, $ingredients, $measureUnits];
+        $activeAssets = Asset::find()
+                ->select(['asset.id', 'asset.name', 'stock.price_in'])
+                ->innerJoin('stock', 'stock.asset_id = asset.id')
+                ->where('stock.quantity > 0')
+                ->asArray()
+                ->all();
+        return [$menuEntries, $activeAssets];
     }
 
     public function actionListar() {
@@ -32,35 +45,49 @@ class MenuDiarioController extends MyRestController {
     }
 
     public function actionCrear() {
+        $newMenu = null;
         try {
-            $item = new DailyMenu([
-                'quantity' => $this->requestParams['item']['quantity'],
-                'measure_unit_id' => $this->requestParams['item']['measure_unit_id'],
-                'ingredient_id' => $this->requestParams['item']['ingredient_id'],
-                'branch_id' => $this->requestParams['branch_id'],
-            ]);
+            $oldMenu = $this->_getCurrMenu();
+            $today = date('Y-m-d');
+            
+            if (!$oldMenu) {
+                $oldMenu = new Menu(['date' => $today, 'branch_id' => $this->requestParams['branch_id']]);
+                $oldMenu->save();
+            }
+            elseif ($oldMenu->date !== $today) {
+                $newMenu = new Menu(['date' => $today, 'branch_id' => $this->requestParams['branch_id']]);
+                $newMenu->save();
+                $oldMenuAssets = $oldMenu->getMenuAssets()->all();
+                foreach ($oldMenuAssets as $oldMenuAsset) {
+                    $newMenuAsset = new MenuAsset($oldMenuAsset->getAttributes(['asset_id', 'price', 'grams']));
+                    $newMenuAsset->menu_id = $newMenu->id;
+                    $newMenuAsset->save();
+                }
+            }
+            
+            $menuAsset = new MenuAsset(['menu_id' => $oldMenu->id]);
+            $this->_setModelAttributes($menuAsset);
 
-            if ($item->validate()) {
-                $item->save();
+            if ($menuAsset->validate()) {
+                $menuAsset->save();
                 return ['code' => 'success', 'msg' => 'Operación realizada con éxito.', 'data' => $this->_getItems()];
             }
-            return ['code' => 'error', 'msg' => Utilities::getModelErrorsString($item), 'data' => []];
+            return ['code' => 'error', 'msg' => Utilities::getModelErrorsString($menuAsset), 'data' => []];
         } catch (Exception $exc) {
+            if ($newMenu) {
+                $newMenu->delete();
+            }
             return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
         }
     }
 
     public function actionEditar() {
         try {
-            $item = DailyMenu::findOne($this->requestParams['item']['id']);
+            $item = MenuAsset::findOne($this->requestParams['item']['id']);
             if (!$item) {
                 return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => []];
             }
-            $item->setAttributes([
-                'quantity' => $this->requestParams['item']['quantity'],
-                'measure_unit_id' => $this->requestParams['item']['measure_unit_id'],
-                'ingredient_id' => $this->requestParams['item']['ingredient_id'],
-            ]);
+            $this->_setModelAttributes($item);
             if ($item->validate()) {
                 $item->save();
                 return ['code' => 'success', 'msg' => 'Operación realizada con éxito.', 'data' => $this->_getItems()];
@@ -73,8 +100,9 @@ class MenuDiarioController extends MyRestController {
 
     public function actionEliminar() {
         try {
-            $item = DailyMenu::findOne($this->requestParams['id']);
-            if (!$item) {
+            $item = MenuAsset::findOne($this->requestParams['id']);
+            $currMenu = $this->_getCurrMenu();
+            if (!$item || $item->menu_id !== $currMenu->id) {
                 return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => []];
             }
             $item->delete();

@@ -7,6 +7,7 @@ use app\utilities\Security;
 use Exception;
 use Firebase\JWT\JWT;
 use Yii;
+use yii\db\ActiveRecord;
 use yii\filters\AccessControl;
 use yii\filters\auth\HttpBearerAuth;
 use yii\filters\ContentNegotiator;
@@ -27,10 +28,10 @@ class MyRestController extends ActiveController {
         $this->request = Yii::$app->getRequest();
         $this->getUserInfo();
         $this->getRequestParams();
-        
-        //$this->checkAccess($action->controller->id . '/' . $actionId, $requiresAuth);
+
         Yii::$app->response->format = Response::FORMAT_JSON;
         $actionId = $action->controller->id . '/' . $action->id;
+        //date_default_timezone_set('America/Mexico');
         if ($action->controller->id !== 'auth') {
             return Security::verifyUserPermission($this->userInfo['user'], $actionId);
         }
@@ -90,6 +91,16 @@ class MyRestController extends ActiveController {
         $behaviors['authenticator']['except'] = ['options'];
 
         return $behaviors;
+    }
+
+    protected function _setModelAttributes(ActiveRecord &$model) {
+        $attributes = ($model->hasAttribute('branch_id') && isset($this->requestParams['branch_id'])) ? ['branch_id' => $this->requestParams['branch_id']] : [];
+        foreach ($this->requestParams['item'] as $paramKey => $paramValue) {
+            if ($model->hasAttribute($paramKey)) {
+                $attributes[$paramKey] = $paramValue;
+            }
+        }
+        $model->setAttributes($attributes);
     }
 
     public function encodeJWT($payload) {
