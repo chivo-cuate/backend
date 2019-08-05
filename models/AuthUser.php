@@ -29,6 +29,7 @@ use Yii;
  * @property BranchUser[] $branchUsers
  * @property Branch[] $branches
  * @property Order[] $orders
+ * @property Order[] $orders0
  */
 class AuthUser extends \yii\db\ActiveRecord
 {
@@ -122,6 +123,14 @@ class AuthUser extends \yii\db\ActiveRecord
      */
     public function getOrders()
     {
-        return $this->hasMany(Order::className(), ['user_id' => 'id']);
+        return $this->hasMany(Order::className(), ['cook_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOrders0()
+    {
+        return $this->hasMany(Order::className(), ['waiter_id' => 'id']);
     }
 }

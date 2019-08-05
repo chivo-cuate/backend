@@ -20,7 +20,7 @@ class m190722_201520_create_asset_table extends Migration
             'branch_id' => $this->integer()->notNull(),
         ]);
         
-        $this->addForeignKey('fk_asset_assettype', 'asset', 'asset_type_id', 'asset_type', 'id', 'cascade', 'cascade');
+        $this->addForeignKey('fk_asset_assettype', 'asset', 'asset_type_id', 'asset_type', 'id', 'restrict', 'cascade');
         $this->addForeignKey('fk_asset_branch', 'asset', 'branch_id', 'branch', 'id', 'cascade', 'cascade');
         
         $this->createIndex('idx_asset_typename', 'asset', 'name, asset_type_id', true);

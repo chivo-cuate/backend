@@ -10,7 +10,8 @@ use Yii;
  * @property int $id
  * @property int $order_id
  * @property int $asset_id
- * @property int $status
+ * @property int $quantity
+ * @property double $price_in
  *
  * @property Asset $asset
  * @property Order $order
@@ -31,8 +32,9 @@ class OrderAsset extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['order_id', 'asset_id'], 'required'],
-            [['order_id', 'asset_id', 'status'], 'integer'],
+            [['order_id', 'asset_id', 'price_in'], 'required'],
+            [['order_id', 'asset_id', 'quantity'], 'integer'],
+            [['price_in'], 'number'],
             [['order_id', 'asset_id'], 'unique', 'targetAttribute' => ['order_id', 'asset_id']],
             [['asset_id'], 'exist', 'skipOnError' => true, 'targetClass' => Asset::className(), 'targetAttribute' => ['asset_id' => 'id']],
             [['order_id'], 'exist', 'skipOnError' => true, 'targetClass' => Order::className(), 'targetAttribute' => ['order_id' => 'id']],
@@ -48,7 +50,8 @@ class OrderAsset extends \yii\db\ActiveRecord
             'id' => 'ID',
             'order_id' => 'Order ID',
             'asset_id' => 'Asset ID',
-            'status' => 'Status',
+            'quantity' => 'Quantity',
+            'price_in' => 'Price In',
         ];
     }
 

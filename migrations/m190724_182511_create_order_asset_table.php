@@ -15,7 +15,8 @@ class m190724_182511_create_order_asset_table extends Migration {
             'id' => $this->primaryKey(),
             'order_id' => $this->integer()->notNull(),
             'asset_id' => $this->integer()->notNull(),
-            'status' => $this->integer()->notNull()->defaultValue(1),
+            'quantity' => $this->integer()->notNull()->defaultValue(1),
+            'price_in' => $this->double()->notNull(),
         ]);
         $this->addForeignKey('fk_orderasset_order', 'order_asset', 'order_id', 'order', 'id', 'cascade', 'cascade');
         $this->addForeignKey('fk_orderasset_asset', 'order_asset', 'asset_id', 'asset', 'id', 'restrict', 'cascade');

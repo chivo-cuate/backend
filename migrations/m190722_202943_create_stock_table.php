@@ -21,7 +21,7 @@ class m190722_202943_create_stock_table extends Migration
             'branch_id' => $this->integer()->notNull(),
         ]);
         
-        $this->addForeignKey('fk_stock_asset', 'stock', 'asset_id', 'asset', 'id', 'cascade', 'cascade');
+        $this->addForeignKey('fk_stock_asset', 'stock', 'asset_id', 'asset', 'id', 'restrict', 'cascade');
         $this->addForeignKey('fk_stock_measureunit', 'stock', 'measure_unit_id', 'measure_unit', 'id', 'cascade', 'cascade');
         $this->addForeignKey('fk_stock_branch', 'stock', 'branch_id', 'branch', 'id', 'cascade', 'cascade');
         

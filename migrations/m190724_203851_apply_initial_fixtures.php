@@ -199,7 +199,6 @@ class m190724_203851_apply_initial_fixtures extends Migration {
         $this->insert('auth_module', ['name' => 'Ingredientes', 'slug' => 'ingredientes', 'parent_id' => 2, 'icon' => 'mdi-food-variant']); //7
         $this->insert('auth_module', ['name' => 'Productos', 'slug' => 'productos', 'parent_id' => 2, 'icon' => 'mdi-food']);    //8
         $this->insert('auth_module', ['name' => 'Almacén', 'slug' => 'almacen', 'parent_id' => 2, 'icon' => 'store']);      //9
-        
         $this->insert('auth_module', ['name' => 'Menú diario', 'slug' => 'menu-diario', 'parent_id' => 2, 'icon' => 'assignment']);  //10
         $this->insert('auth_module', ['name' => 'Órdenes', 'slug' => 'ordenes', 'parent_id' => 3, 'icon' => 'local_dining']);  //11
         $this->insert('auth_module', ['name' => 'Sucursales', 'slug' => 'sucursales', 'parent_id' => 4, 'icon' => 'domain']);  //12

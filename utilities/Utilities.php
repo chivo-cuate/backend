@@ -2,6 +2,7 @@
 
 namespace app\utilities;
 
+use app\models\Menu;
 use yii\db\ActiveRecord;
 
 class Utilities {
@@ -23,6 +24,10 @@ class Utilities {
             }
         }
         return false;
+    }
+    
+    public static function getCurrentMenu($branchId) {
+        return Menu::find()->where(['branch_id' => $branchId])->orderBy(['date' => SORT_DESC])->one();
     }
 
 }

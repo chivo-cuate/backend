@@ -3,7 +3,9 @@
 namespace app\controllers;
 
 use app\models\Asset;
-use app\models\Menu;
+use app\models\MenuAsset;
+use app\models\OrderAsset;
+use app\models\Stock;
 use app\utilities\Utilities;
 use Exception;
 
@@ -32,27 +34,47 @@ class AssetsController extends MyRestController {
         return $items;
     }
 
-    private function _canBeDisabled(Asset &$model) {
-        $model->validate();
-        if (!$model->status) {
-            $stockEntries = $model->getStocks()->all();
-            foreach ($stockEntries as $stockEntry) {
-                if ($stockEntry->quantity > 0) {
-                    $model->addError('name', 'Aun existen ' . $stockEntry->quantity . ' ' . $stockEntry->getMeasureUnit()->one()->name . ' de este producto en el almacén.');
-                    break;
-                }
-            }
-            $currMenu = Menu::find()->where(['branch_id' => $this->requestParams['branch_id']])->orderBy(['date' => SORT_DESC])->one();
-            if ($currMenu) {
-                $menuAssets = $currMenu->getAssets()->all();
-                foreach ($menuAssets as $menuAsset) {
-                    if ($menuAsset->asset_id === $model->id) {
-                        $model->addError('name', 'Este producto se encuentra activo en el menú.');
-                        break;
-                    }
-                }
+    private function _activeInStock(Asset &$model) {
+        $item = Stock::find()->where(['asset_id' => $model->id])->andWhere('quantity > 0')->one();
+        if ($item) {
+            $model->addError('id', 'Aun existen ' . $item->quantity . ' ' . $item->getMeasureUnit()->one()->name . ' este producto en el almacén.');
+        }
+    }
+
+    private function _activeInOrders(Asset &$model) {
+        $item = OrderAsset::findOne(['asset_id' => $model->id]);
+        if ($item) {
+            $model->addError('id', 'Existen órdenes con este producto.');
+        }
+    }
+
+    private function _activeInMenu(Asset &$model, $lookForCurrentMenu) {
+        $params = ['asset_id' => $model->id];
+        if ($lookForCurrentMenu) {
+            $currentMenu = Utilities::getCurrentMenu($this->requestParams['branch_id']);
+            if ($currentMenu) {
+                $params['menu_id'] = Utilities::getCurrentMenu($this->requestParams['branch_id'])->id;
             }
         }
+        $item = MenuAsset::findOne($params);
+        if ($item) {
+            $model->addError('id', $lookForCurrentMenu ? 'Este producto se encuentra en el menú actual.' : 'Este producto fue incluido en el menú del ' . $item->getMenu()->one()->date);
+        }
+    }
+
+    private function _canBeDisabled(Asset &$model) {
+        $model->validate();
+        if ($model->status === 0) {
+            $this->_activeInStock($model);
+            $this->_activeInMenu($model, true);
+        }
+    }
+
+    private function _canBeDeleted(Asset &$model) {
+        $model->validate();
+        $this->_activeInStock($model);
+        $this->_activeInMenu($model, false);
+        $this->_activeInOrders($model);
     }
 
     public function actionListar() {
@@ -65,7 +87,7 @@ class AssetsController extends MyRestController {
 
     public function actionCrear() {
         try {
-            $model = new Asset(['status' => 1]);
+            $model = new Asset(['status' => 1, 'asset_type_id' => $this->assetTypeId]);
             $this->_setModelAttributes($model);
             if (!$model->hasErrors()) {
                 $model->save();
@@ -100,12 +122,17 @@ class AssetsController extends MyRestController {
 
     public function actionEliminar() {
         try {
-            $item = $this->_findModel($this->requestParams['id']);
-            if (!$item) {
+            $model = $this->_findModel($this->requestParams['id']);
+            if (!$model) {
                 return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => []];
             }
-            $item->delete();
-            return ['code' => 'success', 'msg' => 'Elemento eliminado.', 'data' => $this->_getItems()];
+            $model->status = 0;
+            $this->_canBeDeleted($model, false);
+            if (!$model->hasErrors()) {
+                $model->delete();
+                return ['code' => 'success', 'msg' => 'Operación realizada con éxito.', 'data' => $this->_getItems()];
+            }
+            return ['code' => 'error', 'msg' => Utilities::getModelErrorsString($model), 'data' => []];
         } catch (Exception $exc) {
             return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
         }
