@@ -25,10 +25,10 @@ class MenuDiarioController extends MyRestController {
         }
         $activeAssets = Asset::find()
                 ->select(['asset.id', 'asset.name', 'stock.price_in'])
-                ->leftJoin('stock', 'stock.asset_id = asset.id')
+                ->innerJoin('stock', 'stock.asset_id = asset.id')
                 ->where(['asset.asset_type_id' => 2])
                 ->andWhere(['asset.status' => 1])
-                //->where('asset.asset_type_id = 2 or (asset.asset_type_id = 1 and stock.quantity > 0)')
+                ->andWhere('stock.quantity > 0')
                 ->asArray()
                 ->all();
         return [$menuEntries, $activeAssets];
