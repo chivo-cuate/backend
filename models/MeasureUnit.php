@@ -11,6 +11,7 @@ use Yii;
  * @property string $name
  * @property string $abbr
  *
+ * @property AssetComponent[] $assetComponents
  * @property Stock[] $stocks
  */
 class MeasureUnit extends \yii\db\ActiveRecord
@@ -46,6 +47,14 @@ class MeasureUnit extends \yii\db\ActiveRecord
             'name' => 'Name',
             'abbr' => 'Abbr',
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAssetComponents()
+    {
+        return $this->hasMany(AssetComponent::className(), ['measure_unit_id' => 'id']);
     }
 
     /**

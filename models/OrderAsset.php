@@ -11,10 +11,14 @@ use Yii;
  * @property int $order_id
  * @property int $asset_id
  * @property int $quantity
- * @property double $price_in
+ * @property int $finished
+ * @property int $waiter_id
+ * @property int $cook_id
  *
  * @property Asset $asset
+ * @property AuthUser $cook
  * @property Order $order
+ * @property AuthUser $waiter
  */
 class OrderAsset extends \yii\db\ActiveRecord
 {
@@ -32,12 +36,12 @@ class OrderAsset extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['order_id', 'asset_id', 'price_in'], 'required'],
-            [['order_id', 'asset_id', 'quantity'], 'integer'],
-            [['price_in'], 'number'],
-            [['order_id', 'asset_id'], 'unique', 'targetAttribute' => ['order_id', 'asset_id']],
+            [['order_id', 'asset_id', 'waiter_id'], 'required'],
+            [['order_id', 'asset_id', 'quantity', 'finished', 'waiter_id', 'cook_id'], 'integer'],
             [['asset_id'], 'exist', 'skipOnError' => true, 'targetClass' => Asset::className(), 'targetAttribute' => ['asset_id' => 'id']],
+            [['cook_id'], 'exist', 'skipOnError' => true, 'targetClass' => AuthUser::className(), 'targetAttribute' => ['cook_id' => 'id']],
             [['order_id'], 'exist', 'skipOnError' => true, 'targetClass' => Order::className(), 'targetAttribute' => ['order_id' => 'id']],
+            [['waiter_id'], 'exist', 'skipOnError' => true, 'targetClass' => AuthUser::className(), 'targetAttribute' => ['waiter_id' => 'id']],
         ];
     }
 
@@ -51,7 +55,9 @@ class OrderAsset extends \yii\db\ActiveRecord
             'order_id' => 'Order ID',
             'asset_id' => 'Asset ID',
             'quantity' => 'Quantity',
-            'price_in' => 'Price In',
+            'finished' => 'Finished',
+            'waiter_id' => 'Waiter ID',
+            'cook_id' => 'Cook ID',
         ];
     }
 
@@ -66,8 +72,24 @@ class OrderAsset extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getCook()
+    {
+        return $this->hasOne(AuthUser::className(), ['id' => 'cook_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getOrder()
     {
         return $this->hasOne(Order::className(), ['id' => 'order_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getWaiter()
+    {
+        return $this->hasOne(AuthUser::className(), ['id' => 'waiter_id']);
     }
 }

@@ -6,20 +6,13 @@ use app\models\Asset;
 use app\models\Branch;
 use app\models\Order;
 use app\models\OrderAsset;
-use app\models\Stock;
-use app\models\User;
 use app\utilities\Utilities;
 use Exception;
 use Yii;
 
 class OrdenesController extends MyRestController {
 
-    protected $assetTypeId;
     public $modelClass = Order::class;
-
-    private function _findModel($id) {
-        return Order::findOne(['id' => $id,]);
-    }
 
     private function _getTableIndex($array, $tableNumber) {
         $arrayLength = count($array);
@@ -34,20 +27,38 @@ class OrdenesController extends MyRestController {
     private function _initializeItems($branchTables) {
         $res = ['tables' => []];
         for ($i = 1; $i <= $branchTables; $i++) {
-            $res['tables'][] = ['table_number' => $i, 'status' => 0, 'assets' => [], 'order' => null];
+            $res['tables'][] = ['table_number' => $i, 'status_id' => -1];
         }
         return $res;
     }
 
+    private function _getListAttribs($statusId) {
+        switch ($statusId) {
+            case 0:
+                return ['icon' => 'mdi-clipboard-alert', 'badge_color' => 'error', 'edit' => true, 'delete' => true, 'close' => false];
+            case 1:
+                return ['icon' => 'mdi-clipboard-account', 'badge_color' => 'warning', 'edit' => true, 'delete' => true, 'close' => false];
+            case 2:
+                return ['icon' => 'mdi-clipboard-check', 'badge_color' => 'info', 'edit' => true, 'delete' => false, 'close' => true];
+            default:
+                return ['icon' => 'mdi-clipboard', 'badge_color' => 'grey'];
+        }
+    }
+
     private function _getOrders($branchId, &$res) {
-        $orders = Order::find()->where(['branch_id' => $branchId])->andWhere('status in (0, 1)')->orderBy(['table_number' => SORT_ASC])->all();
+        $orders = Order::find()->where(['branch_id' => $branchId])->andWhere('status_id != 3')->orderBy(['date_time' => SORT_ASC])->all();
         foreach ($orders as $order) {
+            $listAttribs = $this->_getListAttribs($order->status_id);
+            $orderInfo = $order->getAttributes();
+            $orderInfo['assets'] = $order->getOrderAssets()->asArray()->all();
+            $orderInfo['attribs'] = $listAttribs;
             $tableIndex = $this->_getTableIndex($res['tables'], $order->table_number);
-            $isOwnOrder = $order->waiter_id === $this->userInfo['user']->id;
-            $res['tables'][$tableIndex]['status'] = $order->status === 1 ? 2 : ($isOwnOrder ? 1 : -1);
-            $res['tables'][$tableIndex]['waiter'] = $isOwnOrder ? null : User::findOne($order->waiter_id)->getFullName();
-            $res['tables'][$tableIndex]['order'] = $isOwnOrder ? $order->getAttributes() : null;
-            $res['tables'][$tableIndex]['assets'] = $isOwnOrder ? $order->getOrderAssets()->asArray()->all() : [];
+            $res['tables'][$tableIndex]['status_id'] = $order->status_id;
+            $res['tables'][$tableIndex]['ordersByCategory'][$order->status_id]['list_name'] = $order->status->name;
+            $res['tables'][$tableIndex]['ordersByCategory'][$order->status_id]['list_icon'] = $listAttribs['icon'];
+            $res['tables'][$tableIndex]['ordersByCategory'][$order->status_id]['badge_icon'] = substr($order->status->name, 0, 1);
+            $res['tables'][$tableIndex]['ordersByCategory'][$order->status_id]['badge_color'] = $listAttribs['badge_color'];
+            $res['tables'][$tableIndex]['ordersByCategory'][$order->status_id]['orders'][] = $orderInfo;
         }
     }
 
@@ -55,16 +66,22 @@ class OrdenesController extends MyRestController {
         $menu = Utilities::getCurrentMenu($this->requestParams['branch_id']);
         $res['assets'] = [];
         if ($menu) {
-            $res['assets'] = Asset::find()
-                    ->select(['asset.id', 'asset.name', 'menu_asset.price', 'menu_asset.grams'])
-                    ->innerJoin('menu_asset', 'menu_asset.asset_id = asset.id')
-                    ->innerJoin('stock', 'stock.asset_id = asset.id')
-                    ->where(['menu_asset.menu_id' => $menu->id])
-                    ->andWhere(['asset.asset_type_id' => 2])
-                    ->andWhere('stock.quantity > 0')
-                    ->orderBy(['asset.name' => SORT_ASC])
-                    ->asArray()
-                    ->all();
+            $menuAssets = Asset::find()->select(['asset.id', 'asset.name', 'menu_asset.price', 'menu_asset.grams', 'asset_category.name as group'])->innerJoin('menu_asset', 'menu_asset.asset_id = asset.id')->innerJoin('asset_category', 'asset_category.id = asset.category_id')->where(['menu_asset.menu_id' => $menu->id])->orderBy(['group' => SORT_ASC, 'asset.name' => SORT_ASC])->asArray()->all();
+            $lastGroup = null;
+            $assets = [];
+            $i = 0;
+            foreach ($menuAssets as $menuAsset) {
+                $groupChanged = false;
+                if ($menuAsset['group'] !== $lastGroup) {
+                    $assets[]['divider'] = true;
+                    $lastGroup = $menuAsset['group'];
+                    $assets[]['header'] = $lastGroup;
+                    $groupChanged = true;
+                }
+                $assets[] = $menuAsset;
+                $i++;
+            }
+            $res['assets'] = $assets;
         }
     }
 
@@ -76,13 +93,23 @@ class OrdenesController extends MyRestController {
         return $res;
     }
 
+    private function _exitIfNoAssetsInOrder() {
+        if (count($this->requestParams['assets']) === 0) {
+            return ['code' => 'error', 'msg' => 'Debe incluir al menos un producto.', 'data' => []];
+        }
+    }
+
     private function _updateOrderAssets(Order $model) {
-        OrderAsset::deleteAll(['order_id' => $model->id]);
+        $this->_exitIfNoAssetsInOrder();
+        if ($model->isNewRecord) {
+            $model->save();
+        } else {
+            OrderAsset::deleteAll(['order_id' => $model->id, 'finished' => 0]);
+        }
         foreach ($this->requestParams['assets'] as $assetValues) {
-            $asset = Asset::findOne($assetValues['asset_id']);
-            if ($asset) {
-                $stockEntry = Stock::find()->where(['asset_id' => $asset->id, 'branch_id' => $asset->branch_id])->orderBy(['id' => SORT_ASC])->one();
-                $orderAsset = new OrderAsset(['order_id' => $model->id, 'asset_id' => $asset->id, 'quantity' => $assetValues['quantity'], 'price_in' => $stockEntry ? $stockEntry->price_in : 0]);
+            if ($assetValues['finished'] === '0') {
+                $asset = Asset::findOne($assetValues['asset_id']);
+                $orderAsset = new OrderAsset(['order_id' => $model->id, 'asset_id' => $asset->id, 'quantity' => $assetValues['quantity'], 'waiter_id' => $this->userInfo['user']->id, 'finished' => 0]);
                 $orderAsset->save();
             }
         }
@@ -98,15 +125,11 @@ class OrdenesController extends MyRestController {
 
     public function actionCrear() {
         try {
-            $model = new Order(['date_time' => time(), 'status' => 0, 'waiter_id' => $this->userInfo['user']->id]);
+            $model = new Order(['date_time' => time(), 'status_id' => 0]);
             $this->_setModelAttributes($model);
             if (!$model->validate()) {
                 return ['code' => 'error', 'msg' => Utilities::getModelErrorsString($model), 'data' => []];
             }
-            if (count($this->requestParams['assets']) < 1) {
-                return ['code' => 'error', 'msg' => 'Debe incluir al menos un producto.', 'data' => []];
-            }
-            $model->save();
             $this->_updateOrderAssets($model);
             return ['code' => 'success', 'msg' => 'Operación realizada.', 'data' => $this->_getItems()];
         } catch (Exception $exc) {
@@ -115,14 +138,19 @@ class OrdenesController extends MyRestController {
     }
 
     public function actionEditar() {
+        $transaction = Yii::$app->db->beginTransaction();
         try {
             $model = Order::findOne($this->requestParams['item']['id']);
             if (!$model) {
                 return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => []];
             }
             $this->_updateOrderAssets($model);
+            $model->status_id = 0;
+            $model->save();
+            $transaction->commit();
             return ['code' => 'success', 'msg' => 'Operación realizada.', 'data' => $this->_getItems()];
         } catch (Exception $exc) {
+            $transaction->rollBack();
             return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
         }
     }
@@ -130,20 +158,16 @@ class OrdenesController extends MyRestController {
     public function actionCerrar() {
         $transaction = Yii::$app->db->beginTransaction();
         try {
-            $model = Order::findOne([
-                        'id' => $this->requestParams['id'],
-                        'table_number' => $this->requestParams['table_number'],
-                        'branch_id' => $this->requestParams['branch_id'],
-                        'waiter_id' => $this->userInfo['user']->id
+            $model = Order::findOne(['id' => $this->requestParams['id'], 'table_number' => $this->requestParams['table_number'], 'branch_id' => $this->requestParams['branch_id'],
             ]);
-            
+
             if (!$model) {
                 return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => []];
             }
-            
-            $model->status = 2;
+
+            $model->status_id = 3;
             $model->save();
-            
+
             $orderAssets = $model->getOrderAssets()->all();
             foreach ($orderAssets as $orderAsset) {
                 $asset = $orderAsset->getAsset()->one();
@@ -161,14 +185,12 @@ class OrdenesController extends MyRestController {
 
     public function actionEliminar() {
         try {
-            $model = Order::findOne([
+            $model = Order::find()->where([
                         'id' => $this->requestParams['id'],
                         'table_number' => $this->requestParams['table_number'],
                         'branch_id' => $this->requestParams['branch_id'],
-                        'waiter_id' => $this->userInfo['user']->id,
-                        'status' => 0,
-            ]);
-            
+                    ])->andWhere('status_id in (0, 1)')->one();
+
             if (!$model) {
                 return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => []];
             }

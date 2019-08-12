@@ -20,10 +20,10 @@ class m190722_201842_create_menu_asset_table extends Migration
             'grams' => $this->integer(),
         ]);
 
-        $this->addForeignKey('fk_menuprod_menu', 'menu_asset', 'menu_id', 'menu', 'id', 'cascade', 'cascade');
-        $this->addForeignKey('fk_menuprod_prod', 'menu_asset', 'asset_id', 'asset', 'id', 'restrict', 'cascade');
+        $this->addForeignKey('fk_menuasset_menu', 'menu_asset', 'menu_id', 'menu', 'id', 'cascade', 'cascade');
+        $this->addForeignKey('fk_menuasset_prod', 'menu_asset', 'asset_id', 'asset', 'id', 'restrict', 'cascade');
 
-        $this->createIndex('idx_menuprod_menuprod', 'menu_asset', 'menu_id, asset_id', true);
+        $this->createIndex('idx_menuasset_menuprod', 'menu_asset', 'menu_id, asset_id', true);
     }
 
     /**

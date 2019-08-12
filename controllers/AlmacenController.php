@@ -16,9 +16,11 @@ class AlmacenController extends MyRestController {
     private function _getStockItems() {
         $stockItems = Stock::find()->where(['branch_id' => $this->requestParams['branch_id']])->asArray()->all();
         foreach ($stockItems as &$stockItem) {
-            $stockItem['asset_name'] = Asset::findOne($stockItem['asset_id'])->name;
+            $asset = Asset::findOne($stockItem['asset_id']);
+            $stockItem['asset_name'] = $asset->name;
             $stockItem['measure_unit_name'] = MeasureUnit::findOne($stockItem['measure_unit_id'])->name;
             $stockItem['quantity_desc'] = $stockItem['quantity'] . " " . strtolower($stockItem['measure_unit_name']);
+            $stockItem['type_name'] = AssetType::findOne($asset->asset_type_id)->name;
         }
         return $stockItems;
     }

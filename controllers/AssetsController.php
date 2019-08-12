@@ -3,11 +3,15 @@
 namespace app\controllers;
 
 use app\models\Asset;
+use app\models\AssetCategory;
+use app\models\AssetComponent;
+use app\models\MeasureUnit;
 use app\models\MenuAsset;
 use app\models\OrderAsset;
 use app\models\Stock;
 use app\utilities\Utilities;
 use Exception;
+use Yii;
 
 class AssetsController extends MyRestController {
 
@@ -22,16 +26,38 @@ class AssetsController extends MyRestController {
         ]);
     }
 
+    private function _getItemComponents(&$asset) {
+        //$res = $this->assetTypeId === 2 ? AssetComponent::find()->select(['asset.id', 'asset.name', 'asset_component.quantity', 'measure_unit.name'])->innerJoin('asset', 'asset_component.asset_id = asset.id')->innerJoin('measure_unit', 'asset_component.measure_unit_id = measure_unit.id')->where(['asset.id' => $asset['id']])->asArray()->all() : [];
+        $res = AssetComponent::find()->where(['asset_component.asset_id' => $asset['id']])->innerJoin('asset', 'asset.id = asset_component.component_id')->innerJoin('measure_unit', 'measure_unit.id = asset_component.measure_unit_id')->select(['asset_component.*', 'asset.name', 'measure_unit.name as measure_unit_name'])->asArray()->all();
+        return $res;
+    }
+
+    private function _getAssetsByType($typeId, $active) {
+        $params = ['asset_type_id' => $typeId, 'branch_id' => $this->requestParams['branch_id']];
+        if ($active) {
+            $params['status'] = 1;
+        }
+        return Asset::find()->where($params)->asArray()->all();
+    }
+
+    private function _getMeasureUnits() {
+        return MeasureUnit::find()->asArray()->all();
+    }
+
+    private function _getAssetsCategories() {
+        return $this->assetTypeId === 2 ? AssetCategory::find()->asArray()->all() : [];
+    }
+    
     private function _getItems() {
-        $items = Asset::find()->where([
-                    'asset_type_id' => $this->assetTypeId,
-                    'branch_id' => $this->requestParams['branch_id'],
-                ])->asArray()->all();
+        $items = $this->_getAssetsByType($this->assetTypeId, false);
         foreach ($items as &$item) {
             $item['status'] = $item['status'] === '1' ? true : false;
             $item['status_name'] = $item['status'] ? 'Activo' : 'Inactivo';
+            $item['category_name'] = AssetCategory::findOne($item['category_id'])->name;
+            $item['components'] = $this->_getItemComponents($item);
         }
-        return $items;
+        $ingredients = $this->_getAssetsByType(1, true);
+        return [$items, $ingredients, $this->_getMeasureUnits(), $this->_getAssetsCategories()];
     }
 
     private function _activeInStock(Asset &$model) {
@@ -134,6 +160,26 @@ class AssetsController extends MyRestController {
             }
             return ['code' => 'error', 'msg' => Utilities::getModelErrorsString($model), 'data' => []];
         } catch (Exception $exc) {
+            return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
+        }
+    }
+
+    public function actionEditarIngredientes() {
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $model = $this->_findModel($this->requestParams['id']);
+            if (!$model) {
+                return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => []];
+            }
+            AssetComponent::deleteAll(['asset_id' => $model->id]);
+            foreach ($this->requestParams['ingredients'] as $arrIngredient) {
+                $newAssetComp = new AssetComponent(['asset_id' => $model->id, 'component_id' => $arrIngredient['component_id'], 'quantity' => $arrIngredient['quantity'], 'measure_unit_id' => $arrIngredient['measure_unit_id']]);
+                $newAssetComp->save();
+            }
+            $transaction->commit();
+            return ['code' => 'success', 'msg' => 'Operación realizada con éxito.', 'data' => $this->_getItems()];
+        } catch (Exception $exc) {
+            $transaction->rollBack();
             return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
         }
     }

@@ -28,8 +28,10 @@ use Yii;
  * @property AuthRole[] $roles
  * @property BranchUser[] $branchUsers
  * @property Branch[] $branches
- * @property Order[] $orders
- * @property Order[] $orders0
+ * @property MenuCook[] $menuCooks
+ * @property Menu[] $menus
+ * @property OrderAsset[] $orderAssets
+ * @property OrderAsset[] $orderAssets0
  */
 class AuthUser extends \yii\db\ActiveRecord
 {
@@ -121,16 +123,32 @@ class AuthUser extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getOrders()
+    public function getMenuCooks()
     {
-        return $this->hasMany(Order::className(), ['cook_id' => 'id']);
+        return $this->hasMany(MenuCook::className(), ['cook_id' => 'id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getOrders0()
+    public function getMenus()
     {
-        return $this->hasMany(Order::className(), ['waiter_id' => 'id']);
+        return $this->hasMany(Menu::className(), ['id' => 'menu_id'])->viaTable('menu_cook', ['cook_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOrderAssets()
+    {
+        return $this->hasMany(OrderAsset::className(), ['cook_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOrderAssets0()
+    {
+        return $this->hasMany(OrderAsset::className(), ['waiter_id' => 'id']);
     }
 }

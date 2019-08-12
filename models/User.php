@@ -31,7 +31,10 @@ use yii\web\IdentityInterface;
  * @property AuthRole[] $roles
  * @property BranchUser[] $branchUsers
  * @property Branch[] $branches
- * @property Order[] $orders
+ * @property MenuCook[] $menuCooks
+ * @property Menu[] $menus
+ * @property OrderAsset[] $orderAssets
+ * @property OrderAsset[] $orderAssets0
  */
 class User extends ActiveRecord implements IdentityInterface {
 
@@ -116,17 +119,29 @@ class User extends ActiveRecord implements IdentityInterface {
     /**
      * @return ActiveQuery
      */
-    public function getOrders() {
-        return $this->hasMany(Order::className(), ['user_id' => 'id']);
+    public function getMenuCooks() {
+        return $this->hasMany(MenuCook::className(), ['cook_id' => 'id']);
     }
 
-    public function getRolesArray() {
-        $res = [];
-        $roles = $this->getRoles()->select('name')->all();
-        foreach ($roles as $role) {
-            $res[] = $role['name'];
-        }
-        return $res;
+    /**
+     * @return ActiveQuery
+     */
+    public function getMenus() {
+        return $this->hasMany(Menu::className(), ['id' => 'menu_id'])->viaTable('menu_cook', ['cook_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getOrderAssets() {
+        return $this->hasMany(OrderAsset::className(), ['cook_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getOrderAssets0() {
+        return $this->hasMany(OrderAsset::className(), ['waiter_id' => 'id']);
     }
 
     /**
@@ -186,6 +201,30 @@ class User extends ActiveRecord implements IdentityInterface {
 
     public function hasRole($roleId) {
         return AuthUserRole::findOne(['user_id' => $this->id, 'role_id' => $roleId]);
+    }
+
+    public function hasPermission($permId) {
+        $item = AuthUser::find()->innerJoin('auth_user_role', 'auth_user_role.user_id = auth_user.id')->innerJoin('auth_permission_role', 'auth_permission_role.role_id = auth_user_role.role_id')->where(['auth_user.id' => $this->id, 'auth_permission_role.perm_id' => $permId])->one();
+        return $item;
+    }
+
+    public function isInBranch($branchId) {
+        $item = BranchUser::find()->where(['user_id' => $this->id, 'branch_id' => $branchId])->one();
+        return $item;
+    }
+
+    public static function findByIdBranchAndPerm($id, $permId, $branchId) {
+        $item = AuthUser::find()->innerJoin('branch_user', 'auth_user.id = branch_user.user_id')->innerJoin('auth_user_role', 'auth_user_role.user_id = auth_user.id')->innerJoin('auth_permission_role', 'auth_permission_role.role_id = auth_user_role.role_id')->where(['auth_user.id' => $id, 'auth_permission_role.perm_id' => $permId, 'branch_user.branch_id' => $branchId])->one();
+        return $item;
+    }
+
+    public function getRolesArray() {
+        $res = [];
+        $roles = $this->getRoles()->select('name')->all();
+        foreach ($roles as $role) {
+            $res[] = $role['name'];
+        }
+        return $res;
     }
 
     public function getFullName() {

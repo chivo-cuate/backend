@@ -11,14 +11,19 @@ use Yii;
  * @property string $name
  * @property int $status
  * @property int $asset_type_id
+ * @property int $category_id
  * @property int $branch_id
  *
+ * @property AssetCategory $category
  * @property AssetType $assetType
  * @property Branch $branch
+ * @property AssetComponent[] $assetComponents
+ * @property AssetComponent[] $assetComponents0
+ * @property Asset[] $components
+ * @property Asset[] $assets
  * @property MenuAsset[] $menuAssets
  * @property Menu[] $menus
  * @property OrderAsset[] $orderAssets
- * @property Order[] $orders
  * @property Stock[] $stocks
  */
 class Asset extends \yii\db\ActiveRecord
@@ -38,9 +43,10 @@ class Asset extends \yii\db\ActiveRecord
     {
         return [
             [['name', 'asset_type_id', 'branch_id'], 'required'],
-            [['status', 'asset_type_id', 'branch_id'], 'integer'],
+            [['status', 'asset_type_id', 'category_id', 'branch_id'], 'integer'],
             [['name'], 'string', 'max' => 255],
             [['name', 'asset_type_id'], 'unique', 'targetAttribute' => ['name', 'asset_type_id']],
+            [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => AssetCategory::className(), 'targetAttribute' => ['category_id' => 'id']],
             [['asset_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => AssetType::className(), 'targetAttribute' => ['asset_type_id' => 'id']],
             [['branch_id'], 'exist', 'skipOnError' => true, 'targetClass' => Branch::className(), 'targetAttribute' => ['branch_id' => 'id']],
         ];
@@ -56,8 +62,17 @@ class Asset extends \yii\db\ActiveRecord
             'name' => 'Name',
             'status' => 'Status',
             'asset_type_id' => 'Asset Type ID',
+            'category_id' => 'Category ID',
             'branch_id' => 'Branch ID',
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCategory()
+    {
+        return $this->hasOne(AssetCategory::className(), ['id' => 'category_id']);
     }
 
     /**
@@ -74,6 +89,38 @@ class Asset extends \yii\db\ActiveRecord
     public function getBranch()
     {
         return $this->hasOne(Branch::className(), ['id' => 'branch_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAssetComponents()
+    {
+        return $this->hasMany(AssetComponent::className(), ['asset_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAssetComponents0()
+    {
+        return $this->hasMany(AssetComponent::className(), ['component_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getComponents()
+    {
+        return $this->hasMany(Asset::className(), ['id' => 'component_id'])->viaTable('asset_component', ['asset_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAssets()
+    {
+        return $this->hasMany(Asset::className(), ['id' => 'asset_id'])->viaTable('asset_component', ['component_id' => 'id']);
     }
 
     /**
@@ -98,14 +145,6 @@ class Asset extends \yii\db\ActiveRecord
     public function getOrderAssets()
     {
         return $this->hasMany(OrderAsset::className(), ['asset_id' => 'id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getOrders()
-    {
-        return $this->hasMany(Order::className(), ['id' => 'order_id'])->viaTable('order_asset', ['asset_id' => 'id']);
     }
 
     /**

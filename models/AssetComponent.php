@@ -5,27 +5,26 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "stock".
+ * This is the model class for table "asset_component".
  *
  * @property int $id
- * @property int $branch_id
  * @property int $asset_id
+ * @property int $component_id
  * @property double $quantity
  * @property int $measure_unit_id
- * @property double $price_in
  *
  * @property Asset $asset
- * @property Branch $branch
+ * @property Asset $component
  * @property MeasureUnit $measureUnit
  */
-class Stock extends \yii\db\ActiveRecord
+class AssetComponent extends \yii\db\ActiveRecord
 {
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
-        return 'stock';
+        return 'asset_component';
     }
 
     /**
@@ -34,12 +33,12 @@ class Stock extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['branch_id', 'asset_id', 'measure_unit_id'], 'required'],
-            [['branch_id', 'asset_id', 'measure_unit_id'], 'integer'],
-            [['quantity', 'price_in'], 'number'],
-            [['asset_id', 'branch_id', 'price_in'], 'unique', 'targetAttribute' => ['asset_id', 'branch_id', 'price_in']],
+            [['asset_id', 'component_id', 'measure_unit_id'], 'required'],
+            [['asset_id', 'component_id', 'measure_unit_id'], 'integer'],
+            [['quantity'], 'number'],
+            [['asset_id', 'component_id'], 'unique', 'targetAttribute' => ['asset_id', 'component_id']],
             [['asset_id'], 'exist', 'skipOnError' => true, 'targetClass' => Asset::className(), 'targetAttribute' => ['asset_id' => 'id']],
-            [['branch_id'], 'exist', 'skipOnError' => true, 'targetClass' => Branch::className(), 'targetAttribute' => ['branch_id' => 'id']],
+            [['component_id'], 'exist', 'skipOnError' => true, 'targetClass' => Asset::className(), 'targetAttribute' => ['component_id' => 'id']],
             [['measure_unit_id'], 'exist', 'skipOnError' => true, 'targetClass' => MeasureUnit::className(), 'targetAttribute' => ['measure_unit_id' => 'id']],
         ];
     }
@@ -51,11 +50,10 @@ class Stock extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'branch_id' => 'Branch ID',
             'asset_id' => 'Asset ID',
+            'component_id' => 'Component ID',
             'quantity' => 'Quantity',
             'measure_unit_id' => 'Measure Unit ID',
-            'price_in' => 'Price In',
         ];
     }
 
@@ -70,9 +68,9 @@ class Stock extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getBranch()
+    public function getComponent()
     {
-        return $this->hasOne(Branch::className(), ['id' => 'branch_id']);
+        return $this->hasOne(Asset::className(), ['id' => 'component_id']);
     }
 
     /**

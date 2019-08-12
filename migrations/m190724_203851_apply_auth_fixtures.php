@@ -5,7 +5,7 @@ use yii\db\Migration;
 /**
  * Class m190722_203851_apply_fixtures_01
  */
-class m190724_203851_apply_initial_fixtures extends Migration {
+class m190724_203851_apply_auth_fixtures extends Migration {
 
     /**
      * {@inheritdoc}
@@ -256,6 +256,8 @@ class m190724_203851_apply_initial_fixtures extends Migration {
         
         //Permisos extra
         $this->insert('auth_permission', ['name' => 'Editar permisos', 'slug' => 'editar-permisos', 'module_id' => 5]); //id 36 - Editar permisos del rol
+        $this->insert('auth_permission', ['name' => 'Habilitar elaboradores', 'slug' => 'habilitar-elaboradores', 'module_id' => 10]); //id 37 - Habilitar elaboradores del menú
+        $this->insert('auth_permission', ['name' => 'Editar ingredientes', 'slug' => 'editar-ingredientes', 'module_id' => 8]); //id 38 - Editar ingredientes de los productos
         
         //Permisos del Administrador
         $this->insert('auth_permission_role', ['perm_id' => 1, 'role_id' => 1]);
@@ -290,6 +292,8 @@ class m190724_203851_apply_initial_fixtures extends Migration {
         $this->insert('auth_permission_role', ['perm_id' => 27, 'role_id' => 2]);
         $this->insert('auth_permission_role', ['perm_id' => 28, 'role_id' => 2]);
         $this->insert('auth_permission_role', ['perm_id' => 29, 'role_id' => 2]);
+        $this->insert('auth_permission_role', ['perm_id' => 37, 'role_id' => 2]);
+        $this->insert('auth_permission_role', ['perm_id' => 38, 'role_id' => 2]);
         
         //Permisos del Mesero
         $this->insert('auth_permission_role', ['perm_id' => 30, 'role_id' => 3]);
@@ -312,33 +316,13 @@ class m190724_203851_apply_initial_fixtures extends Migration {
         $this->insert('branch_user', ['branch_id' => 1, 'user_id' => 6]);
         $this->insert('branch_user', ['branch_id' => 1, 'user_id' => 7]);
         $this->insert('branch_user', ['branch_id' => 1, 'user_id' => 9]);
+        $this->insert('branch_user', ['branch_id' => 1, 'user_id' => 10]);
         $this->insert('branch_user', ['branch_id' => 2, 'user_id' => 3]);
         $this->insert('branch_user', ['branch_id' => 2, 'user_id' => 5]);
         $this->insert('branch_user', ['branch_id' => 2, 'user_id' => 6]);
         $this->insert('branch_user', ['branch_id' => 2, 'user_id' => 8]);
         $this->insert('branch_user', ['branch_id' => 2, 'user_id' => 9]);
-        
-        //Unidades de medida
-        $this->insert('measure_unit', ['name' => 'Kilogramos', 'abbr' => 'kgs']);
-        $this->insert('measure_unit', ['name' => 'Litros', 'abbr' => 'lts']);
-        $this->insert('measure_unit', ['name' => 'Unidades', 'abbr' => 'u']);
-        
-        //Tipos de recursos
-        $this->insert('asset_type', ['name' => 'Ingrediente']);
-        $this->insert('asset_type', ['name' => 'Producto']);
-        
-        //Parámetros globales
-        $this->insert('app_config', [
-            'app_title' => 'Taquería "El Chivo Cuate"',
-            'about' => 'Aplicación para mi taquería',
-            'address' => 'Chilpancingo',
-            'phone' => '+53 5 123 4567',
-            'email_address' => 'fdbatista@gmail.com',
-            'email_password' => 'Pass123*LTU',
-            'email_host' => 'mail.google.com',
-            'email_port' => '567',
-            'email_encryption' => 'tls',
-        ]);
+        $this->insert('branch_user', ['branch_id' => 2, 'user_id' => 10]);
     }
 
     /**
