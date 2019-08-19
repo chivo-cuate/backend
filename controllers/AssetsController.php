@@ -51,9 +51,10 @@ class AssetsController extends MyRestController {
     private function _getItems() {
         $items = $this->_getAssetsByType($this->assetTypeId, false);
         foreach ($items as &$item) {
+            $category = AssetCategory::findOne($item['category_id']);
             $item['status'] = $item['status'] === '1' ? true : false;
             $item['status_name'] = $item['status'] ? 'Activo' : 'Inactivo';
-            $item['category_name'] = AssetCategory::findOne($item['category_id'])->name;
+            $item['category_name'] = $category ? $category->name : null;
             $item['components'] = $this->_getItemComponents($item);
         }
         $ingredients = $this->_getAssetsByType(1, true);
@@ -115,7 +116,7 @@ class AssetsController extends MyRestController {
         try {
             $model = new Asset(['status' => 1, 'asset_type_id' => $this->assetTypeId]);
             $this->_setModelAttributes($model);
-            if (!$model->hasErrors()) {
+            if ($model->validate()) {
                 $model->save();
                 return ['code' => 'success', 'msg' => 'Operación realizada con éxito.', 'data' => $this->_getItems()];
             }

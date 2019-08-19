@@ -14,6 +14,7 @@ class m190724_182149_create_order_status_table extends Migration {
         $this->createTable('{{%order_status}}', [
             'id' => $this->integer()->notNull()->unique(),
             'name' => $this->string()->notNull()->unique(),
+            'slug' => $this->string()->notNull()->unique(),
         ]);
         $this->addPrimaryKey('pk_orderstatus', 'order_status', 'id');
     }

@@ -16,6 +16,7 @@ use Yii;
  * @property Asset[] $assets
  * @property MenuCook[] $menuCooks
  * @property AuthUser[] $cooks
+ * @property Order[] $orders
  */
 class Menu extends \yii\db\ActiveRecord
 {
@@ -91,5 +92,13 @@ class Menu extends \yii\db\ActiveRecord
     public function getCooks()
     {
         return $this->hasMany(AuthUser::className(), ['id' => 'cook_id'])->viaTable('menu_cook', ['menu_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOrders()
+    {
+        return $this->hasMany(Order::className(), ['menu_id' => 'id']);
     }
 }

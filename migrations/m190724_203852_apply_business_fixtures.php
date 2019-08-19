@@ -34,10 +34,10 @@ class m190724_203852_apply_business_fixtures extends Migration {
         $this->insert('asset_category', ['name' => 'Bebidas no alcohólicas']);
         
         //Estados de las órdenes
-        $this->insert('order_status', ['id' => 0, 'name' => 'Pendiente']);
-        $this->insert('order_status', ['id' => 1, 'name' => 'Asignada']);
-        $this->insert('order_status', ['id' => 2, 'name' => 'Elaborada']);
-        $this->insert('order_status', ['id' => 3, 'name' => 'Cerrada']);
+        $this->insert('order_status', ['id' => 0, 'name' => 'Pendiente', 'slug' => 'PND']);
+        $this->insert('order_status', ['id' => 1, 'name' => 'En elaboración', 'slug' => 'ELB']);
+        $this->insert('order_status', ['id' => 2, 'name' => 'Lista', 'slug' => 'LST']);
+        $this->insert('order_status', ['id' => 3, 'name' => 'Cerrada', 'slug' => 'CERR']);
         
         //Ingredientes
         $this->insert('asset', ['name' => 'Tortilla de harina', 'status' => 1, 'asset_type_id' => 1, 'branch_id' => 1]);
@@ -72,7 +72,7 @@ class m190724_203852_apply_business_fixtures extends Migration {
         $this->insert('asset_component', ['asset_id' => 16, 'component_id' => 8, 'quantity' => 0.2, 'measure_unit_id' => 2]);
         
         //Ingredientes del taco
-        $this->insert('asset_component', ['asset_id' => 17, 'component_id' => 1, 'quantity' => 4, 'measure_unit_id' => 3]);
+        $this->insert('asset_component', ['asset_id' => 17, 'component_id' => 1, 'quantity' => 2, 'measure_unit_id' => 3]);
         $this->insert('asset_component', ['asset_id' => 17, 'component_id' => 2, 'quantity' => 1, 'measure_unit_id' => 3]);
         $this->insert('asset_component', ['asset_id' => 17, 'component_id' => 3, 'quantity' => 0.02, 'measure_unit_id' => 1]);
         $this->insert('asset_component', ['asset_id' => 17, 'component_id' => 6, 'quantity' => 0.2, 'measure_unit_id' => 1]);
@@ -97,6 +97,20 @@ class m190724_203852_apply_business_fixtures extends Migration {
         $this->insert('stock', ['branch_id' => 1, 'asset_id' => 13, 'quantity' => 720, 'measure_unit_id' => 3, 'price_in' => 20]);
         $this->insert('stock', ['branch_id' => 1, 'asset_id' => 14, 'quantity' => 240, 'measure_unit_id' => 3, 'price_in' => 15]);
         $this->insert('stock', ['branch_id' => 1, 'asset_id' => 15, 'quantity' => 600, 'measure_unit_id' => 3, 'price_in' => 30]);
+        
+        //Menu predeterminado
+        $this->insert('menu', ['date' => date('Y-m-d'), 'branch_id' => 1]);
+        
+        //Productos del menu
+        $this->insert('menu_asset', ['menu_id' => 1, 'asset_id' => 12, 'price' => 35, 'grams' => null]);
+        $this->insert('menu_asset', ['menu_id' => 1, 'asset_id' => 14, 'price' => 25, 'grams' => null]);
+        $this->insert('menu_asset', ['menu_id' => 1, 'asset_id' => 16, 'price' => 30, 'grams' => 250]);
+        $this->insert('menu_asset', ['menu_id' => 1, 'asset_id' => 17, 'price' => 60, 'grams' => 460]);
+        
+        //Elaboradores
+        $this->insert('menu_cook', ['menu_id' => 1, 'cook_id' => 7]);
+        $this->insert('menu_cook', ['menu_id' => 1, 'cook_id' => 9]);
+        
     }
 
     /**

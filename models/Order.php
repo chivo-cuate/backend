@@ -11,9 +11,9 @@ use Yii;
  * @property int $date_time
  * @property int $table_number
  * @property int $status_id
- * @property int $branch_id
+ * @property int $menu_id
  *
- * @property Branch $branch
+ * @property Menu $menu
  * @property OrderStatus $status
  * @property OrderAsset[] $orderAssets
  */
@@ -33,9 +33,9 @@ class Order extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['date_time', 'table_number', 'branch_id'], 'required'],
-            [['date_time', 'table_number', 'status_id', 'branch_id'], 'integer'],
-            [['branch_id'], 'exist', 'skipOnError' => true, 'targetClass' => Branch::className(), 'targetAttribute' => ['branch_id' => 'id']],
+            [['date_time', 'table_number', 'menu_id'], 'required'],
+            [['date_time', 'table_number', 'status_id', 'menu_id'], 'integer'],
+            [['menu_id'], 'exist', 'skipOnError' => true, 'targetClass' => Menu::className(), 'targetAttribute' => ['menu_id' => 'id']],
             [['status_id'], 'exist', 'skipOnError' => true, 'targetClass' => OrderStatus::className(), 'targetAttribute' => ['status_id' => 'id']],
         ];
     }
@@ -50,16 +50,16 @@ class Order extends \yii\db\ActiveRecord
             'date_time' => 'Date Time',
             'table_number' => 'Table Number',
             'status_id' => 'Status ID',
-            'branch_id' => 'Branch ID',
+            'menu_id' => 'Menu ID',
         ];
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getBranch()
+    public function getMenu()
     {
-        return $this->hasOne(Branch::className(), ['id' => 'branch_id']);
+        return $this->hasOne(Menu::className(), ['id' => 'menu_id']);
     }
 
     /**

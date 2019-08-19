@@ -31,7 +31,7 @@ class MyRestController extends ActiveController {
 
         Yii::$app->response->format = Response::FORMAT_JSON;
         $actionId = $action->controller->id . '/' . $action->id;
-        //date_default_timezone_set('America/Mexico');
+        date_default_timezone_set('America/Mexico_City');
         if ($action->controller->id !== 'auth') {
             return Security::verifyUserPermission($this->userInfo['user'], $actionId);
         }

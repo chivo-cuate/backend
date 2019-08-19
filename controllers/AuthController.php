@@ -55,29 +55,26 @@ class AuthController extends MyRestController {
             return $exc->getMessage();
         }
     }
-    
+
     public function actionUpdateProfile() {
         try {
-            if ($this->userInfo['user']) {
-                $user = User::findOne($this->userInfo['user']->id);
-                $data = json_decode($this->requestParams['user_data'], true);
-                $user->setAttributes($data);
-                $user->save();
-                if ($user->hasErrors()) {
-                    return ['code' => 'error', 'msg' => Utilities::getModelErrorsString($user), 'data' => []];
-                }
-                return ['code' => 'success', 'msg' => 'Datos actualizados.', 'data' => []];
+            $model = $this->userInfo['user'];
+            $attribs = json_decode($this->requestParams['item'], true);
+            $model->setAttributes($attribs, false);
+            if (!$model->validate()) {
+                return ['code' => 'error', 'msg' => Utilities::getModelErrorsString($model), 'data' => []];
             }
-            return ['code' => 'error', 'msg' => 'Credenciales incorrectas.', 'data' => []];
+            $model->save();
+            return ['code' => 'success', 'msg' => 'Datos actualizados.', 'data' => []];
         } catch (Exception $exc) {
             return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
         }
     }
-    
+
     public function actionGetProfile() {
         try {
             if ($this->userInfo['user']) {
-                $res = User::find()->select('id, first_name, last_name, username, email, phone_number')->where(['id' => $this->userInfo['user']->id])->one();
+                $res = User::find()->where(['id' => $this->userInfo['user']->id])->select(['first_name', 'last_name', 'username', 'email', 'ine', 'phone_number', 'address', 'sex'])->one();
                 return ['code' => 'success', 'msg' => 'Datos cargados.', 'data' => $res];
             }
             return ['code' => 'error', 'msg' => 'Credenciales incorrectas.', 'data' => []];
@@ -85,27 +82,26 @@ class AuthController extends MyRestController {
             return $exc->getMessage();
         }
     }
-    
+
+    private function _exitIfPasswordsDoNotMatch($data) {
+        if ($data['password'] !== $data['password_confirm']) {
+            throw new Exception('Las claves no coinciden.');
+        }
+    }
+
     public function actionChangePassword() {
         try {
-            if ($this->userInfo['user']) {
-                $user = User::findOne($this->userInfo['user']->id);
-                $data = $this->requestParams;
-                
-                if (Yii::$app->security->validatePassword($data['current_password'], $this->userInfo['user']->password_hash)) {
-                    if ($data['password'] === $data['password_confirm']) {
-                        $newPassword = Yii::$app->security->generatePasswordHash($data['password']);
-                        $this->userInfo['user']->password_hash = $newPassword;
-                        $this->userInfo['user']->save();
-                        return ['code' => 'success', 'msg' => 'Clave actualizada.', 'data' => []];
-                    } else {
-                        return ['code' => 'error', 'msg' => 'Las claves no coinciden.', 'data' => []];
-                    }
-                } else {
-                    return ['code' => 'error', 'msg' => 'La clave actual no es correcta.', 'data' => []];
-                }
+            $data = $this->requestParams;
+
+            if (Yii::$app->security->validatePassword($data['current_password'], $this->userInfo['user']->password_hash)) {
+                $this->_exitIfPasswordsDoNotMatch($data);
+                $newPassword = Yii::$app->security->generatePasswordHash($data['password']);
+                $this->userInfo['user']->password_hash = $newPassword;
+                $this->userInfo['user']->save();
+                return ['code' => 'success', 'msg' => 'Clave actualizada.', 'data' => []];
+            } else {
+                return ['code' => 'error', 'msg' => 'La clave actual no es correcta.', 'data' => []];
             }
-            return ['code' => 'error', 'msg' => 'Credenciales incorrectas.', 'data' => []];
         } catch (Exception $exc) {
             return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
         }

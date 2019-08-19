@@ -16,7 +16,6 @@ use Yii;
  * @property BranchUser[] $branchUsers
  * @property AuthUser[] $users
  * @property Menu[] $menus
- * @property Order[] $orders
  * @property Stock[] $stocks
  */
 class Branch extends \yii\db\ActiveRecord
@@ -86,14 +85,6 @@ class Branch extends \yii\db\ActiveRecord
     public function getMenus()
     {
         return $this->hasMany(Menu::className(), ['branch_id' => 'id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getOrders()
-    {
-        return $this->hasMany(Order::className(), ['branch_id' => 'id']);
     }
 
     /**

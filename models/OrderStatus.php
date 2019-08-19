@@ -9,6 +9,7 @@ use Yii;
  *
  * @property int $id
  * @property string $name
+ * @property string $slug
  *
  * @property Order[] $orders
  */
@@ -28,11 +29,12 @@ class OrderStatus extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id', 'name'], 'required'],
+            [['id', 'name', 'slug'], 'required'],
             [['id'], 'integer'],
-            [['name'], 'string', 'max' => 255],
+            [['name', 'slug'], 'string', 'max' => 255],
             [['id'], 'unique'],
             [['name'], 'unique'],
+            [['slug'], 'unique'],
         ];
     }
 
@@ -44,6 +46,7 @@ class OrderStatus extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'name' => 'Name',
+            'slug' => 'Slug',
         ];
     }
 
