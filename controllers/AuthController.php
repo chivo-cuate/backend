@@ -5,7 +5,6 @@ namespace app\controllers;
 use app\models\LoginForm;
 use app\models\User;
 use app\utilities\Security;
-use app\utilities\Utilities;
 use Exception;
 use Yii;
 
@@ -16,43 +15,62 @@ class AuthController extends MyRestController {
     /**
      * {@inheritdoc}
      */
+    private function _getJwtPayload($user) {
+        $this->userInfo = ['code' => 'success', 'msg' => 'Credentials verified', 'user' => $user];
+        $now = time();
+        $homeUrl = Yii::$app->getUrlManager()->getBaseUrl();
+        $payload = [
+            'iss' => $homeUrl,
+            'aud' => $homeUrl,
+            'iat' => $now,
+            'exp' => $now + 43200, //12 hours
+            'user_id' => $this->userInfo['user']->id,
+            'ip' => $this->request->getUserIP(),
+        ];
+        return $this->encodeJWT($payload);
+    }
+
+    private function _getRedirectRoute($currBranch) {
+        if ($currBranch) {
+            if ($this->userInfo['user']->hasPermission(25)) {
+                return '/sucursal/menu-diario';
+            } else if ($this->userInfo['user']->hasPermission(30) || $this->userInfo['user']->hasPermission(39)) {
+                return '/clientes/ordenes';
+            }
+        }
+        return null;
+    }
+
+    private function _generateLoginResponse($jwt) {
+        $userBranches = $this->userInfo['user']->getBranches()->select('id, name, tables')->all();
+        $currBranch = count($userBranches) === 1 ? $userBranches[0] : null;
+        return [
+            'code' => 'success',
+            'msg' => 'Credenciales verificadas.',
+            'data' => [
+                'is_guest' => false,
+                'name' => $this->userInfo['user']->first_name,
+                'branches' => $userBranches,
+                'curr_branch' => $currBranch,
+                'jwt' => $jwt,
+                'roles' => $this->userInfo['user']->getRolesArray(),
+                'permissions' => Security::getUserPermissions($this->userInfo['user']),
+                'redirect' => $this->_getRedirectRoute($currBranch),
+            ]
+        ];
+    }
+
     public function actionLogin() {
         try {
             $loginFormModel = new LoginForm(['username' => $this->requestParams['username'], 'password' => $this->requestParams['password']]);
-            if ($loginFormModel->validate()) {
-                $this->userInfo = ['code' => 'success', 'msg' => 'Credentials verified', 'user' => $loginFormModel->getAuthenticatedUser()];
-                $now = time();
-                $homeUrl = Yii::$app->getUrlManager()->getBaseUrl();
-                $payload = [
-                    'iss' => $homeUrl,
-                    'aud' => $homeUrl,
-                    'iat' => $now,
-                    'exp' => $now + 43200, //12 hours
-                    'user_id' => $this->userInfo['user']->id,
-                    'ip' => $this->request->getUserIP(),
-                ];
-                $jwt = $this->encodeJWT($payload);
-
-                if ($jwt) {
-                    $userBranches = $this->userInfo['user']->getBranches()->select('id, name, tables')->all();
-                    $currBranch = count($userBranches) === 1 ? $userBranches[0] : null;
-
-                    return ['code' => 'success', 'msg' => 'Credenciales verificadas.', 'data' => [
-                            'is_guest' => false,
-                            'name' => $this->userInfo['user']->first_name,
-                            'curr_branch' => $currBranch,
-                            'branches' => $userBranches,
-                            'jwt' => $jwt,
-                            'roles' => $this->userInfo['user']->getRolesArray(),
-                            'permissions' => Security::getUserPermissions($this->userInfo['user']),
-                    ]];
-                }
-
+            $this->_exitIfValidationFails($loginFormModel);
+            $jwt = $this->_getJwtPayload($loginFormModel->getAuthenticatedUser());
+            if (!$jwt) {
                 return ['code' => 'error', 'msg' => 'Your data could not be encoded.', 'data' => []];
             }
-            return ['code' => 'error', 'msg' => 'Credenciales incorrectas.', 'data' => []];
+            return $this->_generateLoginResponse($jwt);
         } catch (Exception $exc) {
-            return $exc->getMessage();
+            return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
         }
     }
 
@@ -61,9 +79,7 @@ class AuthController extends MyRestController {
             $model = $this->userInfo['user'];
             $attribs = json_decode($this->requestParams['item'], true);
             $model->setAttributes($attribs, false);
-            if (!$model->validate()) {
-                return ['code' => 'error', 'msg' => Utilities::getModelErrorsString($model), 'data' => []];
-            }
+            $this->_exitIfValidationFails($model);
             $model->save();
             return ['code' => 'success', 'msg' => 'Datos actualizados.', 'data' => []];
         } catch (Exception $exc) {
@@ -92,16 +108,14 @@ class AuthController extends MyRestController {
     public function actionChangePassword() {
         try {
             $data = $this->requestParams;
-
-            if (Yii::$app->security->validatePassword($data['current_password'], $this->userInfo['user']->password_hash)) {
-                $this->_exitIfPasswordsDoNotMatch($data);
-                $newPassword = Yii::$app->security->generatePasswordHash($data['password']);
-                $this->userInfo['user']->password_hash = $newPassword;
-                $this->userInfo['user']->save();
-                return ['code' => 'success', 'msg' => 'Clave actualizada.', 'data' => []];
-            } else {
+            $this->_exitIfPasswordsDoNotMatch($data);
+            if (!Yii::$app->security->validatePassword($data['current_password'], $this->userInfo['user']->password_hash)) {
                 return ['code' => 'error', 'msg' => 'La clave actual no es correcta.', 'data' => []];
             }
+            $newPassword = Yii::$app->security->generatePasswordHash($data['password']);
+            $this->userInfo['user']->password_hash = $newPassword;
+            $this->userInfo['user']->save();
+            return ['code' => 'success', 'msg' => 'Clave actualizada.', 'data' => []];
         } catch (Exception $exc) {
             return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
         }

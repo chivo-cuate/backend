@@ -7,7 +7,7 @@ use yii\db\ActiveRecord;
 
 class Utilities {
 
-    public static function getModelErrorsString(ActiveRecord $model) {
+    public static function getModelErrorsString($model) {
         $errors = [];
         foreach ($model->getErrors() as $error) {
             if (!self::arrayContains($errors, $error[0])) {
@@ -59,8 +59,9 @@ class Utilities {
         }
 
         // Set up intervals and diffs arrays
-        $intervals = array('year', 'month', 'day', 'hour', 'minute', 'second');
-        $diffs = array();
+        $intervals = ['year', 'month', 'day', 'hour', 'minute', 'second'];
+        //$intervals = ['años', 'meses', 'días', 'horas', 'minutos', 'segundos'];
+        $diffs = [];
 
         // Loop thru all intervals
         foreach ($intervals as $interval) {
@@ -82,8 +83,10 @@ class Utilities {
         }
 
         $count = 0;
-        $times = array();
+        $times = [];
+        $spanishIntervals = ['años', 'meses', 'días', 'horas', 'minutos', 'segundos'];
         // Loop thru all diffs
+        $i = 0;
         foreach ($diffs as $interval => $value) {
             // Break if we have needed precission
             if ($count >= $precision) {
@@ -92,14 +95,12 @@ class Utilities {
             // Add value and interval 
             // if value is bigger than 0
             if ($value > 0) {
-                // Add s if value is not 1
-                if ($value != 1) {
-                    $interval .= "s";
-                }
+                
                 // Add value and interval to times array
-                $times[] = $value . " " . $interval;
+                $times[] = $value . " " . $spanishIntervals[$i];
                 $count++;
             }
+            $i++;
         }
         array_splice($times, 1);
         // Return string with times

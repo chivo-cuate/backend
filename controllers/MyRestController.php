@@ -2,8 +2,10 @@
 
 namespace app\controllers;
 
+use app\models\Notification;
 use app\models\User;
 use app\utilities\Security;
+use app\utilities\Utilities;
 use Exception;
 use Firebase\JWT\JWT;
 use Yii;
@@ -91,6 +93,34 @@ class MyRestController extends ActiveController {
         $behaviors['authenticator']['except'] = ['options'];
 
         return $behaviors;
+    }
+    
+    protected function _getNotifications() {
+        $notifications = Notification::find()->where(['user_id' => $this->userInfo['user']->id])->orderBy(['created_at' => SORT_DESC])->asArray()->all();
+        foreach ($notifications as &$notification) {
+            $createdAt = intval($notification['created_at']);
+            $notification['created_at'] = $notification['headline'];
+            $notification['headline'] = Utilities::dateDiff($createdAt, time());
+        }
+        return $notifications;
+    }
+    
+    protected function createNotification($title, $subtitle, $headline, $userId) {
+        $notif = new Notification([
+            'title' => $title,
+            'subtitle' => $subtitle,
+            'headline' => $headline,
+            'user_id' => $userId,
+            'status' => 1,
+            'created_at' => time(),
+        ]);
+        $notif->save();
+        }
+
+    protected function _exitIfValidationFails(&$model) {
+        if (!$model->validate()) {
+            throw new Exception(Utilities::getModelErrorsString($model));
+        }
     }
 
     protected function _setModelAttributes(ActiveRecord &$model) {

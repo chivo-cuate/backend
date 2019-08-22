@@ -5,7 +5,7 @@ use yii\db\Migration;
 /**
  * Class m190808_195638_create_product_ingredient_view
  */
-class m190724_182512_create_product_ingredient_view extends Migration {
+class m190724_182513_create_product_ingredient_view extends Migration {
 
     /**
      * {@inheritdoc}

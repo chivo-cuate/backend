@@ -30,6 +30,7 @@ use Yii;
  * @property Branch[] $branches
  * @property MenuCook[] $menuCooks
  * @property Menu[] $menus
+ * @property Notification[] $notifications
  * @property OrderAsset[] $orderAssets
  * @property OrderAsset[] $orderAssets0
  */
@@ -134,6 +135,14 @@ class AuthUser extends \yii\db\ActiveRecord
     public function getMenus()
     {
         return $this->hasMany(Menu::className(), ['id' => 'menu_id'])->viaTable('menu_cook', ['cook_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNotifications()
+    {
+        return $this->hasMany(Notification::className(), ['user_id' => 'id']);
     }
 
     /**
