@@ -3,7 +3,6 @@
 namespace app\utilities;
 
 use app\models\Menu;
-use yii\db\ActiveRecord;
 
 class Utilities {
 
@@ -42,7 +41,6 @@ class Utilities {
     }
 
     public static function dateDiff($time1, $time2, $precision = 6) {
-        // If not numeric then convert texts to unix timestamps
         if (!is_int($time1)) {
             $time1 = strtotime($time1);
         }
@@ -50,8 +48,6 @@ class Utilities {
             $time2 = strtotime($time2);
         }
 
-        // If time1 is bigger than time2
-        // Then swap time1 and time2
         if ($time1 > $time2) {
             $ttime = $time1;
             $time1 = $time2;
@@ -60,7 +56,6 @@ class Utilities {
 
         // Set up intervals and diffs arrays
         $intervals = ['year', 'month', 'day', 'hour', 'minute', 'second'];
-        //$intervals = ['años', 'meses', 'días', 'horas', 'minutos', 'segundos'];
         $diffs = [];
 
         // Loop thru all intervals

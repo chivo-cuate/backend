@@ -94,7 +94,7 @@ class MyRestController extends ActiveController {
 
         return $behaviors;
     }
-    
+
     protected function _getNotifications() {
         $notifications = Notification::find()->where(['user_id' => $this->userInfo['user']->id])->orderBy(['created_at' => SORT_DESC])->asArray()->all();
         foreach ($notifications as &$notification) {
@@ -104,18 +104,22 @@ class MyRestController extends ActiveController {
         }
         return $notifications;
     }
-    
-    protected function createNotification($title, $subtitle, $headline, $userId) {
-        $notif = new Notification([
+
+    protected function createNotification($title, $subtitle, $headline, $userId, $orderId) {
+        Notification::deleteAll(['user_id' => $userId, 'order_id' => $orderId]);
+        $model = new Notification([
+            'order_id' => $orderId,
+            'user_id' => $userId,
             'title' => $title,
             'subtitle' => $subtitle,
             'headline' => $headline,
-            'user_id' => $userId,
             'status' => 1,
             'created_at' => time(),
         ]);
-        $notif->save();
+        if ($model->validate()) {
+            $model->save();
         }
+    }
 
     protected function _exitIfValidationFails(&$model) {
         if (!$model->validate()) {

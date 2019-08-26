@@ -9,12 +9,14 @@ use Yii;
  *
  * @property int $id
  * @property int $user_id
+ * @property int $order_id
  * @property int $status
  * @property string $title
  * @property string $subtitle
  * @property string $headline
  * @property int $created_at
  *
+ * @property Order $order
  * @property AuthUser $user
  */
 class Notification extends \yii\db\ActiveRecord
@@ -33,9 +35,11 @@ class Notification extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'title', 'subtitle', 'headline', 'created_at'], 'required'],
-            [['user_id', 'status', 'created_at'], 'integer'],
+            [['user_id', 'order_id', 'title', 'subtitle', 'headline', 'created_at'], 'required'],
+            [['user_id', 'order_id', 'status', 'created_at'], 'integer'],
             [['title', 'subtitle', 'headline'], 'string', 'max' => 255],
+            [['user_id', 'order_id'], 'unique', 'targetAttribute' => ['user_id', 'order_id']],
+            [['order_id'], 'exist', 'skipOnError' => true, 'targetClass' => Order::className(), 'targetAttribute' => ['order_id' => 'id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => AuthUser::className(), 'targetAttribute' => ['user_id' => 'id']],
         ];
     }
@@ -48,12 +52,21 @@ class Notification extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'user_id' => 'User ID',
+            'order_id' => 'Order ID',
             'status' => 'Status',
             'title' => 'Title',
             'subtitle' => 'Subtitle',
             'headline' => 'Headline',
             'created_at' => 'Created At',
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOrder()
+    {
+        return $this->hasOne(Order::className(), ['id' => 'order_id']);
     }
 
     /**

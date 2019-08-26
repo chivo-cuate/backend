@@ -110,6 +110,7 @@ class m190724_203852_apply_business_fixtures extends Migration {
         //Elaboradores
         $this->insert('menu_cook', ['menu_id' => 1, 'cook_id' => 7]);
         $this->insert('menu_cook', ['menu_id' => 1, 'cook_id' => 9]);
+        $this->insert('menu_cook', ['menu_id' => 1, 'cook_id' => 10]);
         
     }
 

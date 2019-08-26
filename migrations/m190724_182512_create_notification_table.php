@@ -14,6 +14,7 @@ class m190724_182512_create_notification_table extends Migration {
         $this->createTable('{{%notification}}', [
             'id' => $this->primaryKey(),
             'user_id' => $this->integer()->notNull(),
+            'order_id' => $this->integer()->notNull(),
             'status' => $this->smallInteger()->notNull()->defaultValue(1),
             'title' => $this->string()->notNull(),
             'subtitle' => $this->string()->notNull(),
@@ -21,6 +22,9 @@ class m190724_182512_create_notification_table extends Migration {
             'created_at' => $this->integer()->notNull(),
         ]);
         $this->addForeignKey('fk_notification_user', 'notification', 'user_id', 'auth_user', 'id', 'cascade', 'cascade');
+        $this->addForeignKey('fk_notification_order', 'notification', 'order_id', 'order', 'id', 'cascade', 'cascade');
+        
+        $this->createIndex('idx_notification_orderuser', 'notification', 'user_id, order_id', true);
     }
 
     /**

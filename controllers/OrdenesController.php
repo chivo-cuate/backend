@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\models\Asset;
 use app\models\AssetComponent;
 use app\models\Branch;
+use app\models\Notification;
 use app\models\Order;
 use app\models\OrderAsset;
 use app\models\Stock;
@@ -187,39 +188,46 @@ class OrdenesController extends MyRestController {
         return null;
     }
 
+    private function _getNextOrderNumber($menuId, $tableNumber) {
+        $maxNumber = Order::find()->where(['menu_id' => $menuId, 'table_number' => $tableNumber])->andWhere('status_id <> 3')->max('[[order_number]]');
+        return $maxNumber ? $maxNumber + 1 : 1;
+    }
+
+    private function _notifyUsers($model, $waiterId, $cook) {
+        if ($model->status_id === 1) {
+            $cookName = $cook ? $cook->getFullName() : 'usted';
+            $this->createNotification('Orden asignada', "La orden {$model->order_number} de la mesa {$model->table_number} fue asignada a {$cookName}.", date('Y-m-d h:i'), $waiterId, $model->id);
+            if ($cook) {
+                $menu = Utilities::getCurrentMenu($this->requestParams['branch_id']);
+                $menuCooks = $menu->getCooks()->all();
+                foreach ($menuCooks as $menuCook) {
+                    $this->createNotification('Orden asignada', "La orden {$model->order_number} de la mesa {$model->table_number} fue asignada a {$cookName}.", date('Y-m-d h:i'), $menuCook->id, $model->id);
+                }
+            }
+        } else {
+            $this->createNotification('Orden en cola', "La orden {$model->order_number} de la mesa {$model->table_number} se encuentra en cola.", date('Y-m-d h:i'), $waiterId, $model->id);
+        }
+    }
+
     private function _assignOrderAssetsToCooks(Order &$model) {
         $orderAssets = $model->getOrderAssets()->where(['finished' => 0])->all();
         $assetsCount = count($orderAssets);
         if ($assetsCount > 0) {
             $cook = $this->_getFirstAvailableCook();
-            $waiterId = null;
+            $cookId = $cook ? $cook->id : null;
+            $waiterId = $orderAssets[0]->waiter_id;
             $assignedAssetsCount = 0;
             foreach ($orderAssets as &$orderAsset) {
                 if (!$orderAsset->cook_id) {
                     $asset = $orderAsset->getAsset()->one();
-                    $orderAsset->cook_id = $this->_assetNeedsCooking($asset) ? ($cook ? $cook->id : null) : $this->userInfo['user']->id;
-                    $waiterId = $orderAsset->waiter_id;
+                    $orderAsset->cook_id = $this->_assetNeedsCooking($asset) ? $cookId : $this->userInfo['user']->id;
                     $orderAsset->save();
                 }
                 $assignedAssetsCount += ($orderAsset->cook_id ? 1 : 0);
             }
             $model->status_id = $assignedAssetsCount === $assetsCount ? 1 : 0;
             $model->save();
-            if ($model->status_id === 1) {
-                if ($waiterId) {
-                    $this->createNotification('Orden asignada', "La orden de la mesa {$model->table_number} fue asignada a {$cook->getFullName()}.", date('Y-m-d h:i'), $waiterId);
-                }
-                $menu = Utilities::getCurrentMenu($this->requestParams['branch_id']);
-                $menuCooks = $menu->getMenuCooks()->orderBy(['cook_id' => SORT_ASC])->all();
-                $genderChar = $cook->sex === "F" ? "a" : "o";
-                foreach ($menuCooks as $menuCook) {
-                    $this->createNotification('Orden asignada', "{$cook->getFullName()} sido asignad{$genderChar} a una orden de la mesa {$model->table_number}.", date('Y-m-d h:i'), $menuCook->id);
-                }
-            }/* else {
-              if ($waiterId) {
-              $this->createNotification('Orden en cola', "La orden de la mesa {$model->table_number} fue puesta en cola.", date('Y-m-d h:i'), $waiterId);
-              }
-              } */
+            $this->_notifyUsers($model, $waiterId, $cook);
         }
     }
 
@@ -235,7 +243,7 @@ class OrdenesController extends MyRestController {
         $transaction = Yii::$app->db->beginTransaction();
         try {
             $menu = Utilities::getCurrentMenu($this->requestParams['branch_id']);
-            $model = new Order(['date_time' => time(), 'status_id' => 0, 'menu_id' => $menu->id]);
+            $model = new Order(['date_time' => time(), 'status_id' => 0, 'menu_id' => $menu->id, 'order_number' => $this->_getNextOrderNumber($menu->id, $this->requestParams['item']['table_number'])]);
             $this->_setModelAttributes($model);
             if (!$model->validate()) {
                 return ['code' => 'error', 'msg' => Utilities::getModelErrorsString($model), 'data' => []];
@@ -258,7 +266,6 @@ class OrdenesController extends MyRestController {
                 return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => []];
             }
             $this->_updateOrderAssets($model);
-            $this->_assignOrderAssetsToCooks($model);
             $transaction->commit();
             return ['code' => 'success', 'msg' => 'Operación realizada.', 'data' => $this->_getItems()];
         } catch (Exception $exc) {
@@ -320,10 +327,10 @@ class OrdenesController extends MyRestController {
             if (!$model) {
                 return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => []];
             }
-
             $model->status_id = 3;
             $model->save();
             $this->_reduceStockAssetsByOrder($model);
+            Notification::deleteAll(['order_id' => $model->id]);
             $transaction->commit();
             return ['code' => 'success', 'msg' => 'Operación realizada.', 'data' => $this->_getItems()];
         } catch (Exception $exc) {
@@ -335,11 +342,12 @@ class OrdenesController extends MyRestController {
     public function actionEliminar() {
         try {
             $model = Order::find()->where(['id' => $this->requestParams['id'], 'table_number' => $this->requestParams['table_number']])->andWhere('status_id in (0, 1)')->one();
-
             if (!$model) {
                 return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => []];
             }
             $model->delete();
+            $this->_assignNextPendingOrder();
+            //$maxNumber = Order::find()->where(['menu_id' => $menuId, 'table_number' => $tableNumber])->andWhere('status_id <> 3')->max('order_number');
             return ['code' => 'success', 'msg' => 'Operación realizada.', 'data' => $this->_getItems()];
         } catch (Exception $exc) {
             return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
@@ -382,7 +390,7 @@ class OrdenesController extends MyRestController {
         if (count($orderAssets) === $i) {
             $model->status_id = 2;
             $model->save();
-            $this->createNotification('Orden elaborada', "La orden de la mesa {$model->table_number} está lista para servir.", date('Y-m-d h:i'), $waiterId);
+            $this->createNotification('Orden elaborada', "La orden {$model->order_number} de la mesa {$model->table_number} está lista para servir.", date('Y-m-d h:i'), $waiterId, $model->id);
         }
     }
 
