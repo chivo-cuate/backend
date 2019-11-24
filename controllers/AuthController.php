@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\models\LoginForm;
 use app\models\User;
+use app\models\AuthUser;
 use app\utilities\Security;
 use Exception;
 use Yii;

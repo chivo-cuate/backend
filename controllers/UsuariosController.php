@@ -7,6 +7,7 @@ use app\models\AuthUserRole;
 use app\models\Branch;
 use app\models\BranchUser;
 use app\models\User;
+use app\models\AuthUser;
 use app\utilities\Utilities;
 use Exception;
 use Yii;
@@ -17,9 +18,9 @@ class UsuariosController extends MyRestController {
 
     private function _getUsers() {
         $users = User::find()->select(['id', 'first_name', 'last_name', 'concat(first_name, " ", last_name) as full_name', 'username', 'email', 'phone_number', 'ine', 'address', 'sex'])->asArray()->all();
-        for ($i = 0; $i < count($users); $i++) {
-            $users[$i]['password'] = null;
-            $users[$i]['password_confirm'] = null;
+        $usersCount = count($users);
+        for ($i = 0; $i < $usersCount; $i++) {
+            unset($users[$i]['password'], $users[$i]['password_confirm']);
             $userRoles = AuthUserRole::find()->where(['user_id' => $users[$i]['id']])->all();
             foreach ($userRoles as $userRole) {
                 $users[$i]['roles'][] = strval($userRole->role_id);
@@ -111,15 +112,19 @@ class UsuariosController extends MyRestController {
             if (!$model || $model->id === $this->userInfo['user']->id) {
                 return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => $this->_getUsers()];
             }
+            
             $this->_setModelAttributes($model);
             $this->_setUserPasswordHash($model);
+            
             if ($model->validate()) {
                 $model->save();
             } else {
                 return ['code' => 'error', 'msg' => Utilities::getModelErrorsString($model), 'data' => []];
             }
+            
             $this->_updateUserBranches($model->id);
             $this->_updateUserRoles($model->id);
+            
             return ['code' => 'success', 'msg' => 'Elemento actualizado.', 'data' => $this->_getUsers()];
         } catch (Exception $exc) {
             return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];

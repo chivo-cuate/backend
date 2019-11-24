@@ -32,7 +32,7 @@ class MenuDiarioController extends MyRestController {
     }
 
     private function _getAllCooksFromBranch() {
-        $cooks = AuthUser::find()
+        $cooks = User::find()
                         ->innerJoin('branch_user', 'branch_user.user_id = auth_user.id')
                         ->innerJoin('auth_user_role', 'auth_user_role.user_id = auth_user.id')
                         ->innerJoin('auth_permission_role', 'auth_permission_role.role_id = auth_user_role.role_id')
@@ -132,7 +132,7 @@ class MenuDiarioController extends MyRestController {
     private function _updateMenuCooks($menuId) {
         MenuCook::deleteAll(['menu_id' => $menuId]);
         foreach ($this->requestParams['cooks'] as $cook) {
-            $user = User::findByIdBranchAndPerm($cook, 34, $this->requestParams['branch_id']);
+            $user = User::findByIdPermAndBranch($cook, 34, $this->requestParams['branch_id']);
             if ($user) {
                 $menuCook = new MenuCook(['menu_id' => $menuId, 'cook_id' => $user->id]);
                 $menuCook->save();

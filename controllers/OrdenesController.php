@@ -194,40 +194,64 @@ class OrdenesController extends MyRestController {
     }
 
     private function _notifyUsers($model, $waiterId, $cook) {
-        if ($model->status_id === 1) {
-            $cookName = $cook ? $cook->getFullName() : 'usted';
-            $this->createNotification('Orden asignada', "La orden {$model->order_number} de la mesa {$model->table_number} fue asignada a {$cookName}.", date('Y-m-d h:i'), $waiterId, $model->id);
-            if ($cook) {
-                $menu = Utilities::getCurrentMenu($this->requestParams['branch_id']);
-                $menuCooks = $menu->getCooks()->all();
-                foreach ($menuCooks as $menuCook) {
-                    $this->createNotification('Orden asignada', "La orden {$model->order_number} de la mesa {$model->table_number} fue asignada a {$cookName}.", date('Y-m-d h:i'), $menuCook->id, $model->id);
+        switch ($model->status_id) {
+            case 0:
+                $this->createNotification('Orden en cola', "La orden {$model->order_number} de la mesa {$model->table_number} se encuentra en cola.", date('Y-m-d h:i'), $waiterId, $model->id);
+                break;
+            case 1:
+                if ($cook) {
+                    $cookName = $cook->getFullName();
+                    $cookGenderEnding = $cook->sex === 'M' ? 'o' : 'a';
+                    $this->createNotification('Orden asignada', "{$cookName} ha sido asignad{$cookGenderEnding} a la orden {$model->order_number} de la mesa {$model->table_number}.", date('Y-m-d h:i'), $waiterId, $model->id);
+                    $menu = Utilities::getCurrentMenu($this->requestParams['branch_id']);
+                    $menuCooks = $menu->getCooks()->all();
+                    foreach ($menuCooks as $menuCook) {
+                        $this->createNotification('Orden asignada', "{$cookName} ha sido asignad{$cookGenderEnding} a la orden {$model->order_number} de la mesa {$model->table_number}.", date('Y-m-d h:i'), $menuCook->id, $model->id);
+                    }
                 }
-            }
-        } else {
-            $this->createNotification('Orden en cola', "La orden {$model->order_number} de la mesa {$model->table_number} se encuentra en cola.", date('Y-m-d h:i'), $waiterId, $model->id);
+                break;
+            case 2:
+                $this->createNotification('Orden elaborada', "La orden {$model->order_number} de la mesa {$model->table_number} está lista para servir.", date('Y-m-d h:i'), $waiterId, $model->id);
+                break;
+            default:
+                break;
         }
     }
 
-    private function _assignOrderAssetsToCooks(Order &$model) {
+    private function _assignOrderAssetsToCookOrWaiter(Order &$model) {
         $orderAssets = $model->getOrderAssets()->where(['finished' => 0])->all();
         $assetsCount = count($orderAssets);
         if ($assetsCount > 0) {
-            $cook = $this->_getFirstAvailableCook();
-            $cookId = $cook ? $cook->id : null;
+            $cook = null;
             $waiterId = $orderAssets[0]->waiter_id;
             $assignedAssetsCount = 0;
+            $assignedAssetsToWaiterCount = 0;
             foreach ($orderAssets as &$orderAsset) {
                 if (!$orderAsset->cook_id) {
                     $asset = $orderAsset->getAsset()->one();
-                    $orderAsset->cook_id = $this->_assetNeedsCooking($asset) ? $cookId : $this->userInfo['user']->id;
+                    if ($this->_assetNeedsCooking($asset)) {
+                        if (!$cook) {
+                            $cook = $this->_getFirstAvailableCook();
+                            if ($cook) {
+                                $orderAsset->cook_id = $cook->id;
+                                $assignedAssetsCount ++;
+                            }
+                        }
+                    } else {
+                        $orderAsset->cook_id = $waiterId;
+                        $orderAsset->finished = 1;
+                        $assignedAssetsToWaiterCount ++;
+                        $assignedAssetsCount ++;
+                    }
                     $orderAsset->save();
+                } else {
+                    $assignedAssetsCount ++;
                 }
-                $assignedAssetsCount += ($orderAsset->cook_id ? 1 : 0);
             }
-            $model->status_id = $assignedAssetsCount === $assetsCount ? 1 : 0;
-            $model->save();
-            $this->_notifyUsers($model, $waiterId, $cook);
+            $model->status_id = ($assignedAssetsToWaiterCount === $assetsCount ? 2 : ($assignedAssetsCount === $assetsCount ? 1 : 0));
+            if ($model->save()) {
+                $this->_notifyUsers($model, $waiterId, $cook);
+            }
         }
     }
 
@@ -249,7 +273,7 @@ class OrdenesController extends MyRestController {
                 return ['code' => 'error', 'msg' => Utilities::getModelErrorsString($model), 'data' => []];
             }
             $this->_updateOrderAssets($model);
-            $this->_assignOrderAssetsToCooks($model);
+            $this->_assignOrderAssetsToCookOrWaiter($model);
             $transaction->commit();
             return ['code' => 'success', 'msg' => 'Operación realizada.', 'data' => $this->_getItems()];
         } catch (Exception $exc) {
@@ -266,6 +290,7 @@ class OrdenesController extends MyRestController {
                 return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => []];
             }
             $this->_updateOrderAssets($model);
+            $this->_assignOrderAssetsToCookOrWaiter($model);
             $transaction->commit();
             return ['code' => 'success', 'msg' => 'Operación realizada.', 'data' => $this->_getItems()];
         } catch (Exception $exc) {
@@ -301,7 +326,7 @@ class OrdenesController extends MyRestController {
         $menu = Utilities::getCurrentMenu($this->requestParams['branch_id']);
         $model = Order::find()->where(['menu_id' => $menu->id, 'status_id' => 0])->orderBy(['date_time' => SORT_ASC])->one();
         if ($model) {
-            $this->_assignOrderAssetsToCooks($model);
+            $this->_assignOrderAssetsToCookOrWaiter($model);
         }
     }
 
@@ -390,8 +415,8 @@ class OrdenesController extends MyRestController {
         if (count($orderAssets) === $i) {
             $model->status_id = 2;
             $model->save();
-            $this->createNotification('Orden elaborada', "La orden {$model->order_number} de la mesa {$model->table_number} está lista para servir.", date('Y-m-d h:i'), $waiterId, $model->id);
         }
+        $this->createNotification('Orden elaborada', "Un pedido de la orden {$model->order_number} de la mesa {$model->table_number} está listo para servir.", date('Y-m-d h:i'), $waiterId, $model->id);
     }
 
     private function _getPendingOrders($menuId) {

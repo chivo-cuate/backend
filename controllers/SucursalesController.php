@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\models\Branch;
 use app\models\BranchUser;
 use app\models\User;
+use app\models\AuthUser;
 use app\utilities\Utilities;
 use Exception;
 use yii\filters\VerbFilter;
@@ -32,7 +33,7 @@ class SucursalesController extends MyRestController {
             $manager = null;
             foreach ($authUsers as $authUser) {
                 $user = User::findOne($authUser->id);
-                if ($user->hasRole(2)) {
+                if (User::hasRole($authUser->id, 2)) {
                     $manager = $user;
                     break;
                 }
@@ -100,11 +101,9 @@ class SucursalesController extends MyRestController {
                         $branchUser->delete();
                     }
                 }
-                if ($newManager && $newManager->hasRole(2)) {
+                if ($newManager && User::hasRole($newManager->id, 2)) {
                     $newBranchUser = new BranchUser(['branch_id' => $item->id, 'user_id' => $newManager->id]);
-                    if ($newBranchUser) {
-                        $newBranchUser->save();
-                    }
+                    $newBranchUser->save();
                 }
             }
             return ['code' => 'success', 'msg' => 'Operación realizada con éxito.', 'data' => $this->_getBranchesAndManagers()];
@@ -123,7 +122,7 @@ class SucursalesController extends MyRestController {
                 return ['code' => 'error', 'msg' => Utilities::getModelErrorsString($item), 'data' => []];
             }
             $newManager = User::findOne(isset($params['manager_id']) ? $params['manager_id'] : null);
-            if ($newManager && $newManager->hasRole(2)) {
+            if ($newManager && User::hasRole($newManager->id, 2)) {
                 $newBranchUser = new BranchUser(['branch_id' => $item->id, 'user_id' => $newManager->id]);
                 if ($newBranchUser) {
                     $newBranchUser->save();

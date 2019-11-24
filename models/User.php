@@ -33,41 +33,46 @@ use yii\web\IdentityInterface;
  * @property Branch[] $branches
  * @property MenuCook[] $menuCooks
  * @property Menu[] $menus
+ * @property Notification[] $notifications
+ * @property Order[] $orders
  * @property OrderAsset[] $orderAssets
  * @property OrderAsset[] $orderAssets0
  */
-class User extends ActiveRecord implements IdentityInterface {
+class User extends \yii\db\ActiveRecord implements IdentityInterface {
 
     /**
      * {@inheritdoc}
      */
-    public static function tableName() {
+    public static function tableName()
+    {
         return 'auth_user';
     }
 
     /**
      * {@inheritdoc}
      */
-    public function rules() {
+    public function rules()
+    {
         return [
-                [['username', 'first_name', 'last_name', 'ine', 'auth_key', 'verification_token', 'password_hash', 'email', 'created_at', 'updated_at'], 'required'],
-                [['status', 'created_at', 'updated_at'], 'integer'],
-                [['username', 'first_name', 'last_name', 'ine', 'address', 'phone_number', 'password_hash', 'email'], 'string', 'max' => 255],
-                [['sex'], 'string', 'max' => 1],
-                [['auth_key', 'verification_token', 'password_reset_token'], 'string', 'max' => 32],
-                [['username'], 'unique'],
-                [['ine'], 'unique'],
-                [['auth_key'], 'unique'],
-                [['verification_token'], 'unique'],
-                [['email'], 'unique'],
-                [['password_reset_token'], 'unique'],
+            [['username', 'first_name', 'last_name', 'ine', 'auth_key', 'verification_token', 'password_hash', 'email', 'created_at', 'updated_at'], 'required'],
+            [['status', 'created_at', 'updated_at'], 'integer'],
+            [['username', 'first_name', 'last_name', 'ine', 'address', 'phone_number', 'password_hash', 'email'], 'string', 'max' => 255],
+            [['sex'], 'string', 'max' => 1],
+            [['auth_key', 'verification_token', 'password_reset_token'], 'string', 'max' => 32],
+            [['username'], 'unique'],
+            [['ine'], 'unique'],
+            [['auth_key'], 'unique'],
+            [['verification_token'], 'unique'],
+            [['email'], 'unique'],
+            [['password_reset_token'], 'unique'],
         ];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels() {
+    public function attributeLabels()
+    {
         return [
             'id' => 'ID',
             'username' => 'Username',
@@ -89,61 +94,89 @@ class User extends ActiveRecord implements IdentityInterface {
     }
 
     /**
-     * @return ActiveQuery
+     * @return \yii\db\ActiveQuery
      */
-    public function getAuthUserRoles() {
+    public function getAuthUserRoles()
+    {
         return $this->hasMany(AuthUserRole::className(), ['user_id' => 'id']);
     }
 
     /**
-     * @return ActiveQuery
+     * @return \yii\db\ActiveQuery
      */
-    public function getRoles() {
+    public function getRoles()
+    {
         return $this->hasMany(AuthRole::className(), ['id' => 'role_id'])->viaTable('auth_user_role', ['user_id' => 'id']);
     }
 
     /**
-     * @return ActiveQuery
+     * @return \yii\db\ActiveQuery
      */
-    public function getBranchUsers() {
+    public function getBranchUsers()
+    {
         return $this->hasMany(BranchUser::className(), ['user_id' => 'id']);
     }
 
     /**
-     * @return ActiveQuery
+     * @return \yii\db\ActiveQuery
      */
-    public function getBranches() {
+    public function getBranches()
+    {
         return $this->hasMany(Branch::className(), ['id' => 'branch_id'])->viaTable('branch_user', ['user_id' => 'id']);
     }
 
     /**
-     * @return ActiveQuery
+     * @return \yii\db\ActiveQuery
      */
-    public function getMenuCooks() {
+    public function getMenuCooks()
+    {
         return $this->hasMany(MenuCook::className(), ['cook_id' => 'id']);
     }
 
     /**
-     * @return ActiveQuery
+     * @return \yii\db\ActiveQuery
      */
-    public function getMenus() {
+    public function getMenus()
+    {
         return $this->hasMany(Menu::className(), ['id' => 'menu_id'])->viaTable('menu_cook', ['cook_id' => 'id']);
     }
 
     /**
-     * @return ActiveQuery
+     * @return \yii\db\ActiveQuery
      */
-    public function getOrderAssets() {
+    public function getNotifications()
+    {
+        return $this->hasMany(Notification::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOrders()
+    {
+        return $this->hasMany(Order::className(), ['id' => 'order_id'])->viaTable('notification', ['user_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOrderAssets()
+    {
         return $this->hasMany(OrderAsset::className(), ['cook_id' => 'id']);
     }
 
     /**
-     * @return ActiveQuery
+     * @return \yii\db\ActiveQuery
      */
-    public function getOrderAssets0() {
+    public function getOrderAssets0()
+    {
         return $this->hasMany(OrderAsset::className(), ['waiter_id' => 'id']);
     }
 
+    public static function hasRole($userId, $roleId) {
+        return AuthUserRole::findOne(['user_id' => $userId, 'role_id' => $roleId]);
+    }
+    
     /**
      * {@inheritdoc}
      */
@@ -196,15 +229,11 @@ class User extends ActiveRecord implements IdentityInterface {
      * @return bool if password provided is valid for current user
      */
     public function validatePassword($password) {
-        return Yii::$app->security->validatePassword($password, $this->password_hash);
-    }
-
-    public function hasRole($roleId) {
-        return AuthUserRole::findOne(['user_id' => $this->id, 'role_id' => $roleId]);
+        return Yii::$app->security->validatePassword($password, $this ? $this->password_hash : \Yii::$app->security->generatePasswordHash(''));
     }
 
     public function hasPermission($permId) {
-        $item = AuthUser::find()->innerJoin('auth_user_role', 'auth_user_role.user_id = auth_user.id')->innerJoin('auth_permission_role', 'auth_permission_role.role_id = auth_user_role.role_id')->where(['auth_user.id' => $this->id, 'auth_permission_role.perm_id' => $permId])->one();
+        $item = User::find()->innerJoin('auth_user_role', 'auth_user_role.user_id = auth_user.id')->innerJoin('auth_permission_role', 'auth_permission_role.role_id = auth_user_role.role_id')->where(['auth_user.id' => $this->id, 'auth_permission_role.perm_id' => $permId])->one();
         return $item;
     }
 
@@ -213,8 +242,8 @@ class User extends ActiveRecord implements IdentityInterface {
         return $item;
     }
 
-    public static function findByIdBranchAndPerm($id, $permId, $branchId) {
-        $item = AuthUser::find()->innerJoin('branch_user', 'auth_user.id = branch_user.user_id')->innerJoin('auth_user_role', 'auth_user_role.user_id = auth_user.id')->innerJoin('auth_permission_role', 'auth_permission_role.role_id = auth_user_role.role_id')->where(['auth_user.id' => $id, 'auth_permission_role.perm_id' => $permId, 'branch_user.branch_id' => $branchId])->one();
+    public static function findByIdPermAndBranch($id, $permId, $branchId) {
+        $item = User::find()->innerJoin('branch_user', 'auth_user.id = branch_user.user_id')->innerJoin('auth_user_role', 'auth_user_role.user_id = auth_user.id')->innerJoin('auth_permission_role', 'auth_permission_role.role_id = auth_user_role.role_id')->where(['auth_user.id' => $id, 'auth_permission_role.perm_id' => $permId, 'branch_user.branch_id' => $branchId])->one();
         return $item;
     }
 
@@ -232,7 +261,7 @@ class User extends ActiveRecord implements IdentityInterface {
     }
 
     public function getUsersByRole($roleId) {
-        return AuthUser::find()->join('INNER JOIN', 'auth_user_role', ['auth_user.id' => 'auth_user_role.user_id'], ['auth_user_role.role_id' => $roleId])->all();
+        return User::find()->join('INNER JOIN', 'auth_user_role', ['auth_user.id' => 'auth_user_role.user_id'], ['auth_user_role.role_id' => $roleId])->all();
     }
 
 }

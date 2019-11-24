@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\models\Notification;
 use app\models\User;
+use app\models\AuthUser;
 use app\utilities\Security;
 use app\utilities\Utilities;
 use Exception;
@@ -169,8 +170,8 @@ class MyRestController extends ActiveController {
             $jwt = str_replace('Bearer ', '', $this->request->getHeaders()->get('Authorization'));
             $payload = $this->decodeJWT($jwt);
             if ($payload->exp > time() && $payload->ip === $this->request->getUserIP()) {
-                $user = User::findOne($payload->user_id);
-                $this->userInfo = $user ? ['code' => 'success', 'msg' => 'User verified', 'user' => $user] : ['code' => 'error', 'msg' => 'Invalid credentials.', 'user' => null];
+                $authUser = User::findOne($payload->user_id);
+                $this->userInfo = $authUser ? ['code' => 'success', 'msg' => 'User verified', 'user' => $authUser] : ['code' => 'error', 'msg' => 'Invalid credentials.', 'user' => null];
             }
         } catch (Exception $exc) {
             $this->userInfo = ['code' => 'error', 'msg' => $exc->getMessage(), 'user' => null];

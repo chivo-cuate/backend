@@ -2,7 +2,7 @@
 
 return [
     'class' => 'yii\db\Connection',
-    'dsn' => 'mysql:host=localhost;dbname=id10281315_chivo_cuate',
+    'dsn' => 'mysql:host=db;dbname=id10281315_chivo_cuate',
     'username' => 'id10281315_chivo_cuate',
     'password' => 'ChivoCuate123*',
     'charset' => 'utf8',
