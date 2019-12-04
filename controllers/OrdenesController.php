@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\models\Asset;
 use app\models\AssetComponent;
+use app\models\AuthUser;
 use app\models\Branch;
 use app\models\Notification;
 use app\models\Order;
@@ -416,7 +417,8 @@ class OrdenesController extends MyRestController {
             $model->status_id = 2;
             $model->save();
         }
-        $this->createNotification('Orden elaborada', "Un pedido de la orden {$model->order_number} de la mesa {$model->table_number} está listo para servir.", date('Y-m-d h:i'), $waiterId, $model->id);
+        $cook = User::findOne($cookId);
+        $this->createNotification('Orden elaborada', "Un pedido de la orden {$model->order_number} de la mesa {$model->table_number}, elaborado por {$cook->getFullName()}, está listo para servir.", date('Y-m-d h:i'), $waiterId, $model->id);
     }
 
     private function _getPendingOrders($menuId) {
