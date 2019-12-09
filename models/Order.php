@@ -13,11 +13,13 @@ use Yii;
  * @property int $order_number
  * @property int $status_id
  * @property int $menu_id
+ * @property int $order_type_id
  *
  * @property Notification[] $notifications
  * @property AuthUser[] $users
  * @property Menu $menu
  * @property OrderStatus $status
+ * @property OrderType $orderType
  * @property OrderAsset[] $orderAssets
  */
 class Order extends \yii\db\ActiveRecord
@@ -36,10 +38,11 @@ class Order extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['date_time', 'table_number', 'order_number', 'menu_id'], 'required'],
-            [['date_time', 'table_number', 'order_number', 'status_id', 'menu_id'], 'integer'],
+            [['date_time', 'table_number', 'order_number', 'menu_id', 'order_type_id'], 'required'],
+            [['date_time', 'table_number', 'order_number', 'status_id', 'menu_id', 'order_type_id'], 'integer'],
             [['menu_id'], 'exist', 'skipOnError' => true, 'targetClass' => Menu::className(), 'targetAttribute' => ['menu_id' => 'id']],
             [['status_id'], 'exist', 'skipOnError' => true, 'targetClass' => OrderStatus::className(), 'targetAttribute' => ['status_id' => 'id']],
+            [['order_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => OrderType::className(), 'targetAttribute' => ['order_type_id' => 'id']],
         ];
     }
 
@@ -55,6 +58,7 @@ class Order extends \yii\db\ActiveRecord
             'order_number' => 'Order Number',
             'status_id' => 'Status ID',
             'menu_id' => 'Menu ID',
+            'order_type_id' => 'Order Type ID',
         ];
     }
 
@@ -88,6 +92,14 @@ class Order extends \yii\db\ActiveRecord
     public function getStatus()
     {
         return $this->hasOne(OrderStatus::className(), ['id' => 'status_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOrderType()
+    {
+        return $this->hasOne(OrderType::className(), ['id' => 'order_type_id']);
     }
 
     /**
