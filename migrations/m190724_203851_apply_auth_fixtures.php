@@ -16,8 +16,10 @@ class m190724_203851_apply_auth_fixtures extends Migration {
         //Roles
         $this->insert('auth_role', ['name' => 'Administrador del Sistema', 'description' => 'Edita las sucursales y administra el acceso a la aplicación.']);
         $this->insert('auth_role', ['name' => 'Gerente de Sucursal', 'description' => 'Edita los datos de su sucursal.']);
-        $this->insert('auth_role', ['name' => 'Mesero', 'description' => 'Atiende a los clientes y toma sus órdenes.']);
-        $this->insert('auth_role', ['name' => 'Elaborador', 'description' => 'Elabora las órdenes de los clientes.']);
+        $this->insert('auth_role', ['name' => 'Mesero OPC', 'description' => 'Atiende a los clientes y toma sus órdenes.']);
+        $this->insert('auth_role', ['name' => 'Elaborador OPC', 'description' => 'Elabora las órdenes de los clientes.']);
+        $this->insert('auth_role', ['name' => 'Mesero OPL', 'description' => 'Elabora las órdenes de los clientes.']);
+        $this->insert('auth_role', ['name' => 'Elaborador OPL', 'description' => 'Elabora las órdenes de los clientes.']);
 
         //Administrador
         $this->insert('auth_user', [
@@ -179,16 +181,20 @@ class m190724_203851_apply_auth_fixtures extends Migration {
         $this->insert('auth_user_role', ['user_id' => 2, 'role_id' => 2]);
         $this->insert('auth_user_role', ['user_id' => 3, 'role_id' => 2]);
         $this->insert('auth_user_role', ['user_id' => 4, 'role_id' => 3]);
+        $this->insert('auth_user_role', ['user_id' => 4, 'role_id' => 5]);
         $this->insert('auth_user_role', ['user_id' => 5, 'role_id' => 3]);
         $this->insert('auth_user_role', ['user_id' => 6, 'role_id' => 3]);
         $this->insert('auth_user_role', ['user_id' => 7, 'role_id' => 4]);
+        $this->insert('auth_user_role', ['user_id' => 7, 'role_id' => 6]);
         $this->insert('auth_user_role', ['user_id' => 8, 'role_id' => 4]);
         $this->insert('auth_user_role', ['user_id' => 9, 'role_id' => 4]);
         $this->insert('auth_user_role', ['user_id' => 10, 'role_id' => 1]);
         $this->insert('auth_user_role', ['user_id' => 10, 'role_id' => 2]);
         $this->insert('auth_user_role', ['user_id' => 10, 'role_id' => 3]);
         $this->insert('auth_user_role', ['user_id' => 10, 'role_id' => 4]);
-        
+        $this->insert('auth_user_role', ['user_id' => 10, 'role_id' => 5]);
+        $this->insert('auth_user_role', ['user_id' => 10, 'role_id' => 6]);
+
         //Módulos
         $this->insert('auth_module', ['name' => 'Seguridad', 'slug' => 'seguridad', 'icon' => 'security']);
         $this->insert('auth_module', ['name' => 'Mi Sucursal', 'slug' => 'sucursal', 'icon' => 'location_city']);
@@ -248,10 +254,10 @@ class m190724_203851_apply_auth_fixtures extends Migration {
 
         //Permisos del submódulo "Órdenes"
         $this->insert('auth_permission', ['name' => 'Listar', 'slug' => 'listar', 'module_id' => 11]);
-        $this->insert('auth_permission', ['name' => 'Crear', 'slug' => 'crear', 'module_id' => 11]);
+        $this->insert('auth_permission', ['name' => 'Crear OPC', 'slug' => 'crear', 'module_id' => 11]);
         $this->insert('auth_permission', ['name' => 'Editar', 'slug' => 'editar', 'module_id' => 11]);
         $this->insert('auth_permission', ['name' => 'Cancelar', 'slug' => 'eliminar', 'module_id' => 11]);
-        $this->insert('auth_permission', ['name' => 'Elaborar', 'slug' => 'elaborar', 'module_id' => 11]);
+        $this->insert('auth_permission', ['name' => 'Elaborar OPC', 'slug' => 'elaborar', 'module_id' => 11]);
         $this->insert('auth_permission', ['name' => 'Cerrar cuenta', 'slug' => 'cerrar', 'module_id' => 11]);
         
         //Permisos extra
@@ -260,7 +266,9 @@ class m190724_203851_apply_auth_fixtures extends Migration {
         $this->insert('auth_permission', ['name' => 'Editar ingredientes', 'slug' => 'editar-ingredientes', 'module_id' => 8]); //id 38 - Editar ingredientes de los productos
         $this->insert('auth_permission', ['name' => 'Ver pendientes', 'slug' => 'ver-pendientes', 'module_id' => 11]); //id 39 - Ver órdenes pendientes
         $this->insert('auth_permission', ['name' => 'Servir productos', 'slug' => 'servir-productos', 'module_id' => 11]); //id 40 - Servir productos
-        
+        $this->insert('auth_permission', ['name' => 'Crear OPL', 'slug' => 'crear-opl', 'module_id' => 11]);    //id 41 - Crear ordenes para llevar
+        $this->insert('auth_permission', ['name' => 'Elaborar OPL', 'slug' => 'elaborar-opl', 'module_id' => 11]);  //id 42 - Elaborar ordenes para llevar
+
         //Permisos del Administrador
         $this->insert('auth_permission_role', ['perm_id' => 1, 'role_id' => 1]);
         $this->insert('auth_permission_role', ['perm_id' => 2, 'role_id' => 1]);
@@ -297,7 +305,7 @@ class m190724_203851_apply_auth_fixtures extends Migration {
         $this->insert('auth_permission_role', ['perm_id' => 37, 'role_id' => 2]);
         $this->insert('auth_permission_role', ['perm_id' => 38, 'role_id' => 2]);
         
-        //Permisos del Mesero
+        //Permisos del Mesero OPC
         $this->insert('auth_permission_role', ['perm_id' => 30, 'role_id' => 3]);
         $this->insert('auth_permission_role', ['perm_id' => 31, 'role_id' => 3]);
         $this->insert('auth_permission_role', ['perm_id' => 32, 'role_id' => 3]);
@@ -305,12 +313,27 @@ class m190724_203851_apply_auth_fixtures extends Migration {
         $this->insert('auth_permission_role', ['perm_id' => 35, 'role_id' => 3]);
         $this->insert('auth_permission_role', ['perm_id' => 40, 'role_id' => 3]);
         
-        //Permisos del Elaborador
+        //Permisos del Elaborador OPC
         $this->insert('auth_permission_role', ['perm_id' => 34, 'role_id' => 4]);
         $this->insert('auth_permission_role', ['perm_id' => 39, 'role_id' => 4]);
-        
+
+        //Permisos del Mesero OPL
+        $this->insert('auth_permission_role', ['perm_id' => 30, 'role_id' => 5]);
+        $this->insert('auth_permission_role', ['perm_id' => 31, 'role_id' => 5]);
+        $this->insert('auth_permission_role', ['perm_id' => 32, 'role_id' => 5]);
+        $this->insert('auth_permission_role', ['perm_id' => 33, 'role_id' => 5]);
+        $this->insert('auth_permission_role', ['perm_id' => 35, 'role_id' => 5]);
+        $this->insert('auth_permission_role', ['perm_id' => 40, 'role_id' => 5]);
+        $this->insert('auth_permission_role', ['perm_id' => 41, 'role_id' => 5]);
+
+        //Permisos del Elaborador OPL
+        $this->insert('auth_permission_role', ['perm_id' => 34, 'role_id' => 6]);
+        $this->insert('auth_permission_role', ['perm_id' => 39, 'role_id' => 6]);
+        $this->insert('auth_permission_role', ['perm_id' => 42, 'role_id' => 6]);
+
         //Sucursales
         $this->insert('branch', ['name' => 'Sucursal 1', 'tables' => 15]);
+
         $this->insert('branch', ['name' => 'Sucursal 2', 'tables' => 11]);
         
         //Sucursales - usuarios

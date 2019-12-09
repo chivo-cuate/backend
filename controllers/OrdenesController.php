@@ -9,6 +9,7 @@ use app\models\Branch;
 use app\models\Notification;
 use app\models\Order;
 use app\models\OrderAsset;
+use app\models\OrderType;
 use app\models\Stock;
 use app\models\User;
 use app\utilities\Utilities;
@@ -428,6 +429,7 @@ class OrdenesController extends MyRestController {
         foreach ($orders as &$order) {
             $res[$i] = $order->getAttributes();
             $res[$i]['elapsed_time'] = Utilities::dateDiff($order->date_time, time());
+            $res[$i]['order_type'] = OrderType::findOne($order->getOrderType()->name);
             $res[$i]['assets'] = [];
             $orderAssets = OrderAsset::find()->innerJoin('asset', 'order_asset.asset_id = asset.id')->where(['order_id' => $order->id])->select(['order_asset.asset_id', 'asset.name', 'order_asset.quantity', 'order_asset.finished'])->asArray()->all();
             foreach ($orderAssets as $orderAsset) {

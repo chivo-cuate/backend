@@ -24,8 +24,8 @@ class UserTest extends \Codeception\Test\Unit
 
     public function testFindUserByUsername()
     {
-        expect_that($user = User::findByUsername('admin')->getAuthUser());
-        expect_not(User::findByUsername('not-admin')->getAuthUser());
+        expect_that($user = User::findByUsername('admin'));
+        expect_not(User::findByUsername('not-admin'));
     }
 
     /**

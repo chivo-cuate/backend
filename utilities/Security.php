@@ -13,9 +13,11 @@ class Security {
 
         foreach ($userRoles as $userRole) {
             $perms = $userRole->getRole()->one()->getPerms()->all();
+
             foreach ($perms as $perm) {
                 $subModule = $perm->getModule()->one();
                 $module = $subModule->getParent()->one();
+
                 $moduleIndex = self::getItemIndexOnArray($res, 'name', $module->name);
                 if ($moduleIndex === -1) {
                     $res[] = [
@@ -26,6 +28,7 @@ class Security {
                     ];
                     $moduleIndex = count($res) - 1;
                 }
+
                 $subModuleIndex = self::getItemIndexOnArray($res[$moduleIndex]['subModules'], 'name', $subModule->name);
                 if ($subModuleIndex === -1) {
                     $res[$moduleIndex]['subModules'][] = [
@@ -36,10 +39,14 @@ class Security {
                     ];
                     $subModuleIndex = count($res[$moduleIndex]['subModules']) - 1;
                 }
-                $res[$moduleIndex]['subModules'][$subModuleIndex]['perms'][] = [
-                    'text' => $perm->name,
-                    'route' => "/$module->slug/$subModule->slug/$perm->slug",
-                ];
+
+                $permIndex = self::getItemIndexOnArray($res[$moduleIndex]['subModules'][$subModuleIndex]['perms'], 'text', $perm->name);
+                if ($permIndex === -1) {
+                    $res[$moduleIndex]['subModules'][$subModuleIndex]['perms'][] = [
+                        'text' => $perm->name,
+                        'route' => "/$module->slug/$subModule->slug/$perm->slug",
+                    ];
+                }
             }
         }
         return $res;
