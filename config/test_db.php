@@ -1,6 +1,8 @@
 <?php
-$db = require __DIR__ . '/db.php';
-// test database! Important not to run tests on production or development databases
-$db['dsn'] = 'mysql:host=db;dbname=u715364900_chivocuate';
-
-return $db;
+return [
+    'class' => 'yii\db\Connection',
+    'dsn' => 'mysql:host=localhost;dbname=u715364900_chivocuate',
+    'username' => 'u715364900_chivocuate',
+    'password' => 'ChivoCuate123*',
+    'charset' => 'utf8',
+];
