@@ -257,18 +257,20 @@ class OrdenesController extends MyRestController
         }
     }
 
-    private function _notifyOldCooks($model, $cooks)
+    private function _notifyOldCooks($model, $oldCooks)
     {
-        $cooksFullNames = "";
-        foreach ($cooks as $cook) {
-            $cooksFullNames .= "{$cook->getFullName()}, ";
-        }
-        $cooksFullNames = rtrim($cooksFullNames, ', ');
-        $menu = Utilities::getCurrentMenu($this->requestParams['branch_id']);
-        $menuCooks = $menu->getCooks()->all();
-        $orderTypeDesc = $model->order_type_id === 1 ? " de la mesa {$model->table_number}" : " para llevar";
-        foreach ($menuCooks as $menuCook) {
-            $this->createNotification('Orden modificada', "$cooksFullNames: la orden {$model->order_number}$orderTypeDesc ha sido modificada.", date('Y-m-d h:i'), $menuCook->id, $model->id);
+        if (count($oldCooks) > 0) {
+            $cooksFullNames = "";
+            foreach ($oldCooks as $oldCook) {
+                $cooksFullNames .= "{$oldCook->getFullName()}, ";
+            }
+            $cooksFullNames = rtrim($cooksFullNames, ', ');
+            $menu = Utilities::getCurrentMenu($this->requestParams['branch_id']);
+            $menuCooks = $menu->getCooks()->all();
+            $orderTypeDesc = $model->order_type_id === 1 ? " de la mesa {$model->table_number}" : " para llevar";
+            foreach ($menuCooks as $menuCook) {
+                $this->createNotification('Orden modificada', "$cooksFullNames: la orden {$model->order_number}$orderTypeDesc ha sido modificada.", date('Y-m-d h:i'), $menuCook->id, $model->id);
+            }
         }
     }
 
@@ -395,16 +397,19 @@ class OrdenesController extends MyRestController
                     $orderAsset->save();
                 } else {
                     $assignedAssetsCount++;
-                    $oldCooks[$orderAsset->cook_id] = User::findOne($orderAsset->cook_id);
+                    $oldCook = User::findOne($orderAsset->cook_id);
+                    if (User::hasRole($oldCook->id, 4) || User::hasRole($oldCook->id, 6)) {
+                        $oldCooks[$orderAsset->cook_id] = User::findOne($orderAsset->cook_id);
+                    }
                 }
             }
 
             $model->status_id = ($assignedAssetsToWaiterCount === $assetsCount ? 2 : ($assignedAssetsCount === $assetsCount ? 1 : 0));
 
             if ($model->save()) {
-                if ($newCookAssigned) {
+                //if ($newCookAssigned) {
                     $this->_notifyWaiterAndMenuCooks($model, $waiterId, $newCook);
-                }
+                //}
                 $this->_notifyOldCooks($model, $oldCooks);
             }
         }
