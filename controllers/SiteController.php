@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\User;
+use Cassandra\Date;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -118,7 +119,7 @@ class SiteController extends Controller {
     }
 
     public function actionMaintenance() {
-        $now = new \DateTime();
+        $now = new date();
         return "All done at {$now}!";
     }
 
