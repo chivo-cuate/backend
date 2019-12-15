@@ -9,7 +9,7 @@ use Yii;
  *
  * @property int $id
  * @property int $date_time
- * @property int $table_number
+ * @property int|null $table_number
  * @property int $order_number
  * @property int $status_id
  * @property int $menu_id

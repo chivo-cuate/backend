@@ -9,7 +9,7 @@ use Yii;
  *
  * @property int $id
  * @property string $name
- * @property string $description
+ * @property string|null $description
  *
  * @property AuthPermissionRole[] $authPermissionRoles
  * @property AuthPermission[] $perms

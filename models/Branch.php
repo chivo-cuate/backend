@@ -10,7 +10,7 @@ use Yii;
  * @property int $id
  * @property string $name
  * @property int $tables
- * @property string $description
+ * @property string|null $description
  *
  * @property Asset[] $assets
  * @property BranchUser[] $branchUsers

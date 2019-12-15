@@ -9,10 +9,10 @@ use Yii;
  *
  * @property int $id
  * @property string $name
- * @property string $slug
- * @property string $icon
- * @property int $parent_id
- * @property string $description
+ * @property string|null $slug
+ * @property string|null $icon
+ * @property int|null $parent_id
+ * @property string|null $description
  *
  * @property AuthModule $parent
  * @property AuthModule[] $authModules

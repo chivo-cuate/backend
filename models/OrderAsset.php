@@ -13,7 +13,7 @@ use Yii;
  * @property int $quantity
  * @property int $finished
  * @property int $waiter_id
- * @property int $cook_id
+ * @property int|null $cook_id
  *
  * @property Asset $asset
  * @property AuthUser $cook

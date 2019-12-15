@@ -10,7 +10,7 @@ use Yii;
  * @property int $id
  * @property int $asset_id
  * @property int $component_id
- * @property double $quantity
+ * @property float $quantity
  * @property int $measure_unit_id
  *
  * @property Asset $asset

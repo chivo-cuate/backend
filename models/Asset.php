@@ -11,7 +11,7 @@ use Yii;
  * @property string $name
  * @property int $status
  * @property int $asset_type_id
- * @property int $category_id
+ * @property int|null $category_id
  * @property int $branch_id
  *
  * @property AssetCategory $category

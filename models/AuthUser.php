@@ -12,13 +12,13 @@ use Yii;
  * @property string $first_name
  * @property string $last_name
  * @property string $ine
- * @property string $address
- * @property string $phone_number
- * @property string $sex
+ * @property string|null $address
+ * @property string|null $phone_number
+ * @property string|null $sex
  * @property string $auth_key
  * @property string $verification_token
  * @property string $password_hash
- * @property string $password_reset_token
+ * @property string|null $password_reset_token
  * @property string $email
  * @property int $status
  * @property int $created_at

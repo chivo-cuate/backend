@@ -10,8 +10,8 @@ use Yii;
  * @property int $id
  * @property int $menu_id
  * @property int $asset_id
- * @property double $price
- * @property int $grams
+ * @property float $price
+ * @property int|null $grams
  *
  * @property Menu $menu
  * @property Asset $asset

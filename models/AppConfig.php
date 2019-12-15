@@ -10,13 +10,13 @@ use Yii;
  * @property int $id
  * @property string $app_title
  * @property string $about
- * @property string $address
- * @property string $phone
- * @property string $email_address
- * @property string $email_password
- * @property string $email_host
- * @property int $email_port
- * @property string $email_encryption
+ * @property string|null $address
+ * @property string|null $phone
+ * @property string|null $email_address
+ * @property string|null $email_password
+ * @property string|null $email_host
+ * @property int|null $email_port
+ * @property string|null $email_encryption
  */
 class AppConfig extends \yii\db\ActiveRecord
 {

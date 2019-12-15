@@ -10,9 +10,9 @@ use Yii;
  * @property int $id
  * @property int $branch_id
  * @property int $asset_id
- * @property double $quantity
+ * @property float $quantity
  * @property int $measure_unit_id
- * @property double $price_in
+ * @property float $price_in
  *
  * @property Asset $asset
  * @property Branch $branch

@@ -10,11 +10,11 @@ use Yii;
  * @property int $asset_id
  * @property string $asset_name
  * @property int $component_id
- * @property double $required_quantity
- * @property double $stock_quantity
- * @property double $price_in
+ * @property float $required_quantity
+ * @property float|null $stock_quantity
+ * @property float|null $price_in
  * @property int $measure_unit_id
- * @property double $units_left
+ * @property float|null $units_left
  */
 class ProductIngredient extends \yii\db\ActiveRecord
 {
