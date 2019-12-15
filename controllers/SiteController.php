@@ -119,8 +119,7 @@ class SiteController extends Controller {
     }
 
     public function actionMaintenance() {
-        $now = new date();
-        return "All done at {$now}!";
+        return "All done!";
     }
 
 
