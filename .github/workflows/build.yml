@@ -19,6 +19,6 @@ jobs:
     - name: Validate composer.json and composer.lock
       run: composer validate
 
-    - name: Run test suite
-      run: ./vendor/bin/codecept run unit
+#    - name: Run test suite
+#      run: ./vendor/bin/codecept run unit
 
