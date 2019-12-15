@@ -107,7 +107,7 @@ class MyRestController extends ActiveController {
     }
 
     protected function createNotification($title, $subtitle, $headline, $userId, $orderId) {
-        Notification::deleteAll(['user_id' => $userId, 'order_id' => $orderId]);
+        //Notification::deleteAll(['user_id' => $userId, 'order_id' => $orderId]);
         $model = new Notification([
             'order_id' => $orderId,
             'user_id' => $userId,

@@ -24,7 +24,7 @@ class m190724_182512_create_notification_table extends Migration {
         $this->addForeignKey('fk_notification_user', 'notification', 'user_id', 'auth_user', 'id', 'cascade', 'cascade');
         $this->addForeignKey('fk_notification_order', 'notification', 'order_id', 'order', 'id', 'cascade', 'cascade');
         
-        $this->createIndex('idx_notification_orderuser', 'notification', 'user_id, order_id', true);
+        //$this->createIndex('idx_notification_orderuser', 'notification', 'user_id, order_id', true);
     }
 
     /**

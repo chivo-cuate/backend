@@ -38,7 +38,7 @@ class Notification extends \yii\db\ActiveRecord
             [['user_id', 'order_id', 'title', 'subtitle', 'headline', 'created_at'], 'required'],
             [['user_id', 'order_id', 'status', 'created_at'], 'integer'],
             [['title', 'subtitle', 'headline'], 'string', 'max' => 255],
-            [['user_id', 'order_id'], 'unique', 'targetAttribute' => ['user_id', 'order_id']],
+            //[['user_id', 'order_id'], 'unique', 'targetAttribute' => ['user_id', 'order_id']],
             [['order_id'], 'exist', 'skipOnError' => true, 'targetClass' => Order::className(), 'targetAttribute' => ['order_id' => 'id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => AuthUser::className(), 'targetAttribute' => ['user_id' => 'id']],
         ];

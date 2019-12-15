@@ -260,4 +260,8 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface {
         return User::find()->join('INNER JOIN', 'auth_user_role', ['auth_user.id' => 'auth_user_role.user_id'], ['auth_user_role.role_id' => $roleId])->all();
     }
 
+    public static function hasRole($userId, $roleId) {
+        return AuthUserRole::findOne(['user_id' => $userId, 'role_id' => $roleId]);
+    }
+
 }
