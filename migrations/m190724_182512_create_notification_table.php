@@ -14,7 +14,7 @@ class m190724_182512_create_notification_table extends Migration {
         $this->createTable('{{%notification}}', [
             'id' => $this->primaryKey(),
             'user_id' => $this->integer()->notNull(),
-            'order_id' => $this->integer()->notNull(),
+            'order_id' => $this->integer(),
             'status' => $this->smallInteger()->notNull()->defaultValue(1),
             'title' => $this->string()->notNull(),
             'subtitle' => $this->string()->notNull(),

@@ -113,16 +113,13 @@ class SiteController extends Controller {
     }
 
     public function actionTest() {
-        $allowedCookRoles = "6";
-        $menuId = 1;
-        $sql = "select * from auth_user where id in (select cook_id from menu_cook where menu_id = {$menuId}) and id in (select user_id from auth_user_role where role_id in ($allowedCookRoles)) and id not in (select cook_id from order_asset where finished = 0 and cook_id is not null) order by id";
-        $command = Yii::$app->db->createCommand($sql);
-        $result = $command->queryOne();
-        var_dump($result);
-        if ($result) {
-            var_dump($result['id'], $result['username']);
-        }
+        return 123;
 
+    }
+
+    public function actionMaintenance() {
+        $now = new \DateTime();
+        return "All done at {$now}!";
     }
 
 

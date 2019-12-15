@@ -220,60 +220,6 @@ class OrdenesController extends MyRestController
         return null;*/
     }
 
-    private function _getNextOrderNumber($menuId, $tableNumber)
-    {
-        if ($tableNumber > 0) {
-            $maxNumber = Order::find()->where(['menu_id' => $menuId, 'table_number' => $tableNumber])->andWhere('status_id <> 3')->max('[[order_number]]');
-        } else {
-            $maxNumber = Order::find()->where(['menu_id' => $menuId, 'order_type_id' => 2])->andWhere('status_id <> 3')->max('[[order_number]]');
-        }
-        return $maxNumber ? $maxNumber + 1 : 1;
-    }
-
-    private function _notifyWaiterAndMenuCooks($model, $waiterId, $cook)
-    {
-        $orderTypeDesc = $model->order_type_id === 1 ? " de la mesa {$model->table_number}" : " para llevar";
-        switch ($model->status_id) {
-            case 0:
-                $this->createNotification('Orden en cola', "La orden {$model->order_number}$orderTypeDesc se encuentra en cola.", date('Y-m-d h:i'), $waiterId, $model->id);
-                break;
-            case 1:
-                if ($cook) {
-                    $cookName = $cook->getFullName();
-                    $cookGenderEnding = $cook->sex === 'M' ? 'o' : 'a';
-                    $this->createNotification('Orden asignada', "{$cookName} ha sido asignad{$cookGenderEnding} a la orden {$model->order_number}$orderTypeDesc.", date('Y-m-d h:i'), $waiterId, $model->id);
-                    $menu = Utilities::getCurrentMenu($this->requestParams['branch_id']);
-                    $menuCooks = $menu->getCooks()->all();
-                    foreach ($menuCooks as $menuCook) {
-                        $this->createNotification('Orden asignada', "{$cookName} ha sido asignad{$cookGenderEnding} a la orden {$model->order_number} $orderTypeDesc.", date('Y-m-d h:i'), $menuCook->id, $model->id);
-                    }
-                }
-                break;
-            case 2:
-                $this->createNotification('Orden elaborada', "La orden {$model->order_number}$orderTypeDesc está lista.", date('Y-m-d h:i'), $waiterId, $model->id);
-                break;
-            default:
-                break;
-        }
-    }
-
-    private function _notifyOldCooks($model, $oldCooks)
-    {
-        if (count($oldCooks) > 0) {
-            $cooksFullNames = "";
-            foreach ($oldCooks as $oldCook) {
-                $cooksFullNames .= "{$oldCook->getFullName()}, ";
-            }
-            $cooksFullNames = rtrim($cooksFullNames, ', ');
-            $menu = Utilities::getCurrentMenu($this->requestParams['branch_id']);
-            $menuCooks = $menu->getCooks()->all();
-            $orderTypeDesc = $model->order_type_id === 1 ? " de la mesa {$model->table_number}" : " para llevar";
-            foreach ($menuCooks as $menuCook) {
-                $this->createNotification('Orden modificada', "$cooksFullNames: la orden {$model->order_number}$orderTypeDesc ha sido modificada.", date('Y-m-d h:i'), $menuCook->id, $model->id);
-            }
-        }
-    }
-
     public function actionListar()
     {
         try {
@@ -304,6 +250,16 @@ class OrdenesController extends MyRestController
             $transaction->rollBack();
             return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
         }
+    }
+
+    private function _getNextOrderNumber($menuId, $tableNumber)
+    {
+        if ($tableNumber > 0) {
+            $maxNumber = Order::find()->where(['menu_id' => $menuId, 'table_number' => $tableNumber])->andWhere('status_id <> 3')->max('[[order_number]]');
+        } else {
+            $maxNumber = Order::find()->where(['menu_id' => $menuId, 'order_type_id' => 2])->andWhere('status_id <> 3')->max('[[order_number]]');
+        }
+        return $maxNumber ? $maxNumber + 1 : 1;
     }
 
     public function actionEditar()
@@ -375,7 +331,6 @@ class OrdenesController extends MyRestController
         if ($assetsCount > 0) {
             $newCook = $this->_getFirstAvailableCook($model->order_type_id);
             $oldCooks = [];
-            $newCookAssigned = false;
             $waiterId = $orderAssets[0]->waiter_id;
             $assignedAssetsCount = 0;
             $assignedAssetsToWaiterCount = 0;
@@ -384,7 +339,6 @@ class OrdenesController extends MyRestController
                     $asset = $orderAsset->getAsset()->one();
                     if ($this->_assetNeedsCooking($asset)) {
                         if ($newCook) {
-                            $newCookAssigned = true;
                             $orderAsset->cook_id = $newCook->id;
                             $assignedAssetsCount++;
                         }
@@ -407,10 +361,52 @@ class OrdenesController extends MyRestController
             $model->status_id = ($assignedAssetsToWaiterCount === $assetsCount ? 2 : ($assignedAssetsCount === $assetsCount ? 1 : 0));
 
             if ($model->save()) {
-                //if ($newCookAssigned) {
-                    $this->_notifyWaiterAndMenuCooks($model, $waiterId, $newCook);
-                //}
-                $this->_notifyOldCooks($model, $oldCooks);
+                $this->_notifyWaiterAndMenuCooks($model, $waiterId, $newCook);
+                $this->_notifyOldCooks($model, $oldCooks, "modificada");
+            }
+        }
+    }
+
+    private function _notifyWaiterAndMenuCooks($model, $waiterId, $cook)
+    {
+        $orderTypeDesc = $model->order_type_id === 1 ? " de la mesa {$model->table_number}" : " para llevar";
+        switch ($model->status_id) {
+            case 0:
+                $this->createNotification('Orden en cola', "La orden {$model->order_number}$orderTypeDesc se encuentra en cola.", date('Y-m-d h:i'), $waiterId, $model->id);
+                break;
+            case 1:
+                if ($cook) {
+                    $cookName = $cook->getFullName();
+                    $cookGenderEnding = $cook->sex === 'M' ? 'o' : 'a';
+                    $this->createNotification('Orden asignada', "{$cookName} ha sido asignad{$cookGenderEnding} a la orden {$model->order_number}$orderTypeDesc.", date('Y-m-d h:i'), $waiterId, $model->id);
+                    $menu = Utilities::getCurrentMenu($this->requestParams['branch_id']);
+                    $menuCooks = $menu->getCooks()->all();
+                    foreach ($menuCooks as $menuCook) {
+                        $this->createNotification('Orden asignada', "{$cookName} ha sido asignad{$cookGenderEnding} a la orden {$model->order_number} $orderTypeDesc.", date('Y-m-d h:i'), $menuCook->id, $model->id);
+                    }
+                }
+                break;
+            case 2:
+                $this->createNotification('Orden elaborada', "La orden {$model->order_number}$orderTypeDesc está lista.", date('Y-m-d h:i'), $waiterId, $model->id);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private function _notifyOldCooks($model, $oldCooks, $action)
+    {
+        if (count($oldCooks) > 0) {
+            $cooksFullNames = "";
+            foreach ($oldCooks as $oldCook) {
+                $cooksFullNames .= "{$oldCook->getFullName()}, ";
+            }
+            $cooksFullNames = rtrim($cooksFullNames, ', ');
+            $menu = Utilities::getCurrentMenu($this->requestParams['branch_id']);
+            $menuCooks = $menu->getCooks()->all();
+            $orderTypeDesc = $model->order_type_id === 1 ? " de la mesa {$model->table_number}" : " para llevar";
+            foreach ($menuCooks as $menuCook) {
+                $this->createNotification("Order $action", "$cooksFullNames: la orden {$model->order_number}$orderTypeDesc ha sido $action.", date('Y-m-d h:i'), $menuCook->id, $model->id);
             }
         }
     }
@@ -458,14 +454,32 @@ class OrdenesController extends MyRestController
             if (!$model) {
                 return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => []];
             }
-            $model->delete();
-            $this->_assignNextPendingOrders();
-            //$maxNumber = Order::find()->where(['menu_id' => $menuId, 'table_number' => $tableNumber])->andWhere('status_id <> 3')->max('order_number');
-            return ['code' => 'success', 'msg' => 'Operación realizada.', 'data' => $this->_getItems()];
+            if ($model->delete()) {
+                $this->_notifyCooksOrderCancelled($model);
+                $this->_assignNextPendingOrders();
+                return ['code' => 'success', 'msg' => 'Operación realizada.', 'data' => $this->_getItems()];
+            }
+            return ['code' => 'error', 'msg' => 'La operación no pudo ser completada.', 'data' => []];
         } catch (Exception $exc) {
             return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
         }
     }
+
+    private function _notifyCooksOrderCancelled(Order $model)
+    {
+        $orderAssets = $model->getOrderAssets()->where(['finished' => 0])->all();
+        $oldCooks = [];
+        foreach ($orderAssets as &$orderAsset) {
+            if ($orderAsset->cook_id) {
+                $oldCook = User::findOne($orderAsset->cook_id);
+                if (User::hasRole($oldCook->id, 4) || User::hasRole($oldCook->id, 6)) {
+                    $oldCooks[$orderAsset->cook_id] = User::findOne($orderAsset->cook_id);
+                }
+            }
+        }
+        $this->_notifyOldCooks($model, $oldCooks, "eliminada");
+    }
+
 
     public function actionServirProductos()
     {
