@@ -330,6 +330,7 @@ class OrdenesController extends MyRestController
         $assetsCount = count($orderAssets);
         if ($assetsCount > 0) {
             $newCook = $this->_getFirstAvailableCook($model->order_type_id);
+            $newCookAssigned = false;
             $oldCooks = [];
             $waiterId = $orderAssets[0]->waiter_id;
             $assignedAssetsCount = 0;
@@ -340,6 +341,7 @@ class OrdenesController extends MyRestController
                     if ($this->_assetNeedsCooking($asset)) {
                         if ($newCook) {
                             $orderAsset->cook_id = $newCook->id;
+                            $newCookAssigned = true;
                             $assignedAssetsCount++;
                         }
                     } else {
@@ -361,7 +363,9 @@ class OrdenesController extends MyRestController
             $model->status_id = ($assignedAssetsToWaiterCount === $assetsCount ? 2 : ($assignedAssetsCount === $assetsCount ? 1 : 0));
 
             if ($model->save()) {
-                $this->_notifyWaiterAndMenuCooks($model, $waiterId, $newCook);
+                if ($newCookAssigned) {
+                    $this->_notifyWaiterAndMenuCooks($model, $waiterId, $newCook);
+                }
                 $this->_notifyOldCooks($model, $oldCooks, "modificada");
             }
         }
@@ -406,7 +410,7 @@ class OrdenesController extends MyRestController
             $menuCooks = $menu->getCooks()->all();
             $orderTypeDesc = $model->order_type_id === 1 ? " de la mesa {$model->table_number}" : " para llevar";
             foreach ($menuCooks as $menuCook) {
-                $this->createNotification("Order $action", "$cooksFullNames: la orden {$model->order_number}$orderTypeDesc ha sido $action.", date('Y-m-d h:i'), $menuCook->id, $model->id);
+                $this->createNotification("Order $action", "$cooksFullNames: la orden {$model->order_number}$orderTypeDesc ha sido $action.", date('Y-m-d h:i'), $menuCook->id, ($action !== "eliminada" ? $model->id : null));
             }
         }
     }
@@ -454,12 +458,10 @@ class OrdenesController extends MyRestController
             if (!$model) {
                 return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => []];
             }
-            if ($model->delete()) {
-                $this->_notifyCooksOrderCancelled($model);
-                $this->_assignNextPendingOrders();
-                return ['code' => 'success', 'msg' => 'Operación realizada.', 'data' => $this->_getItems()];
-            }
-            return ['code' => 'error', 'msg' => 'La operación no pudo ser completada.', 'data' => []];
+            $this->_notifyCooksOrderCancelled($model);
+            $model->delete();
+            $this->_assignNextPendingOrders();
+            return ['code' => 'success', 'msg' => 'Operación realizada.', 'data' => $this->_getItems()];
         } catch (Exception $exc) {
             return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
         }

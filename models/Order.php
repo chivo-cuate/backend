@@ -16,7 +16,6 @@ use Yii;
  * @property int $order_type_id
  *
  * @property Notification[] $notifications
- * @property AuthUser[] $users
  * @property Menu $menu
  * @property OrderStatus $status
  * @property OrderType $orderType
@@ -68,14 +67,6 @@ class Order extends \yii\db\ActiveRecord
     public function getNotifications()
     {
         return $this->hasMany(Notification::className(), ['order_id' => 'id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getUsers()
-    {
-        return $this->hasMany(AuthUser::className(), ['id' => 'user_id'])->viaTable('notification', ['order_id' => 'id']);
     }
 
     /**

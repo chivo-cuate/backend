@@ -34,7 +34,6 @@ use yii\web\IdentityInterface;
  * @property MenuCook[] $menuCooks
  * @property Menu[] $menus
  * @property Notification[] $notifications
- * @property Order[] $orders
  * @property OrderAsset[] $orderAssets
  * @property OrderAsset[] $orderAssets0
  */
@@ -147,14 +146,6 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface {
     public function getNotifications()
     {
         return $this->hasMany(Notification::className(), ['user_id' => 'id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getOrders()
-    {
-        return $this->hasMany(Order::className(), ['id' => 'order_id'])->viaTable('notification', ['user_id' => 'id']);
     }
 
     /**

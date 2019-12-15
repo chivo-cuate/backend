@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Notification;
 use app\models\User;
 use Cassandra\Date;
 use Yii;
@@ -119,6 +120,7 @@ class SiteController extends Controller {
     }
 
     public function actionMaintenance() {
+        Notification::deleteAll('order_id is null');
         return "All done!";
     }
 

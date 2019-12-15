@@ -9,7 +9,7 @@ use Yii;
  *
  * @property int $id
  * @property int $user_id
- * @property int $order_id
+ * @property int|null $order_id
  * @property int $status
  * @property string $title
  * @property string $subtitle
@@ -35,10 +35,9 @@ class Notification extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'order_id', 'title', 'subtitle', 'headline', 'created_at'], 'required'],
+            [['user_id', 'title', 'subtitle', 'headline', 'created_at'], 'required'],
             [['user_id', 'order_id', 'status', 'created_at'], 'integer'],
             [['title', 'subtitle', 'headline'], 'string', 'max' => 255],
-            //[['user_id', 'order_id'], 'unique', 'targetAttribute' => ['user_id', 'order_id']],
             [['order_id'], 'exist', 'skipOnError' => true, 'targetClass' => Order::className(), 'targetAttribute' => ['order_id' => 'id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => AuthUser::className(), 'targetAttribute' => ['user_id' => 'id']],
         ];
