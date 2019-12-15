@@ -131,12 +131,17 @@ class MenuDiarioController extends MyRestController {
 
     private function _updateMenuCooks($menuId) {
         MenuCook::deleteAll(['menu_id' => $menuId]);
+        $cooksForOrdersToCarryHomeCount = 0;
         foreach ($this->requestParams['cooks'] as $cook) {
             $user = User::findByIdPermAndBranch($cook, 34, $this->requestParams['branch_id']);
             if ($user) {
                 $menuCook = new MenuCook(['menu_id' => $menuId, 'cook_id' => $user->id]);
                 $menuCook->save();
+                $cooksForOrdersToCarryHomeCount += (User::hasRole($user->id, 6) ? 1 : 0);
             }
+        }
+        if ($cooksForOrdersToCarryHomeCount === 0) {
+            throw new \Exception("No hay elaboradores de órdenes para llevar");
         }
     }
 
@@ -190,7 +195,7 @@ class MenuDiarioController extends MyRestController {
             return ['code' => 'success', 'msg' => 'Operación realizada con éxito.', 'data' => $this->_getItems()];
         } catch (Exception $exc) {
             $transaction->rollBack();
-            return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
+            return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => $this->_getItems()];
         }
     }
 
@@ -213,7 +218,7 @@ class MenuDiarioController extends MyRestController {
             return ['code' => 'success', 'msg' => 'Operación realizada con éxito.', 'data' => $this->_getItems()];
         } catch (Exception $exc) {
             $transaction->rollBack();
-            return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
+            return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => $this->_getItems()];
         }
     }
 
@@ -231,7 +236,7 @@ class MenuDiarioController extends MyRestController {
             return ['code' => 'success', 'msg' => 'Operación realizada con éxito.', 'data' => $this->_getItems()];
         } catch (Exception $exc) {
             $transaction->rollBack();
-            return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
+            return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => $this->_getItems()];
         }
     }
 
@@ -247,7 +252,7 @@ class MenuDiarioController extends MyRestController {
             return ['code' => 'success', 'msg' => 'Operación realizada con éxito.', 'data' => $this->_getItems()];
         } catch (Exception $exc) {
             $transaction->rollBack();
-            return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
+            return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => $this->_getItems()];
         }
     }
 

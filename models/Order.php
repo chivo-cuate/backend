@@ -38,7 +38,7 @@ class Order extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['date_time', 'table_number', 'order_number', 'menu_id', 'order_type_id'], 'required'],
+            [['date_time', 'order_number', 'menu_id', 'order_type_id'], 'required'],
             [['date_time', 'table_number', 'order_number', 'status_id', 'menu_id', 'order_type_id'], 'integer'],
             [['menu_id'], 'exist', 'skipOnError' => true, 'targetClass' => Menu::className(), 'targetAttribute' => ['menu_id' => 'id']],
             [['status_id'], 'exist', 'skipOnError' => true, 'targetClass' => OrderStatus::className(), 'targetAttribute' => ['status_id' => 'id']],

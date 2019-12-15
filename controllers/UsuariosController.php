@@ -59,7 +59,7 @@ class UsuariosController extends MyRestController {
     }
 
     private function _setUserPasswordHash(&$model) {
-        if ($this->requestParams['item']['password'] && $this->requestParams['item']['password'] === $this->requestParams['item']['password_confirm']) {
+        if (isset($this->requestParams['item']['password']) && $this->requestParams['item']['password'] === $this->requestParams['item']['password_confirm']) {
             $model->password_hash = Yii::$app->security->generatePasswordHash($this->requestParams['item']['password']);
         }
     }

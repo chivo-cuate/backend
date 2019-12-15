@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\User;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -110,5 +111,19 @@ class SiteController extends Controller {
     public function actionAbout() {
         return $this->render('about');
     }
+
+    public function actionTest() {
+        $allowedCookRoles = "6";
+        $menuId = 1;
+        $sql = "select * from auth_user where id in (select cook_id from menu_cook where menu_id = {$menuId}) and id in (select user_id from auth_user_role where role_id in ($allowedCookRoles)) and id not in (select cook_id from order_asset where finished = 0 and cook_id is not null) order by id";
+        $command = Yii::$app->db->createCommand($sql);
+        $result = $command->queryOne();
+        var_dump($result);
+        if ($result) {
+            var_dump($result['id'], $result['username']);
+        }
+
+    }
+
 
 }
