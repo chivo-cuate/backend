@@ -382,11 +382,11 @@ class OrdenesController extends MyRestController
                 if ($cook) {
                     $cookName = $cook->getFullName();
                     $cookGenderEnding = $cook->sex === 'M' ? 'o' : 'a';
-                    $this->createNotification('Orden asignada', "{$cookName} ha sido asignad{$cookGenderEnding} a la orden {$model->order_number}$orderTypeDesc.", date('Y-m-d h:i'), $waiterId, $model->id);
+                    $this->createNotification('Orden asignada', "{$cookName} fue asignad{$cookGenderEnding} a la orden {$model->order_number}$orderTypeDesc.", date('Y-m-d h:i'), $waiterId, $model->id);
                     $menu = Utilities::getCurrentMenu($this->requestParams['branch_id']);
                     $menuCooks = $menu->getCooks()->all();
                     foreach ($menuCooks as $menuCook) {
-                        $this->createNotification('Orden asignada', "{$cookName} ha sido asignad{$cookGenderEnding} a la orden {$model->order_number} $orderTypeDesc.", date('Y-m-d h:i'), $menuCook->id, $model->id);
+                        $this->createNotification('Orden asignada', "{$cookName} fue asignad{$cookGenderEnding} a la orden {$model->order_number} $orderTypeDesc.", date('Y-m-d h:i'), $menuCook->id, $model->id);
                     }
                 }
                 break;
@@ -410,7 +410,7 @@ class OrdenesController extends MyRestController
             $menuCooks = $menu->getCooks()->all();
             $orderTypeDesc = $model->order_type_id === 1 ? " de la mesa {$model->table_number}" : " para llevar";
             foreach ($menuCooks as $menuCook) {
-                $this->createNotification("Order $action", "$cooksFullNames: la orden {$model->order_number}$orderTypeDesc ha sido $action.", date('Y-m-d h:i'), $menuCook->id, ($action !== "eliminada" ? $model->id : null));
+                $this->createNotification("Order $action", "$cooksFullNames: la orden {$model->order_number}$orderTypeDesc fue $action.", date('Y-m-d h:i'), $menuCook->id, ($action !== "eliminada" ? $model->id : null));
             }
         }
     }
