@@ -255,9 +255,9 @@ class OrdenesController extends MyRestController
     private function _getNextOrderNumber($menuId, $tableNumber)
     {
         if ($tableNumber > 0) {
-            $maxNumber = Order::find()->where(['menu_id' => $menuId, 'table_number' => $tableNumber])->andWhere('status_id <> 3')->max('[[order_number]]');
+            $maxNumber = Order::find()->where(['menu_id' => $menuId, 'order_type_id' => 1, 'table_number' => $tableNumber])->max('[[order_number]]');
         } else {
-            $maxNumber = Order::find()->where(['menu_id' => $menuId, 'order_type_id' => 2])->andWhere('status_id <> 3')->max('[[order_number]]');
+            $maxNumber = Order::find()->where(['menu_id' => $menuId, 'order_type_id' => 2])->max('[[order_number]]');
         }
         return $maxNumber ? $maxNumber + 1 : 1;
     }
