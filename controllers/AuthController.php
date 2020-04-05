@@ -4,8 +4,10 @@ namespace app\controllers;
 
 use app\models\LoginForm;
 use app\models\User;
-use app\models\AuthUser;
+use app\utilities\MenuHelper;
 use app\utilities\Security;
+use app\utilities\Utilities;
+use app\utilities\UserHelper;
 use Exception;
 use Yii;
 
@@ -54,9 +56,10 @@ class AuthController extends MyRestController {
                 'branches' => $userBranches,
                 'curr_branch' => $currBranch,
                 'jwt' => $jwt,
-                'roles' => $this->userInfo['user']->getRolesArray(),
-                'permissions' => Security::getUserPermissions($this->userInfo['user']),
+                'roles' => UserHelper::getUserRolesNamesArray($this->userInfo['user']),
                 'redirect' => $this->_getRedirectRoute($currBranch),
+                'permissions' => Security::getUserPermissions($this->userInfo['user']),
+                'cooks' => UserHelper::getCooksPerBranches($this->userInfo['user']),
             ]
         ];
     }
@@ -120,6 +123,10 @@ class AuthController extends MyRestController {
         } catch (Exception $exc) {
             return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
         }
+    }
+
+    public function actionTest() {
+        return UserHelper::getCooksPerBranches(User::findOne(10));
     }
 
 }

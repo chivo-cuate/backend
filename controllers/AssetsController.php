@@ -9,6 +9,7 @@ use app\models\MeasureUnit;
 use app\models\MenuAsset;
 use app\models\OrderAsset;
 use app\models\Stock;
+use app\utilities\MenuHelper;
 use app\utilities\Utilities;
 use Exception;
 use Yii;
@@ -78,9 +79,9 @@ class AssetsController extends MyRestController {
     private function _activeInMenu(Asset &$model, $lookForCurrentMenu) {
         $params = ['asset_id' => $model->id];
         if ($lookForCurrentMenu) {
-            $currentMenu = Utilities::getCurrentMenu($this->requestParams['branch_id']);
+            $currentMenu = MenuHelper::getCurrentMenu($this->requestParams['branch_id']);
             if ($currentMenu) {
-                $params['menu_id'] = Utilities::getCurrentMenu($this->requestParams['branch_id'])->id;
+                $params['menu_id'] = $currentMenu->id;
             }
         }
         $item = MenuAsset::findOne($params);

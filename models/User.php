@@ -37,7 +37,8 @@ use yii\web\IdentityInterface;
  * @property OrderAsset[] $orderAssets
  * @property OrderAsset[] $orderAssets0
  */
-class User extends \yii\db\ActiveRecord implements IdentityInterface {
+class User extends \yii\db\ActiveRecord implements IdentityInterface
+{
 
     /**
      * {@inheritdoc}
@@ -163,18 +164,20 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface {
     {
         return $this->hasMany(OrderAsset::className(), ['waiter_id' => 'id']);
     }
-    
+
     /**
      * {@inheritdoc}
      */
-    public static function findIdentity($id) {
+    public static function findIdentity($id)
+    {
         return User::findOne($id);
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function findIdentityByAccessToken($token, $type = null) {
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
         return User::findOne(['verification_token' => $token]);
     }
 
@@ -184,28 +187,32 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface {
      * @param string $username
      * @return static|null
      */
-    public static function findByUsername($username) {
+    public static function findByUsername($username)
+    {
         return User::findOne(['username' => $username]);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getAuthKey() {
+    public function getAuthKey()
+    {
         return $this->auth_key;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function validateAuthKey($authKey) {
+    public function validateAuthKey($authKey)
+    {
         return $this->auth_key === $authKey;
     }
 
@@ -215,43 +222,35 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface {
      * @param string $password password to validate
      * @return bool if password provided is valid for current user
      */
-    public function validatePassword($password) {
+    public function validatePassword($password)
+    {
         return Yii::$app->security->validatePassword($password, $this ? $this->password_hash : \Yii::$app->security->generatePasswordHash(''));
     }
 
-    public function hasPermission($permId) {
+    public function hasPermission($permId)
+    {
         $item = User::find()->innerJoin('auth_user_role', 'auth_user_role.user_id = auth_user.id')->innerJoin('auth_permission_role', 'auth_permission_role.role_id = auth_user_role.role_id')->where(['auth_user.id' => $this->id, 'auth_permission_role.perm_id' => $permId])->one();
         return $item;
     }
 
-    public function isInBranch($branchId) {
+    public function isInBranch($branchId)
+    {
         $item = BranchUser::find()->where(['user_id' => $this->id, 'branch_id' => $branchId])->one();
         return $item;
     }
 
-    public static function findByIdPermAndBranch($id, $permId, $branchId) {
-        $item = User::find()->innerJoin('branch_user', 'auth_user.id = branch_user.user_id')->innerJoin('auth_user_role', 'auth_user_role.user_id = auth_user.id')->innerJoin('auth_permission_role', 'auth_permission_role.role_id = auth_user_role.role_id')->where(['auth_user.id' => $id, 'auth_permission_role.perm_id' => $permId, 'branch_user.branch_id' => $branchId])->one();
-        return $item;
+    public static function findByIdPermAndBranch($id, $permId, $branchId)
+    {
+        return User::find()->innerJoin('branch_user', 'auth_user.id = branch_user.user_id')->innerJoin('auth_user_role', 'auth_user_role.user_id = auth_user.id')->innerJoin('auth_permission_role', 'auth_permission_role.role_id = auth_user_role.role_id')->where(['auth_user.id' => $id, 'auth_permission_role.perm_id' => $permId, 'branch_user.branch_id' => $branchId])->one();
     }
 
-    public function getRolesArray() {
-        $res = [];
-        $roles = $this->getRoles()->select('name')->all();
-        foreach ($roles as $role) {
-            $res[] = $role['name'];
-        }
-        return $res;
-    }
-
-    public function getFullName() {
+    public function getFullName()
+    {
         return $this->first_name . ' ' . $this->last_name;
     }
 
-    public function getUsersByRole($roleId) {
-        return User::find()->join('INNER JOIN', 'auth_user_role', ['auth_user.id' => 'auth_user_role.user_id'], ['auth_user_role.role_id' => $roleId])->all();
-    }
-
-    public static function hasRole($userId, $roleId) {
+    public static function hasRole($userId, $roleId)
+    {
         return AuthUserRole::findOne(['user_id' => $userId, 'role_id' => $roleId]);
     }
 

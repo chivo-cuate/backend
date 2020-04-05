@@ -1,9 +1,34 @@
-version: '2'
+version: '3'
+
 services:
-  php:
-    image: yiisoftware/yii2-php:7.1-apache
+
+  backend:
+    image: yiisoftware/yii2-php:7.3-apache
+    container_name: chivo_cuate_backend
     volumes:
       - ~/.composer-docker/cache:/root/.composer/cache:delegated
       - ./:/app:delegated
+    networks:
+      - chivo_cuate_network
     ports:
-      - '8000:80'
+      - '8080:80'
+
+  db:
+    image: mysql:5.7
+    container_name: chivo_cuate_db
+    networks:
+      - chivo_cuate_network
+    ports:
+      - 3307:3306
+    volumes:
+      - ./docker-volumes/db:/var/lib/mysql
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=no
+      - MYSQL_ROOT_PASSWORD=Root123*
+      - MYSQL_DATABASE=u715364900_chivocuate
+      - MYSQL_USER=u715364900_chivocuate
+      - MYSQL_PASSWORD=ChivoCuate123*
+
+networks:
+  chivo_cuate_network:
+    driver: bridge

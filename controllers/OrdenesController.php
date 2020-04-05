@@ -12,6 +12,7 @@ use app\models\OrderAsset;
 use app\models\OrderType;
 use app\models\Stock;
 use app\models\User;
+use app\utilities\MenuHelper;
 use app\utilities\Utilities;
 use Exception;
 use Yii;
@@ -123,7 +124,7 @@ class OrdenesController extends MyRestController
     private function _getItems()
     {
         $res = ['tables' => [], 'assets' => [], 'orders' => [], 'cooks' => [], 'cooks_enabled' => true];
-        $menu = Utilities::getCurrentMenu($this->requestParams['branch_id']);
+        $menu = MenuHelper::getCurrentMenu($this->requestParams['branch_id']);
         if ($this->userInfo['user']->hasPermission(30)) {
             $branch = Branch::findOne($this->requestParams['branch_id']);
             $res = $this->_initializeItems($branch->tables);
@@ -192,7 +193,7 @@ class OrdenesController extends MyRestController
 
     private function _getFirstAvailableCook($orderTypeId)
     {
-        $menu = Utilities::getCurrentMenu($this->requestParams['branch_id']);
+        $menu = MenuHelper::getCurrentMenu($this->requestParams['branch_id']);
 
         $allowedCookRoles = $orderTypeId === 1 ? "4,6" : "6";
         $sql = "select id from auth_user where id in (select cook_id from menu_cook where menu_id = {$menu->id}) and id in (select user_id from auth_user_role where role_id in ($allowedCookRoles)) and id not in (select cook_id from order_asset where finished = 0 and cook_id is not null) order by id";
@@ -233,7 +234,7 @@ class OrdenesController extends MyRestController
     {
         $transaction = Yii::$app->db->beginTransaction();
         try {
-            $menu = Utilities::getCurrentMenu($this->requestParams['branch_id']);
+            $menu = MenuHelper::getCurrentMenu($this->requestParams['branch_id']);
             $tableNumber = isset($this->requestParams['item']['table_number']) ? $this->requestParams['item']['table_number'] : -1;
             $model = new Order(['date_time' => time(), 'status_id' => 0, 'menu_id' => $menu->id, 'order_number' => $this->_getNextOrderNumber($menu->id, $tableNumber)]);
             $this->_setModelAttributes($model);
@@ -307,7 +308,7 @@ class OrdenesController extends MyRestController
 
     private function _assignNextPendingOrders()
     {
-        $menu = Utilities::getCurrentMenu($this->requestParams['branch_id']);
+        $menu = MenuHelper::getCurrentMenu($this->requestParams['branch_id']);
         $menuId = $menu->id;
         $nextTakeAwayOrder = $this->_getNextPendingOrderByTypeId($menuId, 2);
         $nextRegularOrder = $this->_getNextPendingOrderByTypeId($menuId, 1);
@@ -383,7 +384,7 @@ class OrdenesController extends MyRestController
                     $cookName = $cook->getFullName();
                     $cookGenderEnding = $cook->sex === 'M' ? 'o' : 'a';
                     $this->createNotification('Orden asignada', "{$cookName} fue asignad{$cookGenderEnding} a la orden {$model->order_number}$orderTypeDesc.", date('Y-m-d h:i'), $waiterId, $model->id);
-                    $menu = Utilities::getCurrentMenu($this->requestParams['branch_id']);
+                    $menu = MenuHelper::getCurrentMenu($this->requestParams['branch_id']);
                     $menuCooks = $menu->getCooks()->all();
                     foreach ($menuCooks as $menuCook) {
                         $this->createNotification('Orden asignada', "{$cookName} fue asignad{$cookGenderEnding} a la orden {$model->order_number} $orderTypeDesc.", date('Y-m-d h:i'), $menuCook->id, $model->id);
@@ -406,7 +407,7 @@ class OrdenesController extends MyRestController
                 $cooksFullNames .= "{$oldCook->getFullName()}, ";
             }
             $cooksFullNames = rtrim($cooksFullNames, ', ');
-            $menu = Utilities::getCurrentMenu($this->requestParams['branch_id']);
+            $menu = MenuHelper::getCurrentMenu($this->requestParams['branch_id']);
             $menuCooks = $menu->getCooks()->all();
             $orderTypeDesc = $model->order_type_id === 1 ? " de la mesa {$model->table_number}" : " para llevar";
             foreach ($menuCooks as $menuCook) {

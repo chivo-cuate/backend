@@ -4,12 +4,12 @@ namespace app\controllers;
 
 use app\models\Asset;
 use app\models\AssetCategory;
-use app\models\AuthUser;
 use app\models\Menu;
 use app\models\MenuAsset;
 use app\models\MenuCook;
 use app\models\ProductIngredient;
 use app\models\User;
+use app\utilities\MenuHelper;
 use app\utilities\Utilities;
 use Exception;
 use Yii;
@@ -105,7 +105,7 @@ class MenuDiarioController extends MyRestController {
     }
 
     private function _getItems() {
-        $model = Utilities::getCurrentMenu($this->requestParams['branch_id']);
+        $model = MenuHelper::getCurrentMenu($this->requestParams['branch_id']);
         $menuAssets = $this->_getCurrMenuAssets($model);
         $activeAssets = $this->_getActiveAssetsFromStock();
         $menuCooks = $this->_getCurrMenuCooks($model);
@@ -148,7 +148,7 @@ class MenuDiarioController extends MyRestController {
     private function _updateMenu() {
         $newMenu = null;
         $today = date('Y-m-d');
-        $oldMenu = Utilities::getCurrentMenu($this->requestParams['branch_id']);
+        $oldMenu = MenuHelper::getCurrentMenu($this->requestParams['branch_id']);
         if (!$oldMenu) {
             $oldMenu = new Menu(['date' => $today, 'branch_id' => $this->requestParams['branch_id']]);
             $oldMenu->save();
@@ -243,7 +243,7 @@ class MenuDiarioController extends MyRestController {
     public function actionHabilitarElaboradores() {
         $transaction = Yii::$app->db->beginTransaction();
         try {
-            $model = Utilities::getCurrentMenu($this->requestParams['branch_id']);
+            $model = MenuHelper::getCurrentMenu($this->requestParams['branch_id']);
             if (!$model) {
                 return ['code' => 'error', 'msg' => 'Aun no ha creado ningún menú.', 'data' => $this->_getItems()];
             }
