@@ -83,4 +83,10 @@ class Security {
         return -1;
     }
 
+    /*public static function getCurrentMenuCounterparts(User $user, $menu) {
+        $branches = $user->getBranches()->all();
+        $command = \Yii::$app->db->createCommand("select distinct auth_role.name, user_id, concat(first_name, ' ', last_name) full_name from auth_user_role INNER join auth_user on (auth_user_role.user_id = auth_user.id) inner join auth_role on (auth_user_role.role_id = auth_role.id) where user_id <> :userId and role_id in (select role_id from auth_user_role where user_id = :userId) and user_id in (select cook_id from menu_cook where menu_id = :menuId)", [':userId' => $user->id, ':menuId' => $menu ? $menu->id : -1]);
+        return $branches;
+    }*/
+
 }
