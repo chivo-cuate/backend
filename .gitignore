@@ -31,4 +31,5 @@ tests/_support/_generated
 
 #vagrant folder
 /.vagrant
-/.docker-volumes
+
+/docker-volumes/
