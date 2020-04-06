@@ -15,7 +15,7 @@ class m190722_201519_create_asset_type_table extends Migration
         $this->createTable('{{%asset_type}}', [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull()->unique(),
-        ]);
+        ], app\utilities\MigrationHelper::getTableOptions($this->db->driverName));
     }
 
     /**

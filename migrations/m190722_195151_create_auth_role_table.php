@@ -16,7 +16,7 @@ class m190722_195151_create_auth_role_table extends Migration
             'id' => $this->primaryKey(),
             'name' => $this->string(32)->notNull()->unique(),
             'description' => $this->string(128),
-        ]);
+        ], app\utilities\MigrationHelper::getTableOptions($this->db->driverName));
     }
 
     /**

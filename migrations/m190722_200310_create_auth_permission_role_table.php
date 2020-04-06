@@ -16,7 +16,7 @@ class m190722_200310_create_auth_permission_role_table extends Migration
             'id' => $this->primaryKey(),
             'perm_id' => $this->integer()->notNull(),
             'role_id' => $this->integer()->notNull(),
-        ]);
+        ], app\utilities\MigrationHelper::getTableOptions($this->db->driverName));
 
         $this->addForeignKey('fk_permrole_user', 'auth_permission_role', 'perm_id', 'auth_permission', 'id', 'cascade', 'cascade');
         $this->addForeignKey('fk_permrole_role', 'auth_permission_role', 'role_id', 'auth_role', 'id', 'cascade', 'cascade');

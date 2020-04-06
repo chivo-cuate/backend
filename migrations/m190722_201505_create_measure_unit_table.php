@@ -15,7 +15,7 @@ class m190722_201505_create_measure_unit_table extends Migration {
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull()->unique(),
             'abbr' => $this->string()->notNull()->unique(),
-        ]);
+        ], app\utilities\MigrationHelper::getTableOptions($this->db->driverName));
     }
 
     /**

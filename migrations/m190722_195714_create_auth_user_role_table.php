@@ -16,7 +16,7 @@ class m190722_195714_create_auth_user_role_table extends Migration
             'id' => $this->primaryKey(),
             'role_id' => $this->integer()->notNull(),
             'user_id' => $this->integer()->notNull(),
-        ]);
+        ], app\utilities\MigrationHelper::getTableOptions($this->db->driverName));
 
         $this->addForeignKey('fk_userrole_role', 'auth_user_role', 'role_id', 'auth_role', 'id', 'cascade', 'cascade');
         $this->addForeignKey('fk_userrole_user', 'auth_user_role', 'user_id', 'auth_user', 'id', 'cascade', 'cascade');

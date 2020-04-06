@@ -20,7 +20,8 @@ class m190724_182512_create_notification_table extends Migration {
             'subtitle' => $this->string()->notNull(),
             'headline' => $this->string()->notNull(),
             'created_at' => $this->integer()->notNull(),
-        ]);
+        ], app\utilities\MigrationHelper::getTableOptions($this->db->driverName));
+
         $this->addForeignKey('fk_notification_user', 'notification', 'user_id', 'auth_user', 'id', 'cascade', 'cascade');
         $this->addForeignKey('fk_notification_order', 'notification', 'order_id', 'order', 'id', 'cascade', 'cascade');
         

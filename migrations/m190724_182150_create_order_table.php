@@ -18,7 +18,7 @@ class m190724_182150_create_order_table extends Migration {
             'order_number' => $this->integer()->notNull(),
             'status_id' => $this->integer()->notNull()->defaultValue(0),
             'menu_id' => $this->integer()->notNull(),
-        ]);
+        ], app\utilities\MigrationHelper::getTableOptions($this->db->driverName));
         $this->addForeignKey('fk_order_status', 'order', 'status_id', 'order_status', 'id', 'restrict', 'cascade');
         $this->addForeignKey('fk_order_menu', 'order', 'menu_id', 'menu', 'id', 'restrict', 'cascade');
         

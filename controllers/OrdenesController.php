@@ -13,6 +13,7 @@ use app\models\OrderType;
 use app\models\Stock;
 use app\models\User;
 use app\utilities\MenuHelper;
+use app\utilities\UserHelper;
 use app\utilities\Utilities;
 use Exception;
 use Yii;
@@ -125,19 +126,22 @@ class OrdenesController extends MyRestController
     {
         $res = ['tables' => [], 'assets' => [], 'orders' => [], 'cooks' => [], 'cooks_enabled' => true];
         $menu = MenuHelper::getCurrentMenu($this->requestParams['branch_id']);
+        $cooksIDs = $this->requestParams['cooks'];
+
         if ($this->userInfo['user']->hasPermission(30)) {
             $branch = Branch::findOne($this->requestParams['branch_id']);
             $res = $this->_initializeItems($branch->tables);
             $this->_getOrders($menu, $res);
             $this->_getMenuProducts($menu, $res);
         }
+
         if ($this->userInfo['user']->hasPermission(39) && $menu) {
-            $cooks = $menu->getCooks()->all();
+            $cooks = $menu->getCooks()->where("id in ($cooksIDs)")->all();
             $orders = $this->_getPendingOrders($menu->id);
             $this->_getCurrentOrderForCooks($cooks);
             $res = array_merge($res, ['orders' => $orders, 'cooks' => $cooks]);
         }
-        $res['notifications'] = $this->_getNotifications();
+        $res['notifications'] = $this->_getNotifications($cooksIDs);
         return $res;
     }
 
@@ -384,11 +388,11 @@ class OrdenesController extends MyRestController
                     $cookName = $cook->getFullName();
                     $cookGenderEnding = $cook->sex === 'M' ? 'o' : 'a';
                     $this->createNotification('Orden asignada', "{$cookName} fue asignad{$cookGenderEnding} a la orden {$model->order_number}$orderTypeDesc.", date('Y-m-d h:i'), $waiterId, $model->id);
-                    $menu = MenuHelper::getCurrentMenu($this->requestParams['branch_id']);
+                    /*$menu = MenuHelper::getCurrentMenu($this->requestParams['branch_id']);
                     $menuCooks = $menu->getCooks()->all();
                     foreach ($menuCooks as $menuCook) {
                         $this->createNotification('Orden asignada', "{$cookName} fue asignad{$cookGenderEnding} a la orden {$model->order_number} $orderTypeDesc.", date('Y-m-d h:i'), $menuCook->id, $model->id);
-                    }
+                    }*/
                 }
                 break;
             case 2:

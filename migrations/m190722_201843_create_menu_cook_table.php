@@ -16,7 +16,7 @@ class m190722_201843_create_menu_cook_table extends Migration
             'id' => $this->primaryKey(),
             'menu_id' => $this->integer()->notNull(),
             'cook_id' => $this->integer()->notNull(),
-        ]);
+        ], app\utilities\MigrationHelper::getTableOptions($this->db->driverName));
 
         $this->addForeignKey('fk_menucook_menu', 'menu_cook', 'menu_id', 'menu', 'id', 'cascade', 'cascade');
         $this->addForeignKey('fk_menucook_cook', 'menu_cook', 'cook_id', 'auth_user', 'id', 'restrict', 'cascade');

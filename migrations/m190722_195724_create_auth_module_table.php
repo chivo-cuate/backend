@@ -18,7 +18,7 @@ class m190722_195724_create_auth_module_table extends Migration {
             'icon' => $this->string(50),
             'parent_id' => $this->integer(),
             'description' => $this->string(100),
-        ]);
+        ], app\utilities\MigrationHelper::getTableOptions($this->db->driverName));
 
         $this->addForeignKey('fk_authmodule_parent', 'auth_module', 'parent_id', 'auth_module', 'id', 'cascade', 'cascade');
         

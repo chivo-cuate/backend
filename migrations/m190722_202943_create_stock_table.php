@@ -19,7 +19,7 @@ class m190722_202943_create_stock_table extends Migration
             'quantity' => $this->double()->notNull()->defaultValue(1),
             'measure_unit_id' => $this->integer()->notNull(),
             'price_in' => $this->double()->notNull()->defaultValue(0),
-        ]);
+        ], app\utilities\MigrationHelper::getTableOptions($this->db->driverName));
         
         $this->addForeignKey('fk_stock_branch', 'stock', 'branch_id', 'branch', 'id', 'cascade', 'cascade');
         $this->addForeignKey('fk_stock_asset', 'stock', 'asset_id', 'asset', 'id', 'restrict', 'cascade');

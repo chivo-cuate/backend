@@ -15,7 +15,8 @@ class m190722_201702_create_menu_table extends Migration {
             'id' => $this->primaryKey(),
             'date' => $this->date()->notNull()->unique(),
             'branch_id' => $this->integer()->notNull(),
-        ]);
+        ], app\utilities\MigrationHelper::getTableOptions($this->db->driverName));
+
         $this->addForeignKey('fk_menu_branch', 'menu', 'branch_id', 'branch', 'id', 'cascade', 'cascade');
     }
 

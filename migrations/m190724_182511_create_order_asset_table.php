@@ -19,7 +19,7 @@ class m190724_182511_create_order_asset_table extends Migration {
             'finished' => $this->smallInteger()->notNull()->defaultValue(0),
             'waiter_id' => $this->integer()->notNull(),
             'cook_id' => $this->integer(),
-        ]);
+        ], app\utilities\MigrationHelper::getTableOptions($this->db->driverName));
         $this->addForeignKey('fk_orderasset_order', 'order_asset', 'order_id', 'order', 'id', 'cascade', 'cascade');
         $this->addForeignKey('fk_orderasset_asset', 'order_asset', 'asset_id', 'asset', 'id', 'restrict', 'cascade');
         $this->addForeignKey('fk_orderasset_waiter', 'order_asset', 'waiter_id', 'auth_user', 'id', 'restrict', 'cascade');

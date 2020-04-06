@@ -52,6 +52,7 @@ class AuthController extends MyRestController {
             'msg' => 'Credenciales verificadas.',
             'data' => [
                 'is_guest' => false,
+                'user_id' => $this->userInfo['user']->id,
                 'name' => $this->userInfo['user']->first_name,
                 'branches' => $userBranches,
                 'curr_branch' => $currBranch,

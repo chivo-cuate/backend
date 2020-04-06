@@ -96,8 +96,13 @@ class MyRestController extends ActiveController {
         return $behaviors;
     }
 
-    protected function _getNotifications() {
-        $notifications = Notification::find()->where(['user_id' => $this->userInfo['user']->id])->orderBy(['created_at' => SORT_DESC])->asArray()->all();
+    protected function _getNotifications($cooksIDs = null) {
+        if ($cooksIDs) {
+            $notifications = Notification::find()->where("user_id in ($cooksIDs)")->orderBy(['created_at' => SORT_DESC])->asArray()->all();
+        }
+        else {
+            $notifications = Notification::find()->where(['user_id' => $this->userInfo['user']->id])->orderBy(['created_at' => SORT_DESC])->asArray()->all();
+        }
         foreach ($notifications as &$notification) {
             $createdAt = intval($notification['created_at']);
             $notification['created_at'] = $notification['headline'];

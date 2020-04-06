@@ -15,7 +15,7 @@ class m191209_035559_create_order_type_table extends Migration
         $this->createTable('{{%order_type}}', [
             'id' => $this->primaryKey(),
             'name' => $this->string(32)->notNull()->unique(),
-        ]);
+        ], app\utilities\MigrationHelper::getTableOptions($this->db->driverName));
 
         $this->insert('order_type', ['id' => 1, 'name' => 'Para consumir']);
         $this->insert('order_type', ['id' => 2, 'name' => 'Para llevar']);

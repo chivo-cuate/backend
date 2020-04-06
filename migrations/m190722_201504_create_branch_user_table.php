@@ -16,7 +16,8 @@ class m190722_201504_create_branch_user_table extends Migration
             'id' => $this->primaryKey(),
             'branch_id' => $this->integer()->notNull(),
             'user_id' => $this->integer()->notNull(),
-        ]);
+        ], app\utilities\MigrationHelper::getTableOptions($this->db->driverName));
+
         $this->addForeignKey('fk_branchuser_branch', 'branch_user', 'branch_id', 'branch', 'id', 'cascade', 'cascade');
         $this->addForeignKey('fk_branchuser_user', 'branch_user', 'user_id', 'auth_user', 'id', 'cascade', 'cascade');
         $this->createIndex('idx_branchuser_branchuser', 'branch_user', 'branch_id, user_id', true);

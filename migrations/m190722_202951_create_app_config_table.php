@@ -5,7 +5,6 @@ use yii\db\Migration;
 class m190722_202951_create_app_config_table extends Migration {
 
     public function safeUp() {
-        $tableOptions = ($this->db->driverName === 'mysql') ? 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB' : null;
         $this->createTable('app_config', [
             'id' => $this->primaryKey(),
             'app_title' => $this->string(50)->notNull(),
@@ -17,7 +16,7 @@ class m190722_202951_create_app_config_table extends Migration {
             'email_host' => $this->string(),
             'email_port' => $this->integer(),
             'email_encryption' => $this->string(5),
-        ], $tableOptions);
+        ], app\utilities\MigrationHelper::getTableOptions($this->db->driverName));
     }
 
     public function safeDown() {
