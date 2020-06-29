@@ -267,6 +267,7 @@ class m190724_203851_apply_auth_fixtures extends Migration {
         $this->insert('auth_permission', ['name' => 'Servir productos', 'slug' => 'servir-productos', 'module_id' => 11]); //id 40 - Servir productos
         $this->insert('auth_permission', ['name' => 'Crear OPL', 'slug' => 'crear', 'module_id' => 11]);    //id 41 - Crear ordenes para llevar
         $this->insert('auth_permission', ['name' => 'Elaborar OPL', 'slug' => 'elaborar-opl', 'module_id' => 11]);  //id 42 - Elaborar ordenes para llevar
+        //$this->insert('auth_permission', ['name' => 'Autenticar elaboradores', 'slug' => 'marcar-elaboradores-autenticados', 'module_id' => 11]);   //id 43 - Seleccionar elaboradores
 
         //Permisos del Administrador
         $this->insert('auth_permission_role', ['perm_id' => 1, 'role_id' => 1]);
@@ -315,6 +316,7 @@ class m190724_203851_apply_auth_fixtures extends Migration {
         //Permisos del Elaborador OPC
         $this->insert('auth_permission_role', ['perm_id' => 34, 'role_id' => 4]);
         $this->insert('auth_permission_role', ['perm_id' => 39, 'role_id' => 4]);
+        //$this->insert('auth_permission_role', ['perm_id' => 43, 'role_id' => 4]);
 
         //Permisos del Mesero OPL
         $this->insert('auth_permission_role', ['perm_id' => 30, 'role_id' => 5]);
@@ -328,6 +330,7 @@ class m190724_203851_apply_auth_fixtures extends Migration {
         $this->insert('auth_permission_role', ['perm_id' => 34, 'role_id' => 6]);
         $this->insert('auth_permission_role', ['perm_id' => 39, 'role_id' => 6]);
         $this->insert('auth_permission_role', ['perm_id' => 42, 'role_id' => 6]);
+        //$this->insert('auth_permission_role', ['perm_id' => 43, 'role_id' => 6]);
 
         //Sucursales
         $this->insert('branch', ['name' => 'Sucursal 1', 'tables' => 15]);

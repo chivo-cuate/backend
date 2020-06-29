@@ -70,26 +70,28 @@ class AuthUser extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'username' => 'Username',
-            'first_name' => 'First Name',
-            'last_name' => 'Last Name',
-            'ine' => 'Ine',
-            'address' => 'Address',
-            'phone_number' => 'Phone Number',
-            'sex' => 'Sex',
-            'auth_key' => 'Auth Key',
-            'verification_token' => 'Verification Token',
-            'password_hash' => 'Password Hash',
-            'password_reset_token' => 'Password Reset Token',
-            'email' => 'Email',
-            'status' => 'Status',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
+            'id' => Yii::t('app', 'ID'),
+            'username' => Yii::t('app', 'Username'),
+            'first_name' => Yii::t('app', 'First Name'),
+            'last_name' => Yii::t('app', 'Last Name'),
+            'ine' => Yii::t('app', 'Ine'),
+            'address' => Yii::t('app', 'Address'),
+            'phone_number' => Yii::t('app', 'Phone Number'),
+            'sex' => Yii::t('app', 'Sex'),
+            'auth_key' => Yii::t('app', 'Auth Key'),
+            'verification_token' => Yii::t('app', 'Verification Token'),
+            'password_hash' => Yii::t('app', 'Password Hash'),
+            'password_reset_token' => Yii::t('app', 'Password Reset Token'),
+            'email' => Yii::t('app', 'Email'),
+            'status' => Yii::t('app', 'Status'),
+            'created_at' => Yii::t('app', 'Created At'),
+            'updated_at' => Yii::t('app', 'Updated At'),
         ];
     }
 
     /**
+     * Gets query for [[AuthUserRoles]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getAuthUserRoles()
@@ -98,6 +100,8 @@ class AuthUser extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Roles]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getRoles()
@@ -106,6 +110,8 @@ class AuthUser extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[BranchUsers]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getBranchUsers()
@@ -114,6 +120,8 @@ class AuthUser extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Branches]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getBranches()
@@ -122,6 +130,8 @@ class AuthUser extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[MenuCooks]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getMenuCooks()
@@ -130,6 +140,8 @@ class AuthUser extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Menus]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getMenus()
@@ -138,6 +150,8 @@ class AuthUser extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Notifications]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getNotifications()
@@ -146,6 +160,8 @@ class AuthUser extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[OrderAssets]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getOrderAssets()
@@ -154,6 +170,8 @@ class AuthUser extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[OrderAssets0]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getOrderAssets0()

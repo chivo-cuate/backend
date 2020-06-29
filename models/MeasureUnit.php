@@ -43,13 +43,15 @@ class MeasureUnit extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'name' => 'Name',
-            'abbr' => 'Abbr',
+            'id' => Yii::t('app', 'ID'),
+            'name' => Yii::t('app', 'Name'),
+            'abbr' => Yii::t('app', 'Abbr'),
         ];
     }
 
     /**
+     * Gets query for [[AssetComponents]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getAssetComponents()
@@ -58,6 +60,8 @@ class MeasureUnit extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Stocks]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getStocks()

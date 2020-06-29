@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\LoginForm;
+use app\models\MenuCook;
 use app\models\User;
 use app\utilities\MenuHelper;
 use app\utilities\Security;
@@ -126,8 +127,34 @@ class AuthController extends MyRestController {
         }
     }
 
-    public function actionTest() {
-        return UserHelper::getCooksPerBranches(User::findOne(10));
+    public function actionMarcarElaboradoresAutenticados() {
+        $sessionId = Yii::$app->security->generateRandomString();
+        return $this->marcarElaboradoresMenu($sessionId);
+    }
+
+    public function actionLogout() {
+        return $this->marcarElaboradoresMenu(null);
+    }
+
+    private function marcarElaboradoresMenu($value) {
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $currentMenu = MenuHelper::getCurrentMenu($this->requestParams['branch_id']);
+            if (!$currentMenu) {
+                return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => $this->_getItems()];
+            }
+            $cookIds = $this->requestParams['cook_ids'];
+            foreach ($cookIds as $cookId) {
+                $menuCook = MenuCook::findOne(['menu_id' => $currentMenu->id, 'cook_id' => $cookId]);
+                $menuCook->session_id = $value;
+                $menuCook->save();
+            }
+            $transaction->commit();
+            return ['code' => 'success', 'msg' => 'Operación realizada con éxito.', 'data' => []];
+        } catch (Exception $exc) {
+            $transaction->rollBack();
+            return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
+        }
     }
 
 }

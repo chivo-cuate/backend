@@ -50,16 +50,18 @@ class Stock extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'branch_id' => 'Branch ID',
-            'asset_id' => 'Asset ID',
-            'quantity' => 'Quantity',
-            'measure_unit_id' => 'Measure Unit ID',
-            'price_in' => 'Price In',
+            'id' => Yii::t('app', 'ID'),
+            'branch_id' => Yii::t('app', 'Branch ID'),
+            'asset_id' => Yii::t('app', 'Asset ID'),
+            'quantity' => Yii::t('app', 'Quantity'),
+            'measure_unit_id' => Yii::t('app', 'Measure Unit ID'),
+            'price_in' => Yii::t('app', 'Price In'),
         ];
     }
 
     /**
+     * Gets query for [[Asset]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getAsset()
@@ -68,6 +70,8 @@ class Stock extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Branch]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getBranch()
@@ -76,6 +80,8 @@ class Stock extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[MeasureUnit]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getMeasureUnit()

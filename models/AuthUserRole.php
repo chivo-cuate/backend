@@ -44,13 +44,15 @@ class AuthUserRole extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'role_id' => 'Role ID',
-            'user_id' => 'User ID',
+            'id' => Yii::t('app', 'ID'),
+            'role_id' => Yii::t('app', 'Role ID'),
+            'user_id' => Yii::t('app', 'User ID'),
         ];
     }
 
     /**
+     * Gets query for [[Role]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getRole()
@@ -59,6 +61,8 @@ class AuthUserRole extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[User]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getUser()

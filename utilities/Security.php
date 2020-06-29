@@ -59,7 +59,6 @@ class Security {
             $perms = $userRole->getRole()->one()->getPerms()->all();
             foreach ($perms as $perm) {
                 $subModule = $perm->getModule()->one();
-                $module = $subModule->getParent()->one();
                 if ($action === "$subModule->slug/$perm->slug") {
                     $found = true;
                     break;

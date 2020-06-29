@@ -51,16 +51,18 @@ class AuthModule extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'name' => 'Name',
-            'slug' => 'Slug',
-            'icon' => 'Icon',
-            'parent_id' => 'Parent ID',
-            'description' => 'Description',
+            'id' => Yii::t('app', 'ID'),
+            'name' => Yii::t('app', 'Name'),
+            'slug' => Yii::t('app', 'Slug'),
+            'icon' => Yii::t('app', 'Icon'),
+            'parent_id' => Yii::t('app', 'Parent ID'),
+            'description' => Yii::t('app', 'Description'),
         ];
     }
 
     /**
+     * Gets query for [[Parent]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getParent()
@@ -69,6 +71,8 @@ class AuthModule extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[AuthModules]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getAuthModules()
@@ -77,6 +81,8 @@ class AuthModule extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[AuthPermissions]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getAuthPermissions()

@@ -49,18 +49,20 @@ class Notification extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'user_id' => 'User ID',
-            'order_id' => 'Order ID',
-            'status' => 'Status',
-            'title' => 'Title',
-            'subtitle' => 'Subtitle',
-            'headline' => 'Headline',
-            'created_at' => 'Created At',
+            'id' => Yii::t('app', 'ID'),
+            'user_id' => Yii::t('app', 'User ID'),
+            'order_id' => Yii::t('app', 'Order ID'),
+            'status' => Yii::t('app', 'Status'),
+            'title' => Yii::t('app', 'Title'),
+            'subtitle' => Yii::t('app', 'Subtitle'),
+            'headline' => Yii::t('app', 'Headline'),
+            'created_at' => Yii::t('app', 'Created At'),
         ];
     }
 
     /**
+     * Gets query for [[Order]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getOrder()
@@ -69,6 +71,8 @@ class Notification extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[User]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getUser()

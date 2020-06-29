@@ -47,7 +47,7 @@ $config = [
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
             'targets' => [
-                    [
+                [
                     'class' => 'yii\log\FileTarget',
                     'levels' => ['error', 'warning'],
                 ],
@@ -59,9 +59,9 @@ $config = [
             'showScriptName' => true,
             //'enableStrictParsing' => false,
             'rules' => [
-            /* '<controller:\w+>/<id:\d+>' => '<controller>/view',
-              '<controller:\w+>/<action:\w+>/<id:\d+>' => '<controller>/<action>',
-              '<controller:\w+>/<action:\w+>' => '<controller>/<action>', */
+                /* '<controller:\w+>/<id:\d+>' => '<controller>/view',
+                  '<controller:\w+>/<action:\w+>/<id:\d+>' => '<controller>/<action>',
+                  '<controller:\w+>/<action:\w+>' => '<controller>/<action>', */
             ],
         ],
     ],
@@ -76,15 +76,15 @@ if (YII_ENV_DEV) {
     $config['bootstrap'][] = 'debug';
     $config['modules']['debug'] = [
         'class' => 'yii\debug\Module',
-            // uncomment the following to add your IP if you are not connecting from localhost.
-            'allowedIPs' => ['*'],
+        // uncomment the following to add your IP if you are not connecting from localhost.
+        'allowedIPs' => ['*'],
     ];
 
     $config['bootstrap'][] = 'gii';
     $config['modules']['gii'] = [
         'class' => 'yii\gii\Module',
-            // uncomment the following to add your IP if you are not connecting from localhost.
-            'allowedIPs' => ['*'],
+        // uncomment the following to add your IP if you are not connecting from localhost.
+        'allowedIPs' => ['*'],
     ];
 }
 

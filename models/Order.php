@@ -51,17 +51,19 @@ class Order extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'date_time' => 'Date Time',
-            'table_number' => 'Table Number',
-            'order_number' => 'Order Number',
-            'status_id' => 'Status ID',
-            'menu_id' => 'Menu ID',
-            'order_type_id' => 'Order Type ID',
+            'id' => Yii::t('app', 'ID'),
+            'date_time' => Yii::t('app', 'Date Time'),
+            'table_number' => Yii::t('app', 'Table Number'),
+            'order_number' => Yii::t('app', 'Order Number'),
+            'status_id' => Yii::t('app', 'Status ID'),
+            'menu_id' => Yii::t('app', 'Menu ID'),
+            'order_type_id' => Yii::t('app', 'Order Type ID'),
         ];
     }
 
     /**
+     * Gets query for [[Notifications]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getNotifications()
@@ -70,6 +72,8 @@ class Order extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Menu]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getMenu()
@@ -78,6 +82,8 @@ class Order extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Status]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getStatus()
@@ -86,6 +92,8 @@ class Order extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[OrderType]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getOrderType()
@@ -94,6 +102,8 @@ class Order extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[OrderAssets]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getOrderAssets()

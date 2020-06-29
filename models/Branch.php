@@ -48,14 +48,16 @@ class Branch extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'name' => 'Name',
-            'tables' => 'Tables',
-            'description' => 'Description',
+            'id' => Yii::t('app', 'ID'),
+            'name' => Yii::t('app', 'Name'),
+            'tables' => Yii::t('app', 'Tables'),
+            'description' => Yii::t('app', 'Description'),
         ];
     }
 
     /**
+     * Gets query for [[Assets]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getAssets()
@@ -64,6 +66,8 @@ class Branch extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[BranchUsers]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getBranchUsers()
@@ -72,6 +76,8 @@ class Branch extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Users]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getUsers()
@@ -80,6 +86,8 @@ class Branch extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Menus]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getMenus()
@@ -88,6 +96,8 @@ class Branch extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Stocks]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getStocks()

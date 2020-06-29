@@ -45,14 +45,14 @@ class ProductIngredient extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'asset_id' => 'Asset ID',
-            'asset_name' => 'Asset Name',
-            'component_id' => 'Component ID',
-            'required_quantity' => 'Required Quantity',
-            'stock_quantity' => 'Stock Quantity',
-            'price_in' => 'Price In',
-            'measure_unit_id' => 'Measure Unit ID',
-            'units_left' => 'Units Left',
+            'asset_id' => Yii::t('app', 'Asset ID'),
+            'asset_name' => Yii::t('app', 'Asset Name'),
+            'component_id' => Yii::t('app', 'Component ID'),
+            'required_quantity' => Yii::t('app', 'Required Quantity'),
+            'stock_quantity' => Yii::t('app', 'Stock Quantity'),
+            'price_in' => Yii::t('app', 'Price In'),
+            'measure_unit_id' => Yii::t('app', 'Measure Unit ID'),
+            'units_left' => Yii::t('app', 'Units Left'),
         ];
     }
 }

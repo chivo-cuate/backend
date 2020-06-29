@@ -48,13 +48,15 @@ class Menu extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'date' => 'Date',
-            'branch_id' => 'Branch ID',
+            'id' => Yii::t('app', 'ID'),
+            'date' => Yii::t('app', 'Date'),
+            'branch_id' => Yii::t('app', 'Branch ID'),
         ];
     }
 
     /**
+     * Gets query for [[Branch]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getBranch()
@@ -63,6 +65,8 @@ class Menu extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[MenuAssets]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getMenuAssets()
@@ -71,6 +75,8 @@ class Menu extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Assets]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getAssets()
@@ -79,6 +85,8 @@ class Menu extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[MenuCooks]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getMenuCooks()
@@ -87,6 +95,8 @@ class Menu extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Cooks]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getCooks()
@@ -95,6 +105,8 @@ class Menu extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Orders]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getOrders()

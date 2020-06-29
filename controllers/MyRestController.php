@@ -19,7 +19,8 @@ use yii\rest\ActiveController;
 use yii\web\ForbiddenHttpException;
 use yii\web\Response;
 
-class MyRestController extends ActiveController {
+class MyRestController extends ActiveController
+{
 
     private $key = "vUrQrZL50m7qL3uosytRJbeW8fzSwUqd";
     protected $userInfo = ['code' => null, 'msg' => null, 'user' => null];
@@ -27,7 +28,8 @@ class MyRestController extends ActiveController {
     protected $requestParams;
     public $enableCsrfValidation = false;
 
-    public function beforeAction($action) {
+    public function beforeAction($action)
+    {
         $this->request = Yii::$app->getRequest();
         $this->getUserInfo();
         $this->getRequestParams();
@@ -44,7 +46,8 @@ class MyRestController extends ActiveController {
     /**
      * {@inheritdoc}
      */
-    public function behaviors() {
+    public function behaviors()
+    {
         $behaviors = parent::behaviors();
 
         $auth = $behaviors['authenticator'] = [
@@ -60,7 +63,7 @@ class MyRestController extends ActiveController {
         $access = $behaviors['access'] = [
             'class' => AccessControl::className(),
             'rules' => [
-                    [
+                [
                     'actions' => ['login'],
                     'allow' => true,
                 ],
@@ -96,11 +99,11 @@ class MyRestController extends ActiveController {
         return $behaviors;
     }
 
-    protected function _getNotifications($cooksIDs = null) {
+    protected function _getNotifications($cooksIDs = null)
+    {
         if ($cooksIDs) {
             $notifications = Notification::find()->where("user_id in ($cooksIDs)")->orderBy(['created_at' => SORT_DESC])->asArray()->all();
-        }
-        else {
+        } else {
             $notifications = Notification::find()->where(['user_id' => $this->userInfo['user']->id])->orderBy(['created_at' => SORT_DESC])->asArray()->all();
         }
         foreach ($notifications as &$notification) {
@@ -111,7 +114,8 @@ class MyRestController extends ActiveController {
         return $notifications;
     }
 
-    protected function createNotification($title, $subtitle, $headline, $userId, $orderId) {
+    protected function createNotification($title, $subtitle, $headline, $userId, $orderId)
+    {
         //Notification::deleteAll(['user_id' => $userId, 'order_id' => $orderId]);
         $model = new Notification([
             'order_id' => $orderId,
@@ -127,13 +131,15 @@ class MyRestController extends ActiveController {
         }
     }
 
-    protected function _exitIfValidationFails(&$model) {
+    protected function _exitIfValidationFails(&$model)
+    {
         if (!$model->validate()) {
             throw new Exception(Utilities::getModelErrorsString($model));
         }
     }
 
-    protected function _setModelAttributes(ActiveRecord &$model) {
+    protected function _setModelAttributes(ActiveRecord &$model)
+    {
         $attributes = ($model->hasAttribute('branch_id') && isset($this->requestParams['branch_id'])) ? ['branch_id' => $this->requestParams['branch_id']] : [];
         foreach ($this->requestParams['item'] as $paramKey => $paramValue) {
             if ($model->hasAttribute($paramKey)) {
@@ -143,7 +149,8 @@ class MyRestController extends ActiveController {
         $model->setAttributes($attributes);
     }
 
-    public function encodeJWT($payload) {
+    public function encodeJWT($payload)
+    {
         try {
             return JWT::encode($payload, $this->key);
         } catch (Exception $exc) {
@@ -151,7 +158,8 @@ class MyRestController extends ActiveController {
         }
     }
 
-    public function decodeJWT($jwt) {
+    public function decodeJWT($jwt)
+    {
         try {
             $payload = JWT::decode($jwt, $this->key, ['HS256']);
             return ($payload->exp > time()) ? $payload : null;
@@ -160,17 +168,20 @@ class MyRestController extends ActiveController {
         }
     }
 
-    public function checkAccess($action, $requiresAuth = true, $model = null) {
+    public function checkAccess($action, $requiresAuth = true, $model = null)
+    {
         if (!$this->userInfo['user'] === $requiresAuth) {
             throw new ForbiddenHttpException('Acceso denegado.');
         }
     }
 
-    public function getRequestParams() {
+    public function getRequestParams()
+    {
         $this->requestParams = array_merge($this->request->get(), $this->request->post());
     }
 
-    public function getUserInfo() {
+    public function getUserInfo()
+    {
         try {
             $jwt = str_replace('Bearer ', '', $this->request->getHeaders()->get('Authorization'));
             $payload = $this->decodeJWT($jwt);

@@ -40,7 +40,7 @@ class m190724_203852_apply_business_fixtures extends Migration {
         $this->insert('order_status', ['id' => 3, 'name' => 'Cerrada', 'slug' => 'CERR']);
         
         //Ingredientes
-        $this->insert('asset', ['name' => 'Tortilla de harina', 'status' => 1, 'asset_type_id' => 1, 'branch_id' => 1]);
+        $this->insert('asset', ['name' => 'Harina', 'status' => 1, 'asset_type_id' => 1, 'branch_id' => 1]);
         $this->insert('asset', ['name' => 'Cebolla', 'status' => 1, 'asset_type_id' => 1, 'branch_id' => 1]);
         $this->insert('asset', ['name' => 'Sal', 'status' => 1, 'asset_type_id' => 1, 'branch_id' => 1]);
         $this->insert('asset', ['name' => 'Pimienta', 'status' => 1, 'asset_type_id' => 1, 'branch_id' => 1]);
@@ -82,7 +82,7 @@ class m190724_203852_apply_business_fixtures extends Migration {
         $this->insert('asset_component', ['asset_id' => 17, 'component_id' => 11, 'quantity' => 0.15, 'measure_unit_id' => 2]);
         
         //Existencias en almacén
-        $this->insert('stock', ['branch_id' => 1, 'asset_id' => 1, 'quantity' => 500, 'measure_unit_id' => 3, 'price_in' => 12]);
+        $this->insert('stock', ['branch_id' => 1, 'asset_id' => 1, 'quantity' => 500, 'measure_unit_id' => 1, 'price_in' => 12]);
         $this->insert('stock', ['branch_id' => 1, 'asset_id' => 2, 'quantity' => 200, 'measure_unit_id' => 3, 'price_in' => 3]);
         $this->insert('stock', ['branch_id' => 1, 'asset_id' => 3, 'quantity' => 200, 'measure_unit_id' => 1, 'price_in' => 10]);
         $this->insert('stock', ['branch_id' => 1, 'asset_id' => 4, 'quantity' => 100, 'measure_unit_id' => 1, 'price_in' => 7]);

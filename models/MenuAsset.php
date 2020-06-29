@@ -47,15 +47,17 @@ class MenuAsset extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'menu_id' => 'Menu ID',
-            'asset_id' => 'Asset ID',
-            'price' => 'Price',
-            'grams' => 'Grams',
+            'id' => Yii::t('app', 'ID'),
+            'menu_id' => Yii::t('app', 'Menu ID'),
+            'asset_id' => Yii::t('app', 'Asset ID'),
+            'price' => Yii::t('app', 'Price'),
+            'grams' => Yii::t('app', 'Grams'),
         ];
     }
 
     /**
+     * Gets query for [[Menu]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getMenu()
@@ -64,6 +66,8 @@ class MenuAsset extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Asset]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getAsset()

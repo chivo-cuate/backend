@@ -40,12 +40,14 @@ class AssetType extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'name' => 'Name',
+            'id' => Yii::t('app', 'ID'),
+            'name' => Yii::t('app', 'Name'),
         ];
     }
 
     /**
+     * Gets query for [[Assets]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getAssets()

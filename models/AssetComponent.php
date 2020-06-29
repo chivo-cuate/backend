@@ -49,15 +49,17 @@ class AssetComponent extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'asset_id' => 'Asset ID',
-            'component_id' => 'Component ID',
-            'quantity' => 'Quantity',
-            'measure_unit_id' => 'Measure Unit ID',
+            'id' => Yii::t('app', 'ID'),
+            'asset_id' => Yii::t('app', 'Asset ID'),
+            'component_id' => Yii::t('app', 'Component ID'),
+            'quantity' => Yii::t('app', 'Quantity'),
+            'measure_unit_id' => Yii::t('app', 'Measure Unit ID'),
         ];
     }
 
     /**
+     * Gets query for [[Asset]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getAsset()
@@ -66,6 +68,8 @@ class AssetComponent extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Component]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getComponent()
@@ -74,6 +78,8 @@ class AssetComponent extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[MeasureUnit]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getMeasureUnit()

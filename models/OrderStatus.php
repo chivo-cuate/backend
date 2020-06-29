@@ -32,9 +32,9 @@ class OrderStatus extends \yii\db\ActiveRecord
             [['id', 'name', 'slug'], 'required'],
             [['id'], 'integer'],
             [['name', 'slug'], 'string', 'max' => 255],
-            [['id'], 'unique'],
             [['name'], 'unique'],
             [['slug'], 'unique'],
+            [['id'], 'unique'],
         ];
     }
 
@@ -44,13 +44,15 @@ class OrderStatus extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'name' => 'Name',
-            'slug' => 'Slug',
+            'id' => Yii::t('app', 'ID'),
+            'name' => Yii::t('app', 'Name'),
+            'slug' => Yii::t('app', 'Slug'),
         ];
     }
 
     /**
+     * Gets query for [[Orders]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getOrders()

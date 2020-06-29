@@ -51,17 +51,19 @@ class OrderAsset extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'order_id' => 'Order ID',
-            'asset_id' => 'Asset ID',
-            'quantity' => 'Quantity',
-            'finished' => 'Finished',
-            'waiter_id' => 'Waiter ID',
-            'cook_id' => 'Cook ID',
+            'id' => Yii::t('app', 'ID'),
+            'order_id' => Yii::t('app', 'Order ID'),
+            'asset_id' => Yii::t('app', 'Asset ID'),
+            'quantity' => Yii::t('app', 'Quantity'),
+            'finished' => Yii::t('app', 'Finished'),
+            'waiter_id' => Yii::t('app', 'Waiter ID'),
+            'cook_id' => Yii::t('app', 'Cook ID'),
         ];
     }
 
     /**
+     * Gets query for [[Asset]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getAsset()
@@ -70,6 +72,8 @@ class OrderAsset extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Cook]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getCook()
@@ -78,6 +82,8 @@ class OrderAsset extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Order]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getOrder()
@@ -86,6 +92,8 @@ class OrderAsset extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Waiter]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getWaiter()

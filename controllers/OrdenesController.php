@@ -4,8 +4,8 @@ namespace app\controllers;
 
 use app\models\Asset;
 use app\models\AssetComponent;
-use app\models\AuthUser;
 use app\models\Branch;
+use app\models\MenuCook;
 use app\models\Notification;
 use app\models\Order;
 use app\models\OrderAsset;
@@ -13,7 +13,6 @@ use app\models\OrderType;
 use app\models\Stock;
 use app\models\User;
 use app\utilities\MenuHelper;
-use app\utilities\UserHelper;
 use app\utilities\Utilities;
 use Exception;
 use Yii;
@@ -136,9 +135,11 @@ class OrdenesController extends MyRestController
         }
 
         if ($this->userInfo['user']->hasPermission(39) && $menu) {
-            $cooks = $menu->getCooks()->where("id in ($cooksIDs)")->all();
+            $cooks = $menu->getCooks()
+                ->where("id in ($cooksIDs)")
+                ->all();
             $orders = $this->_getPendingOrders($menu->id);
-            $this->_getCurrentOrderForCooks($cooks);
+            $this->_getCurrentOrderForCooks($cooks, $menu->id);
             $res = array_merge($res, ['orders' => $orders, 'cooks' => $cooks]);
         }
         $res['notifications'] = $this->_getNotifications($cooksIDs);
@@ -200,7 +201,10 @@ class OrdenesController extends MyRestController
         $menu = MenuHelper::getCurrentMenu($this->requestParams['branch_id']);
 
         $allowedCookRoles = $orderTypeId === 1 ? "4,6" : "6";
-        $sql = "select id from auth_user where id in (select cook_id from menu_cook where menu_id = {$menu->id}) and id in (select user_id from auth_user_role where role_id in ($allowedCookRoles)) and id not in (select cook_id from order_asset where finished = 0 and cook_id is not null) order by id";
+        $sql = "select id from auth_user where
+                id in (select cook_id from menu_cook where menu_id = {$menu->id} and session_id is not null)
+                and id in (select user_id from auth_user_role where role_id in ($allowedCookRoles))
+                and id not in (select cook_id from order_asset where finished = 0 and cook_id is not null) order by id";
         $command = Yii::$app->db->createCommand($sql);
         $result = $command->queryOne();
         if ($result && count($result) > 0) {
@@ -555,12 +559,12 @@ class OrdenesController extends MyRestController
         return $res;
     }
 
-    private function _getCurrentOrderForCooks(&$cooks)
+    private function _getCurrentOrderForCooks(&$cooks, $menuId)
     {
         $res = [];
         $i = 0;
         foreach ($cooks as &$cook) {
-            $res[$i] = $cook->getAttributes();
+            $res[$i] = $cook->getAttributes(['id', 'username', 'first_name', 'last_name', 'sex']);
             $orderAssets = OrderAsset::find()->innerJoin('asset', 'order_asset.asset_id = asset.id')->where(['order_asset.cook_id' => $cook->id, 'order_asset.finished' => 0])->select(['order_asset.order_id', 'order_asset.quantity', 'asset.name as asset_name'])->asArray()->all();
             if ($orderAssets) {
                 $order = Order::findOne($orderAssets[0]['order_id'])->getAttributes();
@@ -569,6 +573,8 @@ class OrdenesController extends MyRestController
             } else {
                 $order = null;
             }
+            $menuCook = MenuCook::findOne(['menu_id' => $menuId, 'cook_id' => $cook->id]);
+            $res[$i]['session_id'] = $menuCook ? $menuCook->session_id : null;
             $res[$i++]['current_order'] = $order;
         }
         $cooks = $res;

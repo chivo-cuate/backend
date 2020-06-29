@@ -45,13 +45,15 @@ class AuthRole extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'name' => 'Name',
-            'description' => 'Description',
+            'id' => Yii::t('app', 'ID'),
+            'name' => Yii::t('app', 'Name'),
+            'description' => Yii::t('app', 'Description'),
         ];
     }
 
     /**
+     * Gets query for [[AuthPermissionRoles]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getAuthPermissionRoles()
@@ -60,6 +62,8 @@ class AuthRole extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Perms]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getPerms()
@@ -68,6 +72,8 @@ class AuthRole extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[AuthUserRoles]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getAuthUserRoles()
@@ -76,6 +82,8 @@ class AuthRole extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Users]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getUsers()

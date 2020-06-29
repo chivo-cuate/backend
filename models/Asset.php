@@ -58,16 +58,18 @@ class Asset extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'name' => 'Name',
-            'status' => 'Status',
-            'asset_type_id' => 'Asset Type ID',
-            'category_id' => 'Category ID',
-            'branch_id' => 'Branch ID',
+            'id' => Yii::t('app', 'ID'),
+            'name' => Yii::t('app', 'Name'),
+            'status' => Yii::t('app', 'Status'),
+            'asset_type_id' => Yii::t('app', 'Asset Type ID'),
+            'category_id' => Yii::t('app', 'Category ID'),
+            'branch_id' => Yii::t('app', 'Branch ID'),
         ];
     }
 
     /**
+     * Gets query for [[Category]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getCategory()
@@ -76,6 +78,8 @@ class Asset extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[AssetType]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getAssetType()
@@ -84,6 +88,8 @@ class Asset extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Branch]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getBranch()
@@ -92,6 +98,8 @@ class Asset extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[AssetComponents]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getAssetComponents()
@@ -100,6 +108,8 @@ class Asset extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[AssetComponents0]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getAssetComponents0()
@@ -108,6 +118,8 @@ class Asset extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Components]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getComponents()
@@ -116,6 +128,8 @@ class Asset extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Assets]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getAssets()
@@ -124,6 +138,8 @@ class Asset extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[MenuAssets]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getMenuAssets()
@@ -132,6 +148,8 @@ class Asset extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Menus]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getMenus()
@@ -140,6 +158,8 @@ class Asset extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[OrderAssets]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getOrderAssets()
@@ -148,6 +168,8 @@ class Asset extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Stocks]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getStocks()
