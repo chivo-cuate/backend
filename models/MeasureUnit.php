@@ -12,7 +12,7 @@ use Yii;
  * @property string $abbr
  * @property int $measure_unit_type_id
  *
- * @property AssetCategory[] $assetCategories
+ * @property Asset[] $assets
  * @property AssetComponent[] $assetComponents
  * @property MeasureUnitType $measureUnitType
  * @property Stock[] $stocks
@@ -56,13 +56,13 @@ class MeasureUnit extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[AssetCategories]].
+     * Gets query for [[Assets]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getAssetCategories()
+    public function getAssets()
     {
-        return $this->hasMany(AssetCategory::className(), ['measure_unit_id' => 'id']);
+        return $this->hasMany(Asset::className(), ['measure_unit_id' => 'id']);
     }
 
     /**

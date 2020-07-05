@@ -12,11 +12,11 @@ use Yii;
  * @property int $status
  * @property int $asset_type_id
  * @property int|null $category_id
- * @property int $branch_id
+ * @property int $measure_unit_id
  *
  * @property AssetCategory $category
  * @property AssetType $assetType
- * @property Branch $branch
+ * @property MeasureUnit $measureUnit
  * @property AssetComponent[] $assetComponents
  * @property AssetComponent[] $assetComponents0
  * @property Asset[] $components
@@ -42,13 +42,13 @@ class Asset extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'asset_type_id', 'branch_id'], 'required'],
-            [['status', 'asset_type_id', 'category_id', 'branch_id'], 'integer'],
+            [['name', 'asset_type_id', 'measure_unit_id'], 'required'],
+            [['status', 'asset_type_id', 'category_id', 'measure_unit_id'], 'integer'],
             [['name'], 'string', 'max' => 255],
             [['name', 'asset_type_id'], 'unique', 'targetAttribute' => ['name', 'asset_type_id']],
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => AssetCategory::className(), 'targetAttribute' => ['category_id' => 'id']],
             [['asset_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => AssetType::className(), 'targetAttribute' => ['asset_type_id' => 'id']],
-            [['branch_id'], 'exist', 'skipOnError' => true, 'targetClass' => Branch::className(), 'targetAttribute' => ['branch_id' => 'id']],
+            [['measure_unit_id'], 'exist', 'skipOnError' => true, 'targetClass' => MeasureUnit::className(), 'targetAttribute' => ['measure_unit_id' => 'id']],
         ];
     }
 
@@ -63,7 +63,7 @@ class Asset extends \yii\db\ActiveRecord
             'status' => Yii::t('app', 'Status'),
             'asset_type_id' => Yii::t('app', 'Asset Type ID'),
             'category_id' => Yii::t('app', 'Category ID'),
-            'branch_id' => Yii::t('app', 'Branch ID'),
+            'measure_unit_id' => Yii::t('app', 'Measure Unit ID'),
         ];
     }
 
@@ -88,13 +88,13 @@ class Asset extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[Branch]].
+     * Gets query for [[MeasureUnit]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getBranch()
+    public function getMeasureUnit()
     {
-        return $this->hasOne(Branch::className(), ['id' => 'branch_id']);
+        return $this->hasOne(MeasureUnit::className(), ['id' => 'measure_unit_id']);
     }
 
     /**

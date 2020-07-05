@@ -12,7 +12,6 @@ use Yii;
  * @property int $tables
  * @property string|null $description
  *
- * @property Asset[] $assets
  * @property BranchUser[] $branchUsers
  * @property AuthUser[] $users
  * @property Menu[] $menus
@@ -53,16 +52,6 @@ class Branch extends \yii\db\ActiveRecord
             'tables' => Yii::t('app', 'Tables'),
             'description' => Yii::t('app', 'Description'),
         ];
-    }
-
-    /**
-     * Gets query for [[Assets]].
-     *
-     * @return \yii\db\ActiveQuery
-     */
-    public function getAssets()
-    {
-        return $this->hasMany(Asset::className(), ['branch_id' => 'id']);
     }
 
     /**

@@ -10,6 +10,7 @@ use Yii;
  * @property int $id
  * @property string $name
  *
+ * @property AssetCategory[] $assetCategories
  * @property MeasureUnit[] $measureUnits
  */
 class MeasureUnitType extends \yii\db\ActiveRecord
@@ -43,6 +44,16 @@ class MeasureUnitType extends \yii\db\ActiveRecord
             'id' => Yii::t('app', 'ID'),
             'name' => Yii::t('app', 'Name'),
         ];
+    }
+
+    /**
+     * Gets query for [[AssetCategories]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAssetCategories()
+    {
+        return $this->hasMany(AssetCategory::className(), ['measure_unit_type_id' => 'id']);
     }
 
     /**
