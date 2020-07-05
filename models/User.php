@@ -3,8 +3,6 @@
 namespace app\models;
 
 use Yii;
-use yii\db\ActiveQuery;
-use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 
 /**
@@ -74,26 +72,28 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'username' => 'Username',
-            'first_name' => 'First Name',
-            'last_name' => 'Last Name',
-            'ine' => 'Ine',
-            'address' => 'Address',
-            'phone_number' => 'Phone Number',
-            'sex' => 'Sex',
-            'auth_key' => 'Auth Key',
-            'verification_token' => 'Verification Token',
-            'password_hash' => 'Password Hash',
-            'password_reset_token' => 'Password Reset Token',
-            'email' => 'Email',
-            'status' => 'Status',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
+            'id' => Yii::t('app', 'ID'),
+            'username' => Yii::t('app', 'Username'),
+            'first_name' => Yii::t('app', 'First Name'),
+            'last_name' => Yii::t('app', 'Last Name'),
+            'ine' => Yii::t('app', 'Ine'),
+            'address' => Yii::t('app', 'Address'),
+            'phone_number' => Yii::t('app', 'Phone Number'),
+            'sex' => Yii::t('app', 'Sex'),
+            'auth_key' => Yii::t('app', 'Auth Key'),
+            'verification_token' => Yii::t('app', 'Verification Token'),
+            'password_hash' => Yii::t('app', 'Password Hash'),
+            'password_reset_token' => Yii::t('app', 'Password Reset Token'),
+            'email' => Yii::t('app', 'Email'),
+            'status' => Yii::t('app', 'Status'),
+            'created_at' => Yii::t('app', 'Created At'),
+            'updated_at' => Yii::t('app', 'Updated At'),
         ];
     }
 
     /**
+     * Gets query for [[AuthUserRoles]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getAuthUserRoles()
@@ -102,6 +102,8 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     }
 
     /**
+     * Gets query for [[Roles]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getRoles()
@@ -110,6 +112,8 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     }
 
     /**
+     * Gets query for [[BranchUsers]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getBranchUsers()
@@ -118,6 +122,8 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     }
 
     /**
+     * Gets query for [[Branches]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getBranches()
@@ -126,6 +132,8 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     }
 
     /**
+     * Gets query for [[MenuCooks]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getMenuCooks()
@@ -134,6 +142,8 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     }
 
     /**
+     * Gets query for [[Menus]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getMenus()
@@ -142,6 +152,8 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     }
 
     /**
+     * Gets query for [[Notifications]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getNotifications()
@@ -150,6 +162,8 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     }
 
     /**
+     * Gets query for [[OrderAssets]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getOrderAssets()
@@ -158,6 +172,8 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     }
 
     /**
+     * Gets query for [[OrderAssets0]].
+     *
      * @return \yii\db\ActiveQuery
      */
     public function getOrderAssets0()
@@ -229,8 +245,11 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
 
     public function hasPermission($permId)
     {
-        $item = User::find()->innerJoin('auth_user_role', 'auth_user_role.user_id = auth_user.id')->innerJoin('auth_permission_role', 'auth_permission_role.role_id = auth_user_role.role_id')->where(['auth_user.id' => $this->id, 'auth_permission_role.perm_id' => $permId])->one();
-        return $item;
+        return User::find()
+            ->innerJoin('auth_user_role', 'auth_user_role.user_id = auth_user.id')
+            ->innerJoin('auth_permission_role', 'auth_permission_role.role_id = auth_user_role.role_id')
+            ->where(['auth_user.id' => $this->id, 'auth_permission_role.perm_id' => $permId])
+            ->one();
     }
 
     public function isInBranch($branchId)
@@ -252,6 +271,14 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     public static function hasRole($userId, $roleId)
     {
         return AuthUserRole::findOne(['user_id' => $userId, 'role_id' => $roleId]);
+    }
+
+    public static function hasAnyRole($userId, $roles)
+    {
+        return AuthUserRole::find()
+            ->where(['user_id' => $userId])
+            ->andWhere("role_id in ($roles)")
+            ->one();
     }
 
 }

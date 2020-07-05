@@ -11,6 +11,7 @@ use Yii;
  * @property int $menu_id
  * @property int $cook_id
  * @property string|null $session_id
+ * @property int|null $activity_at
  *
  * @property AuthUser $cook
  * @property Menu $menu
@@ -32,7 +33,7 @@ class MenuCook extends \yii\db\ActiveRecord
     {
         return [
             [['menu_id', 'cook_id'], 'required'],
-            [['menu_id', 'cook_id'], 'integer'],
+            [['menu_id', 'cook_id', 'activity_at'], 'integer'],
             [['session_id'], 'string', 'max' => 32],
             [['menu_id', 'cook_id'], 'unique', 'targetAttribute' => ['menu_id', 'cook_id']],
             [['cook_id'], 'exist', 'skipOnError' => true, 'targetClass' => AuthUser::className(), 'targetAttribute' => ['cook_id' => 'id']],
@@ -50,6 +51,7 @@ class MenuCook extends \yii\db\ActiveRecord
             'menu_id' => Yii::t('app', 'Menu ID'),
             'cook_id' => Yii::t('app', 'Cook ID'),
             'session_id' => Yii::t('app', 'Session ID'),
+            'activity_at' => Yii::t('app', 'Activity At'),
         ];
     }
 

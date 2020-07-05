@@ -9,8 +9,10 @@ use Yii;
  *
  * @property int $id
  * @property string $name
+ * @property int $measure_unit_id
  *
  * @property Asset[] $assets
+ * @property MeasureUnit $measureUnit
  */
 class AssetCategory extends \yii\db\ActiveRecord
 {
@@ -28,9 +30,11 @@ class AssetCategory extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name'], 'required'],
+            [['name', 'measure_unit_id'], 'required'],
+            [['measure_unit_id'], 'integer'],
             [['name'], 'string', 'max' => 255],
             [['name'], 'unique'],
+            [['measure_unit_id'], 'exist', 'skipOnError' => true, 'targetClass' => MeasureUnit::className(), 'targetAttribute' => ['measure_unit_id' => 'id']],
         ];
     }
 
@@ -42,6 +46,7 @@ class AssetCategory extends \yii\db\ActiveRecord
         return [
             'id' => Yii::t('app', 'ID'),
             'name' => Yii::t('app', 'Name'),
+            'measure_unit_id' => Yii::t('app', 'Measure Unit ID'),
         ];
     }
 
@@ -53,5 +58,15 @@ class AssetCategory extends \yii\db\ActiveRecord
     public function getAssets()
     {
         return $this->hasMany(Asset::className(), ['category_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[MeasureUnit]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getMeasureUnit()
+    {
+        return $this->hasOne(MeasureUnit::className(), ['id' => 'measure_unit_id']);
     }
 }

@@ -68,10 +68,27 @@ class MenuDiarioController extends MyRestController {
         return [$available, ceil($calculatedPrice)];
     }
 
+    private function _getActiveAssetsFromStock() {
+        $assetCategories = AssetCategory::find()->orderBy(['name' => SORT_ASC])->all();
+        $res = [];
+        foreach ($assetCategories as $assetCategory) {
+            $assetsByCategory = Asset::find()
+                ->select(['asset.id', 'asset.name', 'stock.price_in', 'stock.quantity'])
+                ->leftJoin('stock', 'stock.asset_id = asset.id')
+                ->where(['asset.branch_id' => $this->requestParams['branch_id'], 'asset.status' => 1, 'asset.asset_type_id' => 2, 'asset.category_id' => $assetCategory->id])
+                ->asArray()
+                ->all();
+            $this->_addAssetFromStockIfExists($assetCategory->name, $assetsByCategory, $res);
+        }
+        if (count($res) > 0) {
+            unset($res[count($res) - 1]);
+        }
+        return $res;
+    }
+
     private function _addAssetFromStockIfExists($categoryName, $assetsByCategory, &$res) {
         $res[]['header'] = $categoryName;
         foreach ($assetsByCategory as &$activeAsset) {
-            $available = false;
             if ($activeAsset['quantity'] > 0) {
                 $available = true;
             } else {
@@ -85,23 +102,11 @@ class MenuDiarioController extends MyRestController {
                     'name' => $activeAsset['name'],
                     'price_in' => $activeAsset['price_in'],
                     'group' => $categoryName,
+                    'xx' => 'verga',
                 ];
             }
         }
         $res[]['divider'] = true;
-    }
-
-    private function _getActiveAssetsFromStock() {
-        $assetCategories = AssetCategory::find()->orderBy(['name' => SORT_ASC])->all();
-        $res = [];
-        foreach ($assetCategories as $assetCategory) {
-            $assetsByCategory = Asset::find()->select(['asset.id', 'asset.name', 'stock.price_in', 'stock.quantity'])->leftJoin('stock', 'stock.asset_id = asset.id')->where(['asset.branch_id' => $this->requestParams['branch_id'], 'asset.status' => 1, 'asset.asset_type_id' => 2, 'asset.category_id' => $assetCategory->id])->asArray()->all();
-            $this->_addAssetFromStockIfExists($assetCategory->name, $assetsByCategory, $res);
-        }
-        if (count($res) > 0) {
-            unset($res[count($res) - 1]);
-        }
-        return $res;
     }
 
     private function _getItems() {

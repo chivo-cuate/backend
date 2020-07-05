@@ -48,7 +48,8 @@ class AuthController extends MyRestController {
     private function _generateLoginResponse($jwt) {
         $userBranches = $this->userInfo['user']->getBranches()->select('id, name, tables')->all();
         $currBranch = count($userBranches) === 1 ? $userBranches[0] : null;
-        return [
+
+        $res =  [
             'code' => 'success',
             'msg' => 'Credenciales verificadas.',
             'data' => [
@@ -61,9 +62,14 @@ class AuthController extends MyRestController {
                 'roles' => UserHelper::getUserRolesNamesArray($this->userInfo['user']),
                 'redirect' => $this->_getRedirectRoute($currBranch),
                 'permissions' => Security::getUserPermissions($this->userInfo['user']),
-                'cooks' => UserHelper::getCooksPerBranches($this->userInfo['user']),
             ]
         ];
+
+        if (User::hasAnyRole($this->userInfo['user']->id, '4, 6')) {
+            $res['cooks'] = UserHelper::getCooksPerBranches($this->userInfo['user']);
+        }
+
+        return $res;
     }
 
     public function actionLogin() {
@@ -139,19 +145,21 @@ class AuthController extends MyRestController {
     private function marcarElaboradoresMenu($value) {
         $transaction = Yii::$app->db->beginTransaction();
         try {
-            $currentMenu = MenuHelper::getCurrentMenu($this->requestParams['branch_id']);
-            if (!$currentMenu) {
-                return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => $this->_getItems()];
-            }
-            $cookIds = $this->requestParams['cook_ids'];
-            foreach ($cookIds as $cookId) {
-                $menuCook = MenuCook::findOne(['menu_id' => $currentMenu->id, 'cook_id' => $cookId]);
-                $menuCook->session_id = $value;
-                $menuCook->save();
+            if (User::hasAnyRole($this->userInfo['user']->id, '4, 6')) {
+                $currentMenu = MenuHelper::getCurrentMenu($this->requestParams['branch_id']);
+                if (!$currentMenu) {
+                    return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => $this->_getItems()];
+                }
+                $cookIds = $this->requestParams['cook_ids'];
+                foreach ($cookIds as $cookId) {
+                    $menuCook = MenuCook::findOne(['menu_id' => $currentMenu->id, 'cook_id' => $cookId]);
+                    $menuCook->session_id = $value;
+                    $menuCook->save();
+                }
             }
             $transaction->commit();
             return ['code' => 'success', 'msg' => 'Operación realizada con éxito.', 'data' => []];
-        } catch (Exception $exc) {
+        } catch (\Exception $exc) {
             $transaction->rollBack();
             return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
         }

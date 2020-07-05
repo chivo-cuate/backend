@@ -75,6 +75,8 @@ class OrdenesController extends MyRestController
 
     private function _getOrders($menu, &$res)
     {
+        $res['shit'] = $menu;
+
         if ($menu) {
             $orders = Order::find()->where(['menu_id' => $menu->id])->andWhere('status_id != 3')->orderBy(['date_time' => SORT_ASC])->all();
             $res['takeaway_orders'] = [];
@@ -509,7 +511,11 @@ class OrdenesController extends MyRestController
     public function actionVerPendientes()
     {
         try {
-            return ['code' => 'success', 'msg' => 'Datos cargados.', 'data' => $this->_getItems()];
+            return [
+                'code' => 'success',
+                'msg' => 'Datos cargados.',
+                'data' => $this->_getItems(),
+            ];
         } catch (Exception $exc) {
             return $exc->getMessage();
         }
@@ -565,7 +571,12 @@ class OrdenesController extends MyRestController
         $i = 0;
         foreach ($cooks as &$cook) {
             $res[$i] = $cook->getAttributes(['id', 'username', 'first_name', 'last_name', 'sex']);
-            $orderAssets = OrderAsset::find()->innerJoin('asset', 'order_asset.asset_id = asset.id')->where(['order_asset.cook_id' => $cook->id, 'order_asset.finished' => 0])->select(['order_asset.order_id', 'order_asset.quantity', 'asset.name as asset_name'])->asArray()->all();
+            $orderAssets = OrderAsset::find()
+                ->innerJoin('asset', 'order_asset.asset_id = asset.id')
+                ->where(['order_asset.cook_id' => $cook->id, 'order_asset.finished' => 0])
+                ->select(['order_asset.order_id', 'order_asset.quantity', 'asset.name as asset_name'])
+                ->asArray()
+                ->all();
             if ($orderAssets) {
                 $order = Order::findOne($orderAssets[0]['order_id'])->getAttributes();
                 $order['elapsed_time'] = Utilities::dateDiff($order['date_time'], time());
