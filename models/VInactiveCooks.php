@@ -12,7 +12,7 @@ use Yii;
  * @property string|null $session_id
  * @property string|null $full_name
  */
-class VInactiveCook extends \yii\db\ActiveRecord
+class VInactiveCooks extends \yii\db\ActiveRecord
 {
     /**
      * {@inheritdoc}

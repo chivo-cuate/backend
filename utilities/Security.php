@@ -18,6 +18,7 @@ class Security {
                 $subModule = $perm->getModule()->one();
                 $module = $subModule->getParent()->one();
 
+                $moduleName = $module->name;
                 $moduleIndex = self::getItemIndexOnArray($res, 'name', $module->name);
                 if ($moduleIndex === -1) {
                     $res[] = [

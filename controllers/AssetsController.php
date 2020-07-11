@@ -23,7 +23,6 @@ class AssetsController extends MyRestController {
         return Asset::findOne([
                     'id' => $id,
                     'asset_type_id' => $this->assetTypeId,
-                    'branch_id' => $this->requestParams['branch_id'],
         ]);
     }
 
@@ -34,7 +33,7 @@ class AssetsController extends MyRestController {
     }
 
     private function _getAssetsByType($typeId, $active) {
-        $params = ['asset_type_id' => $typeId, 'branch_id' => $this->requestParams['branch_id']];
+        $params = ['asset_type_id' => $typeId];
         if ($active) {
             $params['status'] = 1;
         }
