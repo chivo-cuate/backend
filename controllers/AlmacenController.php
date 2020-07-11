@@ -31,7 +31,7 @@ class AlmacenController extends MyRestController {
         foreach ($stockItems as &$stockItem) {
             $asset = Asset::findOne($stockItem['asset_id']);
             $stockItem['asset_name'] = $asset->name;
-            $stockItem['measure_unit_name'] = MeasureUnit::findOne($stockItem['measure_unit_id'])->name;
+            $stockItem['measure_unit_name'] = MeasureUnit::findOne($stockItem['measure_unit_id'])->abbr;
             $stockItem['quantity_desc'] = $stockItem['quantity'] . " " . strtolower($stockItem['measure_unit_name']);
             $stockItem['type_name'] = AssetType::findOne($asset->asset_type_id)->name;
         }
