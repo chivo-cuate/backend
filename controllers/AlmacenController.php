@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\Asset;
+use app\models\AssetCategory;
 use app\models\AssetType;
 use app\models\MeasureUnit;
 use app\models\Stock;
@@ -12,6 +13,18 @@ use Exception;
 class AlmacenController extends MyRestController {
 
     public $modelClass = Stock::class;
+
+    public function actionListar() {
+        try {
+            return ['code' => 'success', 'msg' => 'Datos cargados.', 'data' => $this->_getReturnData()];
+        } catch (Exception $exc) {
+            return $exc->getMessage();
+        }
+    }
+
+    private function _getReturnData() {
+        return [$this->_getStockItems(), $this->_getActiveAssets(), MeasureUnit::find()->asArray()->all()];
+    }
 
     private function _getStockItems() {
         $stockItems = Stock::find()->where(['branch_id' => $this->requestParams['branch_id']])->asArray()->all();
@@ -29,15 +42,22 @@ class AlmacenController extends MyRestController {
         $assetTypes = AssetType::find()->orderBy(['name' => SORT_ASC])->all();
         $assets = [];
         foreach ($assetTypes as $assetType) {
-            $assetsByType = Asset::find()->where(['branch_id' => $this->requestParams['branch_id'], 'asset_type_id' => $assetType->id, 'status' => 1,])->asArray()->all();
+            $assetsByType = Asset::find()
+                ->where(['asset_type_id' => $assetType->id, 'status' => 1])
+                ->asArray()
+                ->all();
             if (count($assetsByType) > 0) {
                 $assets[]['header'] = $assetType->name;
                 foreach ($assetsByType as $assetByType) {
-                    $assets[] = [
-                        'id' => $assetByType['id'],
-                        'name' => $assetByType['name'],
-                        'group' => $assetType['name'],
-                    ];
+                    $assetCategory = AssetCategory::findOne($assetByType['category_id']);
+                    if (!$assetCategory || $assetCategory->needs_cooking === 0) {
+                        $assets[] = [
+                            'id' => $assetByType['id'],
+                            'name' => $assetByType['name'],
+                            'needs_cooking' => $assetCategory ? $assetCategory->needs_cooking === 1 : false,
+                            'group' => $assetType['name'],
+                        ];
+                    }
                 }
                 $assets[]['divider'] = true;
             }
@@ -48,24 +68,12 @@ class AlmacenController extends MyRestController {
         return $assets;
     }
 
-    private function _getReturnData() {
-        return [$this->_getStockItems(), $this->_getActiveAssets(), MeasureUnit::find()->asArray()->all()];
-    }
-
     private function _getExisitingAssetInStock($assetId, $priceIn) {
         return Stock::findOne([
                     'asset_id' => $assetId,
                     'price_in' => $priceIn,
                     'branch_id' => $this->requestParams['branch_id'],
         ]);
-    }
-
-    public function actionListar() {
-        try {
-            return ['code' => 'success', 'msg' => 'Datos cargados.', 'data' => $this->_getReturnData()];
-        } catch (Exception $exc) {
-            return $exc->getMessage();
-        }
     }
 
     public function actionCrear() {

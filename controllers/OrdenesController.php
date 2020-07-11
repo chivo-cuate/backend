@@ -75,8 +75,6 @@ class OrdenesController extends MyRestController
 
     private function _getOrders($menu, &$res)
     {
-        $res['shit'] = $menu;
-
         if ($menu) {
             $orders = Order::find()->where(['menu_id' => $menu->id])->andWhere('status_id != 3')->orderBy(['date_time' => SORT_ASC])->all();
             $res['takeaway_orders'] = [];
@@ -84,6 +82,7 @@ class OrdenesController extends MyRestController
                 $orderData = $order->getAttributes();
                 $orderData['assets'] = $order->getOrderAssets()->orderBy(['finished' => SORT_DESC, 'id' => SORT_ASC])->asArray()->all();
                 $orderData['status'] = $order->status->name;
+                $orderData['elapsed_time'] = Utilities::dateDiff($order->date_time, time());
                 $orderData['slug'] = substr($order->status->slug, 0, 1);
                 $guiAttribs = $this->_getGuiAttributes($order->status_id, $orderData['assets']);
                 $orderData['gui_attribs'] = $guiAttribs;
@@ -127,7 +126,6 @@ class OrdenesController extends MyRestController
     {
         $res = ['tables' => [], 'assets' => [], 'orders' => [], 'cooks' => [], 'cooks_enabled' => true];
         $menu = MenuHelper::getCurrentMenu($this->requestParams['branch_id']);
-        $cooksIDs = $this->requestParams['cooks'];
 
         if ($this->userInfo['user']->hasPermission(30)) {
             $branch = Branch::findOne($this->requestParams['branch_id']);
@@ -135,16 +133,19 @@ class OrdenesController extends MyRestController
             $this->_getOrders($menu, $res);
             $this->_getMenuProducts($menu, $res);
         }
-
         if ($this->userInfo['user']->hasPermission(39) && $menu) {
+            $cooksIDs = $this->requestParams['cooks'];
             $cooks = $menu->getCooks()
                 ->where("id in ($cooksIDs)")
                 ->all();
             $orders = $this->_getPendingOrders($menu->id);
             $this->_getCurrentOrderForCooks($cooks, $menu->id);
             $res = array_merge($res, ['orders' => $orders, 'cooks' => $cooks]);
+            $res['notifications'] = $this->_getNotifications($cooksIDs);
+        } else {
+            $res['notifications'] = $this->_getNotifications();
         }
-        $res['notifications'] = $this->_getNotifications($cooksIDs);
+
         return $res;
     }
 
@@ -322,6 +323,7 @@ class OrdenesController extends MyRestController
         $menuId = $menu->id;
         $nextTakeAwayOrder = $this->_getNextPendingOrderByTypeId($menuId, 2);
         $nextRegularOrder = $this->_getNextPendingOrderByTypeId($menuId, 1);
+
         if ($nextTakeAwayOrder) {
             $this->_assignOrderAssetsToCookOrWaiter($nextTakeAwayOrder);
         }
@@ -332,7 +334,10 @@ class OrdenesController extends MyRestController
 
     private function _getNextPendingOrderByTypeId($menuId, $orderTypeId)
     {
-        return Order::find()->where(['menu_id' => $menuId, 'order_type_id' => $orderTypeId, 'status_id' => 0])->orderBy(['date_time' => SORT_ASC])->one();
+        return Order::find()
+            ->where(['menu_id' => $menuId, 'order_type_id' => $orderTypeId, 'status_id' => 0])
+            ->orderBy(['date_time' => SORT_ASC])
+            ->one();
     }
 
     private function _assignOrderAssetsToCookOrWaiter(Order &$model)

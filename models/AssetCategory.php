@@ -9,6 +9,7 @@ use Yii;
  *
  * @property int $id
  * @property string $name
+ * @property int $needs_cooking
  * @property int $measure_unit_type_id
  *
  * @property Asset[] $assets
@@ -30,8 +31,8 @@ class AssetCategory extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'measure_unit_type_id'], 'required'],
-            [['measure_unit_type_id'], 'integer'],
+            [['name', 'needs_cooking', 'measure_unit_type_id'], 'required'],
+            [['needs_cooking', 'measure_unit_type_id'], 'integer'],
             [['name'], 'string', 'max' => 255],
             [['name'], 'unique'],
             [['measure_unit_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => MeasureUnitType::className(), 'targetAttribute' => ['measure_unit_type_id' => 'id']],
@@ -46,6 +47,7 @@ class AssetCategory extends \yii\db\ActiveRecord
         return [
             'id' => Yii::t('app', 'ID'),
             'name' => Yii::t('app', 'Name'),
+            'needs_cooking' => Yii::t('app', 'Needs Cooking'),
             'measure_unit_type_id' => Yii::t('app', 'Measure Unit Type ID'),
         ];
     }

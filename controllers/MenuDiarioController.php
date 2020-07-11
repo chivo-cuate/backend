@@ -24,6 +24,7 @@ class MenuDiarioController extends MyRestController {
             $menuAssets = $model->getMenuAssets()->asArray()->all();
             foreach ($menuAssets as &$menuAsset) {
                 $asset = Asset::findOne($menuAsset['asset_id']);
+                $menuAsset['qty_with_measure'] = "{$menuAsset['grams']} {$asset->getMeasureUnit()->one()->abbr}";
                 $menuAsset['date'] = $model->date;
                 $menuAsset['asset_name'] = $asset->name;
             }
@@ -75,7 +76,7 @@ class MenuDiarioController extends MyRestController {
             $assetsByCategory = Asset::find()
                 ->select(['asset.id', 'asset.name', 'stock.price_in', 'stock.quantity'])
                 ->leftJoin('stock', 'stock.asset_id = asset.id')
-                ->where(['asset.branch_id' => $this->requestParams['branch_id'], 'asset.status' => 1, 'asset.asset_type_id' => 2, 'asset.category_id' => $assetCategory->id])
+                ->where(['asset.status' => 1, 'asset.asset_type_id' => 2, 'asset.category_id' => $assetCategory->id])
                 ->asArray()
                 ->all();
             $this->_addAssetFromStockIfExists($assetCategory->name, $assetsByCategory, $res);
