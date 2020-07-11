@@ -30,9 +30,7 @@ class AssetsController extends MyRestController
 
     private function _getItemComponents(&$asset)
     {
-        //$res = $this->assetTypeId === 2 ? AssetComponent::find()->select(['asset.id', 'asset.name', 'asset_component.quantity', 'measure_unit.name'])->innerJoin('asset', 'asset_component.asset_id = asset.id')->innerJoin('measure_unit', 'asset_component.measure_unit_id = measure_unit.id')->where(['asset.id' => $asset['id']])->asArray()->all() : [];
-        $res = AssetComponent::find()->where(['asset_component.asset_id' => $asset['id']])->innerJoin('asset', 'asset.id = asset_component.component_id')->innerJoin('measure_unit', 'measure_unit.id = asset_component.measure_unit_id')->select(['asset_component.*', 'asset.name', 'measure_unit.name as measure_unit_name'])->asArray()->all();
-        return $res;
+        return AssetComponent::find()->where(['asset_component.asset_id' => $asset['id']])->innerJoin('asset', 'asset.id = asset_component.component_id')->innerJoin('measure_unit', 'measure_unit.id = asset_component.measure_unit_id')->select(['asset_component.*', 'asset.name', 'measure_unit.name as measure_unit_name'])->asArray()->all();
     }
 
     private function _getAssetsByType($typeId, $active)
@@ -41,7 +39,10 @@ class AssetsController extends MyRestController
         if ($active) {
             $params['status'] = 1;
         }
-        return Asset::find()->where($params)->orderBy(['name' => SORT_ASC])->asArray()->all();
+        return Asset::find()->where($params)
+            ->orderBy(['category_id' => SORT_ASC, 'name' => SORT_ASC])
+            ->asArray()
+            ->all();
     }
 
     private function _getMeasureUnits()
