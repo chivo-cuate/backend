@@ -14,25 +14,29 @@ use app\utilities\Utilities;
 use Exception;
 use Yii;
 
-class AssetsController extends MyRestController {
+class AssetsController extends MyRestController
+{
 
     protected $assetTypeId;
     public $modelClass = Asset::class;
 
-    private function _findModel($id) {
+    private function _findModel($id)
+    {
         return Asset::findOne([
-                    'id' => $id,
-                    'asset_type_id' => $this->assetTypeId,
+            'id' => $id,
+            'asset_type_id' => $this->assetTypeId,
         ]);
     }
 
-    private function _getItemComponents(&$asset) {
+    private function _getItemComponents(&$asset)
+    {
         //$res = $this->assetTypeId === 2 ? AssetComponent::find()->select(['asset.id', 'asset.name', 'asset_component.quantity', 'measure_unit.name'])->innerJoin('asset', 'asset_component.asset_id = asset.id')->innerJoin('measure_unit', 'asset_component.measure_unit_id = measure_unit.id')->where(['asset.id' => $asset['id']])->asArray()->all() : [];
         $res = AssetComponent::find()->where(['asset_component.asset_id' => $asset['id']])->innerJoin('asset', 'asset.id = asset_component.component_id')->innerJoin('measure_unit', 'measure_unit.id = asset_component.measure_unit_id')->select(['asset_component.*', 'asset.name', 'measure_unit.name as measure_unit_name'])->asArray()->all();
         return $res;
     }
 
-    private function _getAssetsByType($typeId, $active) {
+    private function _getAssetsByType($typeId, $active)
+    {
         $params = ['asset_type_id' => $typeId];
         if ($active) {
             $params['status'] = 1;
@@ -40,21 +44,32 @@ class AssetsController extends MyRestController {
         return Asset::find()->where($params)->orderBy(['name' => SORT_ASC])->asArray()->all();
     }
 
-    private function _getMeasureUnits() {
+    private function _getMeasureUnits()
+    {
         return MeasureUnit::find()->asArray()->all();
     }
 
-    private function _getAssetsCategories() {
+    private function _getAssetsCategories()
+    {
         return $this->assetTypeId === 2 ? AssetCategory::find()->asArray()->all() : [];
     }
-    
-    private function _getItems() {
+
+    private function _getItems()
+    {
         $items = $this->_getAssetsByType($this->assetTypeId, false);
         foreach ($items as &$item) {
             $category = AssetCategory::findOne($item['category_id']);
             $item['status'] = $item['status'] === '1' ? true : false;
             $item['status_name'] = $item['status'] ? 'Activo' : 'Inactivo';
-            $item['category_name'] = $category ? $category->name : 'Ingrediente';
+
+            if ($category) {
+                $item['category_name'] = $category->name;
+                $item['category_needs_cooking'] = $category->needs_cooking === 1;
+            } else {
+                $item['category_name'] = 'Ingrediente';
+                $item['category_needs_cooking'] = false;
+            }
+
             if ($this->assetTypeId === 2)
                 $item['components'] = $this->_getItemComponents($item);
         }
@@ -62,21 +77,24 @@ class AssetsController extends MyRestController {
         return [$items, $ingredients, $this->_getMeasureUnits(), $this->_getAssetsCategories()];
     }
 
-    private function _activeInStock(Asset &$model) {
+    private function _activeInStock(Asset &$model)
+    {
         $item = Stock::find()->where(['asset_id' => $model->id])->andWhere('quantity > 0')->one();
         if ($item) {
             $model->addError('id', 'Aun existen ' . $item->quantity . ' ' . $item->getMeasureUnit()->one()->name . ' este producto en el almacén.');
         }
     }
 
-    private function _activeInOrders(Asset &$model) {
+    private function _activeInOrders(Asset &$model)
+    {
         $item = OrderAsset::findOne(['asset_id' => $model->id]);
         if ($item) {
             $model->addError('id', 'Existen órdenes con este producto.');
         }
     }
 
-    private function _activeInMenu(Asset &$model, $lookForCurrentMenu) {
+    private function _activeInMenu(Asset &$model, $lookForCurrentMenu)
+    {
         $params = ['asset_id' => $model->id];
         if ($lookForCurrentMenu) {
             $currentMenu = MenuHelper::getCurrentMenu($this->requestParams['branch_id']);
@@ -90,7 +108,8 @@ class AssetsController extends MyRestController {
         }
     }
 
-    private function _canBeDisabled(Asset &$model) {
+    private function _canBeDisabled(Asset &$model)
+    {
         $model->validate();
         if ($model->status === 0) {
             $this->_activeInStock($model);
@@ -98,14 +117,16 @@ class AssetsController extends MyRestController {
         }
     }
 
-    private function _canBeDeleted(Asset &$model) {
+    private function _canBeDeleted(Asset &$model)
+    {
         $model->validate();
         $this->_activeInStock($model);
         $this->_activeInMenu($model, false);
         $this->_activeInOrders($model);
     }
 
-    public function actionListar() {
+    public function actionListar()
+    {
         try {
             return ['code' => 'success', 'msg' => 'Datos cargados.', 'data' => $this->_getItems()];
         } catch (Exception $exc) {
@@ -113,7 +134,8 @@ class AssetsController extends MyRestController {
         }
     }
 
-    public function actionCrear() {
+    public function actionCrear()
+    {
         try {
             $model = new Asset(['status' => 1, 'asset_type_id' => $this->assetTypeId]);
             $this->_setModelAttributes($model);
@@ -127,7 +149,8 @@ class AssetsController extends MyRestController {
         }
     }
 
-    public function actionEditar() {
+    public function actionEditar()
+    {
         try {
             $model = $this->_findModel($this->requestParams['item']['id']);
             if (!$model) {
@@ -148,7 +171,8 @@ class AssetsController extends MyRestController {
         }
     }
 
-    public function actionEliminar() {
+    public function actionEliminar()
+    {
         try {
             $model = $this->_findModel($this->requestParams['id']);
             if (!$model) {
@@ -166,7 +190,8 @@ class AssetsController extends MyRestController {
         }
     }
 
-    public function actionEditarIngredientes() {
+    public function actionEditarIngredientes()
+    {
         $transaction = Yii::$app->db->beginTransaction();
         try {
             $model = $this->_findModel($this->requestParams['id']);

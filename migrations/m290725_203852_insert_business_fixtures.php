@@ -26,9 +26,9 @@ class m290725_203852_insert_business_fixtures extends Migration
         $this->insert('measure_unit', ['name' => 'Unidades', 'abbr' => 'u', 'measure_unit_type_id' => 3]);
 
         //Categorías de productos
-        $this->insert('asset_category', ['name' => 'Alimentos', 'measure_unit_type_id' => 1]);
-        $this->insert('asset_category', ['name' => 'Bebidas alcohólicas', 'measure_unit_type_id' => 2]);
-        $this->insert('asset_category', ['name' => 'Bebidas no alcohólicas', 'measure_unit_type_id' => 2]);
+        $this->insert('asset_category', ['name' => 'Alimentos', 'needs_cooking' => 1, 'measure_unit_type_id' => 1]);
+        $this->insert('asset_category', ['name' => 'Bebidas alcohólicas', 'needs_cooking' => 0, 'measure_unit_type_id' => 2]);
+        $this->insert('asset_category', ['name' => 'Bebidas no alcohólicas', 'needs_cooking' => 0, 'measure_unit_type_id' => 2]);
 
         //Ingredientes
         $this->insert('asset', ['name' => 'Harina', 'status' => 1, 'asset_type_id' => 1, 'measure_unit_id' => 2]);
