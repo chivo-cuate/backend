@@ -25,17 +25,17 @@ class m190724_203861_assign_perms_roles extends Migration {
         $this->insert('auth_permission_role', ['perm_id' => 11, 'role_id' => 1]);
         $this->insert('auth_permission_role', ['perm_id' => 12, 'role_id' => 1]);
         $this->insert('auth_permission_role', ['perm_id' => 13, 'role_id' => 1]);
-        $this->insert('auth_permission_role', ['perm_id' => 36, 'role_id' => 1]);
+        $this->insert('auth_permission_role', ['perm_id' => 14, 'role_id' => 1]);
+        $this->insert('auth_permission_role', ['perm_id' => 15, 'role_id' => 1]);
+        $this->insert('auth_permission_role', ['perm_id' => 16, 'role_id' => 1]);
         $this->insert('auth_permission_role', ['perm_id' => 17, 'role_id' => 1]);
         $this->insert('auth_permission_role', ['perm_id' => 18, 'role_id' => 1]);
         $this->insert('auth_permission_role', ['perm_id' => 19, 'role_id' => 1]);
         $this->insert('auth_permission_role', ['perm_id' => 20, 'role_id' => 1]);
+        $this->insert('auth_permission_role', ['perm_id' => 36, 'role_id' => 1]);
         $this->insert('auth_permission_role', ['perm_id' => 38, 'role_id' => 1]);
 
         //Permisos del Gerente
-        $this->insert('auth_permission_role', ['perm_id' => 14, 'role_id' => 2]);
-        $this->insert('auth_permission_role', ['perm_id' => 15, 'role_id' => 2]);
-        $this->insert('auth_permission_role', ['perm_id' => 16, 'role_id' => 2]);
         $this->insert('auth_permission_role', ['perm_id' => 21, 'role_id' => 2]);
         $this->insert('auth_permission_role', ['perm_id' => 22, 'role_id' => 2]);
         $this->insert('auth_permission_role', ['perm_id' => 23, 'role_id' => 2]);
@@ -58,7 +58,6 @@ class m190724_203861_assign_perms_roles extends Migration {
         //Permisos del Elaborador OPC
         $this->insert('auth_permission_role', ['perm_id' => 34, 'role_id' => 4]);
         $this->insert('auth_permission_role', ['perm_id' => 39, 'role_id' => 4]);
-        //$this->insert('auth_permission_role', ['perm_id' => 43, 'role_id' => 4]);
 
         //Permisos del Mesero OPL
         $this->insert('auth_permission_role', ['perm_id' => 30, 'role_id' => 5]);

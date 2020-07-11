@@ -37,7 +37,7 @@ class AssetsController extends MyRestController {
         if ($active) {
             $params['status'] = 1;
         }
-        return Asset::find()->where($params)->asArray()->all();
+        return Asset::find()->where($params)->orderBy(['name' => SORT_ASC])->asArray()->all();
     }
 
     private function _getMeasureUnits() {
@@ -54,10 +54,11 @@ class AssetsController extends MyRestController {
             $category = AssetCategory::findOne($item['category_id']);
             $item['status'] = $item['status'] === '1' ? true : false;
             $item['status_name'] = $item['status'] ? 'Activo' : 'Inactivo';
-            $item['category_name'] = $category ? $category->name : null;
-            $item['components'] = $this->_getItemComponents($item);
+            $item['category_name'] = $category ? $category->name : 'Ingrediente';
+            if ($this->assetTypeId === 2)
+                $item['components'] = $this->_getItemComponents($item);
         }
-        $ingredients = $this->_getAssetsByType(1, true);
+        $ingredients = $this->assetTypeId === 1 ? $items : $this->_getAssetsByType(1, true);
         return [$items, $ingredients, $this->_getMeasureUnits(), $this->_getAssetsCategories()];
     }
 
