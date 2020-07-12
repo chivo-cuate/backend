@@ -6,6 +6,7 @@ use app\models\AuthUserRole;
 use app\models\Menu;
 use app\models\User;
 use DusanKasan\Knapsack\Collection;
+use function Lambdish\Phunctional\map;
 
 class UserHelper
 {
@@ -46,12 +47,11 @@ class UserHelper
     public static function getCooksPerBranches(User $user) {
         $branches = $user->getBranches()->select('id')->all();
         $res = [];
+
         foreach ($branches as $branch) {
-            $currMenu = MenuHelper::getCurrentMenu($branch->id);
-            $res[$branch->id] = [
-                'users' => $currMenu ? $currMenu->getCooks()->select(['id', 'sex', 'first_name', 'last_name', 'concat(first_name, " ", last_name) as full_name'])->asArray()->all() : []
-            ];
+            $res[$branch->id] = MenuHelper::getCurrentMenuCooks($branch->id);
         }
+
         return $res;
     }
 
