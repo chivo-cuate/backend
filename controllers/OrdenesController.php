@@ -22,6 +22,34 @@ class OrdenesController extends MyRestController
 
     public $modelClass = Order::class;
 
+    private function _getItems()
+    {
+        $res = ['tables' => [], 'assets' => [], 'orders' => [], 'cooks' => [], 'cooks_enabled' => true];
+        $menu = MenuHelper::getCurrentMenu($this->requestParams['branch_id']);
+        $branch = Branch::findOne($this->requestParams['branch_id']);
+
+        if ($this->userInfo['user']->hasPermission(30)) {
+            $res = $this->_initializeItems($branch->tables);
+            $this->_getOrders($menu, $res);
+            $this->_getMenuProducts($menu, $res);
+        }
+        if ($this->userInfo['user']->hasPermission(39) && $menu) {
+            $cooksIDs = $this->requestParams['cooks'];
+            $cooks = MenuHelper::getCurrentMenuCooksActiveRecord($branch->id)
+                ->where("auth_user.id in ($cooksIDs) and menu_cook.session_id is not null")
+                ->asArray()
+                ->all();
+            $orders = $this->_getPendingOrders($menu->id);
+            $this->_getCurrentOrderForCooks($cooks, $menu->id);
+            $res = array_merge($res, ['orders' => $orders, 'cooks' => $cooks]);
+            $res['notifications'] = $this->_getNotifications($cooksIDs);
+        } else {
+            $res['notifications'] = $this->_getNotifications();
+        }
+
+        return $res;
+    }
+
     private function _initializeItems($branchTables)
     {
         $res = ['tables' => []];
@@ -53,11 +81,6 @@ class OrdenesController extends MyRestController
             default:
                 return ['icon' => 'mdi-clipboard', 'icon_color' => 'grey'];
         }
-    }
-
-    private function _assetNeedsCooking(Asset $asset)
-    {
-        return Stock::findOne(['asset_id' => $asset->id]) ? false : true;
     }
 
     private function _updateTableOrdersCountByStatus(&$res, $tableIndex, $statusId, $guiAttribs)
@@ -122,33 +145,6 @@ class OrdenesController extends MyRestController
         }
     }
 
-    private function _getItems()
-    {
-        $res = ['tables' => [], 'assets' => [], 'orders' => [], 'cooks' => [], 'cooks_enabled' => true];
-        $menu = MenuHelper::getCurrentMenu($this->requestParams['branch_id']);
-
-        if ($this->userInfo['user']->hasPermission(30)) {
-            $branch = Branch::findOne($this->requestParams['branch_id']);
-            $res = $this->_initializeItems($branch->tables);
-            $this->_getOrders($menu, $res);
-            $this->_getMenuProducts($menu, $res);
-        }
-        if ($this->userInfo['user']->hasPermission(39) && $menu) {
-            $cooksIDs = $this->requestParams['cooks'];
-            $cooks = $menu->getCooks()
-                ->where("id in ($cooksIDs)")
-                ->all();
-            $orders = $this->_getPendingOrders($menu->id);
-            $this->_getCurrentOrderForCooks($cooks, $menu->id);
-            $res = array_merge($res, ['orders' => $orders, 'cooks' => $cooks]);
-            $res['notifications'] = $this->_getNotifications($cooksIDs);
-        } else {
-            $res['notifications'] = $this->_getNotifications();
-        }
-
-        return $res;
-    }
-
     private function _exitIfNoAssetsInOrder()
     {
         if (count($this->requestParams['assets']) === 0) {
@@ -166,6 +162,11 @@ class OrdenesController extends MyRestController
                 $orderAsset->cook_id = $this->userInfo['user']->id;
             }
         }
+    }
+
+    private function _assetNeedsCooking(Asset $asset)
+    {
+        return AssetComponent::findOne(['asset_id' => $asset->id]) ? true : false;
     }
 
     private function _updateOrderAssets(Order $model)
@@ -202,16 +203,24 @@ class OrdenesController extends MyRestController
     private function _getFirstAvailableCook($orderTypeId)
     {
         $menu = MenuHelper::getCurrentMenu($this->requestParams['branch_id']);
-
         $allowedCookRoles = $orderTypeId === 1 ? "4,6" : "6";
-        $sql = "select id from auth_user where
+
+        $result = $menu->getMenuCooks()
+            ->where("session_id is not null")
+            ->innerJoin("auth_user_role", "menu_cook.cook_id = auth_user_role.user_id and role_id in ($allowedCookRoles)")
+            ->andWhere("cook_id not in (select cook_id from order_asset where finished = 0 and cook_id is not null)")
+            ->orderBy(['auth_user_role.role_id' => SORT_ASC])
+            ->asArray()
+            ->one();
+
+        /*$sql = "select id from auth_user where
                 id in (select cook_id from menu_cook where menu_id = {$menu->id} and session_id is not null)
                 and id in (select user_id from auth_user_role where role_id in ($allowedCookRoles))
                 and id not in (select cook_id from order_asset where finished = 0 and cook_id is not null) order by id";
         $command = Yii::$app->db->createCommand($sql);
-        $result = $command->queryOne();
+        $result = $command->queryOne();*/
         if ($result && count($result) > 0) {
-            return User::findOne($result['id']);
+            return User::findOne($result['cook_id']);
         }
         return null;
 
@@ -254,7 +263,6 @@ class OrdenesController extends MyRestController
                 return ['code' => 'error', 'msg' => Utilities::getModelErrorsString($model), 'data' => $this->_getItems()];
             }
             $this->_updateOrderAssets($model);
-            //$this->_assignOrderAssetsToCookOrWaiter($model);
             $this->_assignNextPendingOrders();
             $transaction->commit();
             return ['code' => 'success', 'msg' => 'Operación realizada.', 'data' => $this->_getItems()];
@@ -289,31 +297,6 @@ class OrdenesController extends MyRestController
         } catch (Exception $exc) {
             $transaction->rollBack();
             return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
-        }
-    }
-
-    private function _reduceIngredients(Asset $asset, $quantity)
-    {
-        $ingredients = AssetComponent::findAll(['asset_id' => $asset->id]);
-        foreach ($ingredients as $ingredient) {
-            $stockEntry = Stock::find()->where(['asset_id' => $ingredient->component_id, 'measure_unit_id' => $ingredient->measure_unit_id])->orderBy(['id' => SORT_ASC])->one();
-            $stockEntry->quantity -= ($ingredient->quantity * $quantity);
-            $stockEntry->save();
-        }
-    }
-
-    private function _reduceStockAssetsByOrder(Order $model)
-    {
-        $orderAssets = $model->getOrderAssets()->all();
-        foreach ($orderAssets as $orderAsset) {
-            $asset = $orderAsset->getAsset()->one();
-            if ($this->_assetNeedsCooking($asset)) {
-                $this->_reduceIngredients($asset, $orderAsset->quantity);
-            } else {
-                $stockEntry = $asset->getStocks()->orderBy(['id' => SORT_ASC])->one();
-                $stockEntry->quantity -= $orderAsset->quantity;
-                $stockEntry->save();
-            }
         }
     }
 
@@ -399,11 +382,6 @@ class OrdenesController extends MyRestController
                     $cookName = $cook->getFullName();
                     $cookGenderEnding = $cook->sex === 'M' ? 'o' : 'a';
                     $this->createNotification('Orden asignada', "{$cookName} fue asignad{$cookGenderEnding} a la orden {$model->order_number}$orderTypeDesc.", date('Y-m-d h:i'), $waiterId, $model->id);
-                    /*$menu = MenuHelper::getCurrentMenu($this->requestParams['branch_id']);
-                    $menuCooks = $menu->getCooks()->all();
-                    foreach ($menuCooks as $menuCook) {
-                        $this->createNotification('Orden asignada', "{$cookName} fue asignad{$cookGenderEnding} a la orden {$model->order_number} $orderTypeDesc.", date('Y-m-d h:i'), $menuCook->id, $model->id);
-                    }*/
                 }
                 break;
             case 2:
@@ -464,6 +442,41 @@ class OrdenesController extends MyRestController
         } catch (Exception $exc) {
             $transaction->rollBack();
             return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
+        }
+    }
+
+    private function _reduceStockAssetsByOrder(Order $model)
+    {
+        $branch = $model->getMenu()->one()->getBranch()->one();
+        $orderAssets = $model->getOrderAssets()->all();
+        foreach ($orderAssets as $orderAsset) {
+            $asset = $orderAsset->getAsset()->one();
+            if ($this->_assetNeedsCooking($asset)) {
+                $this->_reduceIngredients($branch, $asset, $orderAsset->quantity);
+            } else {
+                $stockEntry = $asset->getStocks()->orderBy(['id' => SORT_ASC])->one();
+                $stockEntry->quantity -= $orderAsset->quantity;
+                $stockEntry->save();
+            }
+        }
+    }
+
+    private function _reduceIngredients(Branch $branch, Asset $asset, $quantity)
+    {
+        $ingredients = AssetComponent::findAll(['asset_id' => $asset->id]);
+        foreach ($ingredients as $ingredient) {
+            $stockEntry = Stock::find()->where(['branch_id' => $branch->id, 'asset_id' => $ingredient->component_id])->orderBy(['id' => SORT_ASC])->one();
+
+            $ingredientMeasureUnitId = $ingredient->measure_unit_id;
+            $stockMeasureUnitId = $stockEntry->measure_unit_id;
+
+            $amountToReduce = ($ingredientMeasureUnitId === $stockMeasureUnitId)
+                ? $ingredient->quantity
+                : $ingredient->quantity / 1000;
+
+
+            $stockEntry->quantity -= ($amountToReduce * $quantity);
+            $stockEntry->save();
         }
     }
 
@@ -532,7 +545,7 @@ class OrdenesController extends MyRestController
         $i = 0;
         $waiterId = null;
         foreach ($orderAssets as $orderAsset) {
-            if ($orderAsset->cook_id === $cookId) {
+            if ($orderAsset->cook_id == $cookId) {
                 $waiterId = $orderAsset->waiter_id;
                 $orderAsset->finished = 1;
                 $orderAsset->save();
@@ -572,13 +585,12 @@ class OrdenesController extends MyRestController
 
     private function _getCurrentOrderForCooks(&$cooks, $menuId)
     {
-        $res = [];
         $i = 0;
         foreach ($cooks as &$cook) {
-            $res[$i] = $cook->getAttributes(['id', 'username', 'first_name', 'last_name', 'sex']);
+            $cookId = $cook['id'];
             $orderAssets = OrderAsset::find()
                 ->innerJoin('asset', 'order_asset.asset_id = asset.id')
-                ->where(['order_asset.cook_id' => $cook->id, 'order_asset.finished' => 0])
+                ->where(['order_asset.cook_id' => $cookId, 'order_asset.finished' => 0])
                 ->select(['order_asset.order_id', 'order_asset.quantity', 'asset.name as asset_name'])
                 ->asArray()
                 ->all();
@@ -589,11 +601,10 @@ class OrdenesController extends MyRestController
             } else {
                 $order = null;
             }
-            $menuCook = MenuCook::findOne(['menu_id' => $menuId, 'cook_id' => $cook->id]);
-            $res[$i]['session_id'] = $menuCook ? $menuCook->session_id : null;
-            $res[$i++]['current_order'] = $order;
+            $menuCook = MenuCook::findOne(['menu_id' => $menuId, 'cook_id' => $cookId]);
+            $cooks[$i]['session_id'] = $menuCook ? $menuCook->session_id : null;
+            $cooks[$i++]['current_order'] = $order;
         }
-        $cooks = $res;
     }
 
     private function _canWaiterCreateOrder(Order $model)
