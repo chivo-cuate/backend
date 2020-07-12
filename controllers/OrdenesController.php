@@ -127,7 +127,7 @@ class OrdenesController extends MyRestController
         $res['assets'] = [];
         $res['cooks_enabled'] = false;
         if ($menu) {
-            $res['cooks_enabled'] = count($menu->getMenuCooks()->all()) > 0 ? true : false;
+            $res['cooks_enabled'] = $menu->getMenuCooks()->where('session_id is not null')->count() > 0;
             $menuAssets = Asset::find()->select(['asset.id', 'asset.name', 'menu_asset.price', 'menu_asset.grams', 'asset_category.name as group'])->innerJoin('menu_asset', 'menu_asset.asset_id = asset.id')->innerJoin('asset_category', 'asset_category.id = asset.category_id')->where(['menu_asset.menu_id' => $menu->id])->orderBy(['group' => SORT_ASC, 'asset.name' => SORT_ASC])->asArray()->all();
             $lastGroup = null;
             $assets = [];
