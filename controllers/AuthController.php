@@ -66,7 +66,8 @@ class AuthController extends MyRestController {
         ];
 
         if (User::hasAnyRole($this->userInfo['user']->id, '4, 6')) {
-            $res['cooks'] = UserHelper::getCooksPerBranches($this->userInfo['user']);
+            $res['data']['cooks'] = UserHelper::getCooksPerBranches($this->userInfo['user']);
+            $res['data']['chosen_cooks'] = [];
         }
 
         return $res;
@@ -134,7 +135,7 @@ class AuthController extends MyRestController {
     }
 
     public function actionMarcarElaboradoresAutenticados() {
-        $sessionId = Yii::$app->security->generateRandomString();
+        $sessionId = Yii::$app->security->generateRandomString(16);
         return $this->marcarElaboradoresMenu($sessionId);
     }
 
