@@ -11,7 +11,6 @@ class m190724_203859_create_sub_modules extends Migration {
      * {@inheritdoc}
      */
     public function safeUp() {
-
         $this->insert('auth_module', ['name' => 'Roles', 'slug' => 'roles', 'parent_id' => 1, 'icon' => 'assignment_ind']);
         $this->insert('auth_module', ['name' => 'Usuarios', 'slug' => 'usuarios', 'parent_id' => 1, 'icon' => 'supervisor_account']);
         $this->insert('auth_module', ['name' => 'Ingredientes', 'slug' => 'ingredientes', 'parent_id' => 5, 'icon' => 'mdi-food-variant']);

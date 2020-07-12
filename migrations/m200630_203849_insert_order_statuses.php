@@ -5,7 +5,7 @@ use yii\db\Migration;
 /**
  * Class m190722_203851_apply_fixtures_01
  */
-class m290725_203849_insert_order_statuses extends Migration {
+class m200630_203849_insert_order_statuses extends Migration {
 
     /**
      * {@inheritdoc}
