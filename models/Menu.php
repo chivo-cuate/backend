@@ -37,7 +37,7 @@ class Menu extends \yii\db\ActiveRecord
             [['date', 'branch_id'], 'required'],
             [['date'], 'safe'],
             [['branch_id'], 'integer'],
-            [['date'], 'unique'],
+            [['branch_id', 'date'], 'unique', 'targetAttribute' => ['branch_id', 'date']],
             [['branch_id'], 'exist', 'skipOnError' => true, 'targetClass' => Branch::className(), 'targetAttribute' => ['branch_id' => 'id']],
         ];
     }

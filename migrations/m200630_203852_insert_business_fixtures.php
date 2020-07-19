@@ -84,18 +84,27 @@ class m200630_203852_insert_business_fixtures extends Migration
         $this->insert('stock', ['branch_id' => 1, 'asset_id' => 14, 'quantity' => 240, 'price_in' => 15, 'measure_unit_id' => 5]);
         $this->insert('stock', ['branch_id' => 1, 'asset_id' => 15, 'quantity' => 600, 'price_in' => 30, 'measure_unit_id' => 5]);
 
-        //Menu predeterminado
+        //Menus predeterminados
         $this->insert('menu', ['date' => date('Y-m-d'), 'branch_id' => 1]);
+        $this->insert('menu', ['date' => date('Y-m-d'), 'branch_id' => 2]);
 
-        //Productos del menu
+        //Productos del menu - Sucursal 1
         $this->insert('menu_asset', ['menu_id' => 1, 'asset_id' => 12, 'price' => 35, 'grams' => 350]);
         $this->insert('menu_asset', ['menu_id' => 1, 'asset_id' => 14, 'price' => 25, 'grams' => 250]);
         $this->insert('menu_asset', ['menu_id' => 1, 'asset_id' => 16, 'price' => 30, 'grams' => 460]);
         $this->insert('menu_asset', ['menu_id' => 1, 'asset_id' => 17, 'price' => 60, 'grams' => 460]);
 
-        //Elaboradores
+        //Elaboradores - Sucursal 1
         $this->insert('menu_cook', ['menu_id' => 1, 'cook_id' => 7]);
         $this->insert('menu_cook', ['menu_id' => 1, 'cook_id' => 9]);
+
+        //Productos del menu - Sucursal 2
+        $this->insert('menu_asset', ['menu_id' => 2, 'asset_id' => 12, 'price' => 35, 'grams' => 350]);
+        $this->insert('menu_asset', ['menu_id' => 2, 'asset_id' => 17, 'price' => 60, 'grams' => 460]);
+
+        //Elaboradores - Sucursal 2
+        $this->insert('menu_cook', ['menu_id' => 2, 'cook_id' => 8]);
+        $this->insert('menu_cook', ['menu_id' => 2, 'cook_id' => 9]);
     }
 
     /**

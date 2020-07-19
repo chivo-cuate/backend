@@ -3,12 +3,13 @@
 namespace app\utilities;
 
 use app\models\Menu;
-use app\models\MenuCook;
 
 class MenuHelper {
 
-    public static function getCurrentMenu($branchId) : Menu {
-        return Menu::find()->where(['branch_id' => $branchId])->orderBy(['date' => SORT_DESC])->one();
+    public static function getCurrentMenu($branchId) {
+        return Menu::find()->where(['branch_id' => $branchId])
+            ->orderBy(['date' => SORT_DESC])
+            ->one();
     }
 
     public static function getCurrentMenuCooks($branchId) {
