@@ -10,6 +10,7 @@ use app\utilities\Utilities;
 use DusanKasan\Knapsack\Collection;
 use Exception;
 use Yii;
+use yii\db\IntegrityException;
 
 class CategoriasController extends MyRestController
 {
@@ -74,8 +75,8 @@ class CategoriasController extends MyRestController
                 return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => []];
             }
             $model->setAttributes([
-                'name' => $this->requestParams['item']['name'],
-                'status' => $this->requestParams['item']['status'] ? 1 : 0
+                'needs_cooking' => $this->requestParams['item']['needs_cooking'],
+                'measure_unit_type_id' => $this->requestParams['item']['measure_unit_type_id']
             ]);
             if (!$model->hasErrors()) {
                 $model->save();
@@ -94,16 +95,17 @@ class CategoriasController extends MyRestController
             if (!$model) {
                 return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => []];
             }
-            $model->status = 0;
-            $this->_canBeDeleted($model, false);
             if (!$model->hasErrors()) {
                 $model->delete();
                 return ['code' => 'success', 'msg' => 'Operación realizada con éxito.', 'data' => $this->_getItems()];
             }
             return ['code' => 'error', 'msg' => Utilities::getModelErrorsString($model), 'data' => []];
+        } catch (IntegrityException $exc) {
+            return ['code' => 'error', 'msg' => 'Este elemento posee productos asociados.', 'data' => []];
         } catch (Exception $exc) {
             return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
         }
+
     }
 
     public function actionEditarProductos()
