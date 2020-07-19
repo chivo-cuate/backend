@@ -31,7 +31,7 @@ class AssetCategory extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'needs_cooking', 'measure_unit_type_id'], 'required'],
+            [['name', 'measure_unit_type_id'], 'required'],
             [['needs_cooking', 'measure_unit_type_id'], 'integer'],
             [['name'], 'string', 'max' => 255],
             [['name'], 'unique'],

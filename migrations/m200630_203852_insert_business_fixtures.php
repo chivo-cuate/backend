@@ -16,7 +16,7 @@ class m200630_203852_insert_business_fixtures extends Migration
         //Tipos de unidades de medida
         $this->insert('measure_unit_type', ['name' => 'Peso']);
         $this->insert('measure_unit_type', ['name' => 'Capacidad']);
-        $this->insert('measure_unit_type', ['name' => 'Otros']);
+        $this->insert('measure_unit_type', ['name' => 'Unidades']);
 
         //Unidades de medida
         $this->insert('measure_unit', ['name' => 'Gramos', 'abbr' => 'gr', 'measure_unit_type_id' => 1]);

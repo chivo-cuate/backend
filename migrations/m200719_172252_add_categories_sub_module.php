@@ -22,10 +22,10 @@ class m200719_172252_add_categories_sub_module extends Migration
         $this->insert('auth_permission', ['name' => 'Eliminar', 'slug' => 'eliminar', 'module_id' => 15]);
 
         //Roles
-        $this->insert('auth_permission_role', ['perm_id' => 43, 'role_id' => 1]);
-        $this->insert('auth_permission_role', ['perm_id' => 44, 'role_id' => 1]);
         $this->insert('auth_permission_role', ['perm_id' => 45, 'role_id' => 1]);
         $this->insert('auth_permission_role', ['perm_id' => 46, 'role_id' => 1]);
+        $this->insert('auth_permission_role', ['perm_id' => 47, 'role_id' => 1]);
+        $this->insert('auth_permission_role', ['perm_id' => 48, 'role_id' => 1]);
     }
 
     /**

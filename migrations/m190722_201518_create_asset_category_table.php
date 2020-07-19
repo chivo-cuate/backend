@@ -15,7 +15,7 @@ class m190722_201518_create_asset_category_table extends Migration
         $this->createTable('{{%asset_category}}', [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull()->unique(),
-            'needs_cooking' => $this->smallInteger()->notNull(),
+            'needs_cooking' => $this->boolean()->notNull()->defaultValue(false),
             'measure_unit_type_id' => $this->integer()->notNull(),
         ], app\utilities\MigrationHelper::getTableOptions($this->db->driverName));
 

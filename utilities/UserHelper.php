@@ -44,7 +44,8 @@ class UserHelper
         return $res;
     }*/
 
-    public static function getCooksPerBranches(User $user) {
+    public static function getCooksPerBranches(User $user)
+    {
         $branches = $user->getBranches()->select('id')->all();
         $res = [];
 
@@ -57,9 +58,14 @@ class UserHelper
 
     public static function getUserRolesNamesArray(User $user)
     {
-        return Collection::from($user->getRoles()->select('name')->asArray()->all())->map(function($role) {
-            return $role['name'];
-        })->toArray();
+        return Collection::from($user->getRoles()
+            ->select('name')
+            ->asArray()
+            ->all())
+            ->map(function ($role) {
+                return $role['name'];
+            })
+            ->toArray();
     }
 
 }
