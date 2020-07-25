@@ -4,7 +4,6 @@ namespace app\controllers;
 
 use app\models\Notification;
 use app\models\User;
-use app\models\AuthUser;
 use app\utilities\Security;
 use app\utilities\Utilities;
 use Exception;
@@ -18,6 +17,7 @@ use yii\filters\Cors;
 use yii\rest\ActiveController;
 use yii\web\ForbiddenHttpException;
 use yii\web\Response;
+use yii\web\Request;
 
 class MyRestController extends ActiveController
 {

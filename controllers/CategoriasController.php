@@ -105,7 +105,6 @@ class CategoriasController extends MyRestController
         } catch (Exception $exc) {
             return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
         }
-
     }
 
     public function actionEditarProductos()

@@ -7,7 +7,6 @@ use app\models\MenuCook;
 use app\models\User;
 use app\utilities\MenuHelper;
 use app\utilities\Security;
-use app\utilities\Utilities;
 use app\utilities\UserHelper;
 use Exception;
 use Yii;

@@ -33,6 +33,7 @@ class OrdenesController extends MyRestController
             $this->_getOrders($menu, $res);
             $this->_getMenuProducts($menu, $res);
         }
+
         if ($this->userInfo['user']->hasPermission(39) && $menu) {
             $cooksIDs = $this->requestParams['cooks'];
             $cooks = MenuHelper::getCurrentMenuCooksActiveRecord($branch->id)
@@ -99,11 +100,24 @@ class OrdenesController extends MyRestController
     private function _getOrders($menu, &$res)
     {
         if ($menu) {
-            $orders = Order::find()->where(['menu_id' => $menu->id])->andWhere('status_id != 3')->orderBy(['date_time' => SORT_ASC])->all();
+            $orders = Order::find()
+                ->where(['menu_id' => $menu->id])
+                ->andWhere('status_id != 3')
+                ->orderBy(['date_time' => SORT_ASC])
+                ->all();
+
             $res['takeaway_orders'] = [];
+
             foreach ($orders as $order) {
                 $orderData = $order->getAttributes();
-                $orderData['assets'] = $order->getOrderAssets()->orderBy(['finished' => SORT_DESC, 'id' => SORT_ASC])->asArray()->all();
+                $orderData['assets'] = $order->getOrderAssets()
+                    ->innerJoin('asset', 'order_asset.asset_id = asset.id')
+                    ->innerJoin('asset_category', 'asset_category.id = asset.category_id')
+                    ->select('order_asset.id, order_asset.order_id, order_asset.asset_id, order_asset.quantity, order_asset.finished, order_asset.cook_id, order_asset.waiter_id, asset_category.name as category_name')
+                    ->orderBy(['finished' => SORT_DESC, 'id' => SORT_ASC])
+                    ->asArray()
+                    ->all();
+
                 $orderData['status'] = $order->status->name;
                 $orderData['elapsed_time'] = Utilities::dateDiff($order->date_time, time());
                 $orderData['slug'] = substr($order->status->slug, 0, 1);
@@ -126,9 +140,59 @@ class OrdenesController extends MyRestController
     {
         $res['assets'] = [];
         $res['cooks_enabled'] = false;
+
         if ($menu) {
             $res['cooks_enabled'] = $menu->getMenuCooks()->where('session_id is not null')->count() > 0;
-            $menuAssets = Asset::find()->select(['asset.id', 'asset.name', 'menu_asset.price', 'menu_asset.grams', 'asset_category.name as group'])->innerJoin('menu_asset', 'menu_asset.asset_id = asset.id')->innerJoin('asset_category', 'asset_category.id = asset.category_id')->where(['menu_asset.menu_id' => $menu->id])->orderBy(['group' => SORT_ASC, 'asset.name' => SORT_ASC])->asArray()->all();
+            $menuAssets = Asset::find()
+                ->select(['asset.id', 'asset.name', 'menu_asset.price', 'menu_asset.grams', 'asset_category.name as category_name', 'measure_unit.abbr as measure_unit'])
+                ->innerJoin('menu_asset', 'menu_asset.asset_id = asset.id')
+                ->innerJoin('asset_category', 'asset_category.id = asset.category_id')
+                ->innerJoin('measure_unit', 'measure_unit.id = asset.measure_unit_id')
+                ->where(['menu_asset.menu_id' => $menu->id])
+                ->orderBy(['category_name' => SORT_ASC, 'asset.name' => SORT_ASC])
+                ->asArray()
+                ->all();
+
+            $assets = [];
+            foreach ($menuAssets as $menuAsset) {
+                $assetCategoryName = $menuAsset['category_name'];
+
+                $categoryIndex = count($assets);
+                $i = 0;
+                foreach ($assets as $asset) {
+                    if ($asset[0] === $assetCategoryName) {
+                        $categoryIndex = $i;
+                        break;
+                    }
+                    $i++;
+                }
+
+                if ($categoryIndex === count($assets)) {
+                    $assets[$categoryIndex] = [$assetCategoryName, []];
+                }
+
+                $menuAsset['category_index'] = $categoryIndex;
+                $assets[$categoryIndex][1][] = $menuAsset;
+            }
+
+            $res['assets'] = $assets;
+        }
+    }
+
+    /*private function _getMenuProducts($menu, &$res)
+    {
+        $res['assets'] = [];
+        $res['cooks_enabled'] = false;
+        if ($menu) {
+            $res['cooks_enabled'] = $menu->getMenuCooks()->where('session_id is not null')->count() > 0;
+            $menuAssets = Asset::find()
+                ->select(['asset.id', 'asset.name', 'menu_asset.price', 'menu_asset.grams', 'asset_category.name as group'])
+                ->innerJoin('menu_asset', 'menu_asset.asset_id = asset.id')
+                ->innerJoin('asset_category', 'asset_category.id = asset.category_id')
+                ->where(['menu_asset.menu_id' => $menu->id])
+                ->orderBy(['group' => SORT_ASC, 'asset.name' => SORT_ASC])
+                ->asArray()
+                ->all();
             $lastGroup = null;
             $assets = [];
             $i = 0;
@@ -143,7 +207,7 @@ class OrdenesController extends MyRestController
             }
             $res['assets'] = $assets;
         }
-    }
+    }*/
 
     private function _exitIfNoAssetsInOrder()
     {
