@@ -49,7 +49,6 @@ class AuthController extends MyRestController
 
     private function _generateLoginResponse($jwt, $userBranches)
     {
-        //$userBranches = $this->userInfo['user']->getBranches()->select('id, name, tables')->all();
         $currBranch = count($userBranches) === 1 ? $userBranches[0] : null;
 
         $res = [
