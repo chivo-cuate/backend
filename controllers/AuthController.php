@@ -177,6 +177,7 @@ class AuthController extends MyRestController
                     $menuCook->save();
                 }
             }
+            Yii::$app->runAction('ordenes/asignar-pendientes');
             $transaction->commit();
             return ['code' => 'success', 'msg' => 'Operación realizada con éxito.', 'data' => []];
         } catch (\Exception $exc) {

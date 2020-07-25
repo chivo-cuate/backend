@@ -277,32 +277,10 @@ class OrdenesController extends MyRestController
             ->asArray()
             ->one();
 
-        /*$sql = "select id from auth_user where
-                id in (select cook_id from menu_cook where menu_id = {$menu->id} and session_id is not null)
-                and id in (select user_id from auth_user_role where role_id in ($allowedCookRoles))
-                and id not in (select cook_id from order_asset where finished = 0 and cook_id is not null) order by id";
-        $command = Yii::$app->db->createCommand($sql);
-        $result = $command->queryOne();*/
         if ($result && count($result) > 0) {
             return User::findOne($result['cook_id']);
         }
         return null;
-
-        /*$menuCooks = $menu->getMenuCooks()->orderBy(['cook_id' => SORT_ASC])->all();
-        $activeOrders = OrderAsset::find()->innerJoin('order', 'order_asset.order_id = order.id')->innerJoin('menu', 'order.menu_id = menu.id')->where(['menu.id' => $menu->id, 'order_asset.finished' => 0])->all();
-        foreach ($menuCooks as $menuCook) {
-            $cookAvailable = true;
-            foreach ($activeOrders as $activeOrder) {
-                if ($activeOrder->cook_id === $menuCook->cook_id) {
-                    $cookAvailable = false;
-                    break;
-                }
-            }
-            if ($cookAvailable && ($orderTypeId === 1 || User::hasRole($menuCook->cook_id, 6))) {
-                return User::findOne($menuCook->cook_id);
-            }
-        }
-        return null;*/
     }
 
     public function actionListar()
@@ -360,6 +338,16 @@ class OrdenesController extends MyRestController
             return ['code' => 'success', 'msg' => 'Operación realizada.', 'data' => $this->_getItems()];
         } catch (Exception $exc) {
             $transaction->rollBack();
+            return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
+        }
+    }
+
+    public function actionAsignarPendientes()
+    {
+        try {
+            $this->_assignNextPendingOrders();
+            return ['code' => 'success', 'msg' => 'Operación realizada.', 'data' => []];
+        } catch (Exception $exc) {
             return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
         }
     }

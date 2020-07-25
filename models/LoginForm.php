@@ -118,13 +118,13 @@ class LoginForm extends Model
 
                 foreach ($userBranch['sub_networks'] as  $subNetwork) {
                     $containedAt = strpos($this->ip, $subNetwork);
-                    if ($subNetwork === "*" || $containedAt !== false) {
+                    if ($subNetwork === "*" || $containedAt !== false || User::hasRole($user->id, 2)) {
                         $this->allowedBranches[] = $branchData;
                     }
                 }
             }
 
-            if (count($this->allowedBranches) === 0) {
+            if (count($this->allowedBranches) === 0 && !User::hasRole($user->id, 1)) {
                 $this->addError("ip", "No puede acceder desde esta ubicación.");
             }
         }
