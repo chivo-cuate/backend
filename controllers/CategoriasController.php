@@ -15,7 +15,6 @@ use yii\db\IntegrityException;
 class CategoriasController extends MyRestController
 {
 
-    protected $assetTypeId;
     public $modelClass = Asset::class;
 
     private function _findModel($id)
