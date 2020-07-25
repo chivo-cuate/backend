@@ -32,6 +32,7 @@ class CategoriasController extends MyRestController
                 ->asArray()
                 ->all())
             ->map(function ($item) {
+                $item['needs_cooking'] = $item['needs_cooking'] == "1";
                 $item['needs_cooking_desc'] = $item['needs_cooking'] ? 'Sí' : 'No';
                 return $item;
             })

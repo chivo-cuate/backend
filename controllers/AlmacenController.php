@@ -41,6 +41,7 @@ class AlmacenController extends MyRestController {
     private function _getActiveAssets() {
         $assetTypes = AssetType::find()->orderBy(['name' => SORT_ASC])->all();
         $assets = [];
+
         foreach ($assetTypes as $assetType) {
             $assetsByType = Asset::find()
                 ->where(['asset_type_id' => $assetType->id, 'status' => 1])
