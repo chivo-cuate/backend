@@ -17,7 +17,10 @@ class UsuariosController extends MyRestController {
     public $modelClass = User::class;
 
     private function _getUsers() {
-        $users = User::find()->select(['id', 'first_name', 'last_name', 'concat(first_name, " ", last_name) as full_name', 'username', 'email', 'phone_number', 'ine', 'address', 'sex'])->asArray()->all();
+        $users = User::find()
+            ->select(['id', 'first_name', 'last_name', 'concat(first_name, " ", last_name) as full_name', 'username', 'email', 'phone_number', 'ine', 'address', 'sex', 'status'])
+            ->asArray()
+            ->all();
         $usersCount = count($users);
         for ($i = 0; $i < $usersCount; $i++) {
             unset($users[$i]['password'], $users[$i]['password_confirm']);
