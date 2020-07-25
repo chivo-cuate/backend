@@ -159,9 +159,13 @@ class AssetsController extends MyRestController
             }
             $model->setAttributes([
                 'name' => $this->requestParams['item']['name'],
-                'status' => $this->requestParams['item']['status'] ? 1 : 0
+                'status' => $this->requestParams['item']['status'] ? 1 : 0,
+                'category_id' => $this->requestParams['item']['category_id'],
+                'measure_unit_id' => $this->requestParams['item']['measure_unit_id']
             ]);
+
             $this->_canBeDisabled($model);
+
             if (!$model->hasErrors()) {
                 $model->save();
                 return ['code' => 'success', 'msg' => 'Operación realizada con éxito.', 'data' => $this->_getItems()];
