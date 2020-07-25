@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use DusanKasan\Knapsack\Collection;
 use Yii;
 use yii\base\Model;
 
@@ -10,11 +11,12 @@ use yii\base\Model;
  */
 class LoginForm extends Model
 {
-
     public $username;
     public $password;
+    public $ip;
     public $rememberMe = true;
     private $_user;
+    public $allowedBranches;
 
     public function attributeLabels()
     {
@@ -33,6 +35,7 @@ class LoginForm extends Model
             [['username', 'password'], 'required'],
             ['rememberMe', 'boolean'],
             ['password', 'validatePassword'],
+            ['ip', 'validateNetwork'],
         ];
     }
 
@@ -87,6 +90,44 @@ class LoginForm extends Model
     public function getAuthenticatedUser()
     {
         return $this->_user;
+    }
+
+    public function validateNetwork()
+    {
+        $user = $this->getUser();
+        $this->allowedBranches = [];
+
+        if (!$user) {
+            $this->addError('username', 'Nombre de usuario o contraseña incorrecto.');
+        }
+        else {
+            $userBranches = Collection::from($user->getBranches()->all())
+                ->map(function ($branch) {
+                    return [
+                        'id' => $branch->id,
+                        'name' => $branch->name,
+                        'tables' => $branch->tables,
+                        'sub_networks' => explode(",", $branch->network)
+                    ];
+                })
+                ->toArray();
+
+            foreach ($userBranches as $userBranch) {
+                $branchData = $userBranch;
+                unset($branchData['sub_networks']);
+
+                foreach ($userBranch['sub_networks'] as  $subNetwork) {
+                    $containedAt = strpos($this->ip, $subNetwork);
+                    if ($subNetwork === "*" || $containedAt !== false) {
+                        $this->allowedBranches[] = $branchData;
+                    }
+                }
+            }
+
+            if (count($this->allowedBranches) === 0) {
+                $this->addError("ip", "No puede acceder desde esta ubicación.");
+            }
+        }
     }
 
 }

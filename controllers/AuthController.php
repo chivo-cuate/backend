@@ -11,14 +11,16 @@ use app\utilities\UserHelper;
 use Exception;
 use Yii;
 
-class AuthController extends MyRestController {
+class AuthController extends MyRestController
+{
 
     public $modelClass = User::class;
 
     /**
      * {@inheritdoc}
      */
-    private function _getJwtPayload($user) {
+    private function _getJwtPayload($user)
+    {
         $this->userInfo = ['code' => 'success', 'msg' => 'Credentials verified', 'user' => $user];
         $now = time();
         $homeUrl = Yii::$app->getUrlManager()->getBaseUrl();
@@ -33,7 +35,8 @@ class AuthController extends MyRestController {
         return $this->encodeJWT($payload);
     }
 
-    private function _getRedirectRoute($currBranch) {
+    private function _getRedirectRoute($currBranch)
+    {
         if ($currBranch) {
             if ($this->userInfo['user']->hasPermission(25)) {
                 return '/sucursal/menu-diario';
@@ -44,11 +47,12 @@ class AuthController extends MyRestController {
         return null;
     }
 
-    private function _generateLoginResponse($jwt) {
-        $userBranches = $this->userInfo['user']->getBranches()->select('id, name, tables')->all();
+    private function _generateLoginResponse($jwt, $userBranches)
+    {
+        //$userBranches = $this->userInfo['user']->getBranches()->select('id, name, tables')->all();
         $currBranch = count($userBranches) === 1 ? $userBranches[0] : null;
 
-        $res =  [
+        $res = [
             'code' => 'success',
             'msg' => 'Credenciales verificadas.',
             'data' => [
@@ -72,21 +76,32 @@ class AuthController extends MyRestController {
         return $res;
     }
 
-    public function actionLogin() {
+    public function actionLogin()
+    {
         try {
-            $loginFormModel = new LoginForm(['username' => $this->requestParams['username'], 'password' => $this->requestParams['password']]);
+            $loginFormModel = new LoginForm([
+                'username' => $this->requestParams['username'],
+                'password' => $this->requestParams['password'],
+                'ip' => $this->request->getUserIP(),
+            ]);
             $this->_exitIfValidationFails($loginFormModel);
             $jwt = $this->_getJwtPayload($loginFormModel->getAuthenticatedUser());
             if (!$jwt) {
                 return ['code' => 'error', 'msg' => 'Your data could not be encoded.', 'data' => []];
             }
-            return $this->_generateLoginResponse($jwt);
+            return $this->_generateLoginResponse($jwt, $loginFormModel->allowedBranches);
         } catch (Exception $exc) {
             return ['code' => 'error', 'msg' => $exc->getMessage(), 'data' => []];
         }
     }
 
-    public function actionUpdateProfile() {
+    private function getAllowedBranchesByIP(LoginForm &$loginForm)
+    {
+        $allowedBranches = $loginForm->validateNetwork();
+    }
+
+    public function actionUpdateProfile()
+    {
         try {
             $model = $this->userInfo['user'];
             $attribs = json_decode($this->requestParams['item'], true);
@@ -99,7 +114,8 @@ class AuthController extends MyRestController {
         }
     }
 
-    public function actionGetProfile() {
+    public function actionGetProfile()
+    {
         try {
             if ($this->userInfo['user']) {
                 $res = User::find()->where(['id' => $this->userInfo['user']->id])->select(['first_name', 'last_name', 'username', 'email', 'ine', 'phone_number', 'address', 'sex'])->one();
@@ -111,13 +127,15 @@ class AuthController extends MyRestController {
         }
     }
 
-    private function _exitIfPasswordsDoNotMatch($data) {
+    private function _exitIfPasswordsDoNotMatch($data)
+    {
         if ($data['password'] !== $data['password_confirm']) {
             throw new Exception('Las claves no coinciden.');
         }
     }
 
-    public function actionChangePassword() {
+    public function actionChangePassword()
+    {
         try {
             $data = $this->requestParams;
             $this->_exitIfPasswordsDoNotMatch($data);
@@ -133,16 +151,19 @@ class AuthController extends MyRestController {
         }
     }
 
-    public function actionMarcarElaboradoresAutenticados() {
+    public function actionMarcarElaboradoresAutenticados()
+    {
         $sessionId = Yii::$app->security->generateRandomString(16);
         return $this->marcarElaboradoresMenu($sessionId);
     }
 
-    public function actionLogout() {
+    public function actionLogout()
+    {
         return $this->marcarElaboradoresMenu(null);
     }
 
-    private function marcarElaboradoresMenu($value) {
+    private function marcarElaboradoresMenu($value)
+    {
         $transaction = Yii::$app->db->beginTransaction();
         try {
             if (User::hasAnyRole($this->userInfo['user']->id, '4, 6')) {

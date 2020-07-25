@@ -42,6 +42,7 @@ class SucursalesController extends MyRestController {
                 'id' => $branch->id,
                 'name' => $branch->name,
                 'tables' => $branch->tables,
+                'network' => $branch->network,
                 'description' => $branch->description,
                 'manager_id' => $manager ? $manager->id : null,
                 'manager_name' => $manager ? $manager->username : null,
@@ -82,10 +83,18 @@ class SucursalesController extends MyRestController {
         try {
             $params = $this->requestParams['item'];
             $item = Branch::findOne($params['id']);
+
             if (!$item) {
                 return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => []];
             }
-            $item->setAttributes(['name' => $params['name'], 'tables' => $params['tables'], 'description' => $params['description']]);
+
+            $item->setAttributes([
+                'name' => $params['name'],
+                'tables' => $params['tables'],
+                'description' => $params['description'],
+                'network' => $params['network']
+            ]);
+
             if ($item->validate()) {
                 $item->save();
             } else {

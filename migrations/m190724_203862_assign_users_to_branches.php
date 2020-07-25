@@ -13,8 +13,8 @@ class m190724_203862_assign_users_to_branches extends Migration
      */
     public function safeUp()
     {
-        $this->insert('branch', ['name' => 'Sucursal 1', 'tables' => 10]);
-        $this->insert('branch', ['name' => 'Sucursal 2', 'tables' => 15]);
+        $this->insert('branch', ['name' => 'Sucursal 1', 'tables' => 10, 'network' => '*']);
+        $this->insert('branch', ['name' => 'Sucursal 2', 'tables' => 15, 'network' => '*']);
 
         $this->insert('branch_user', ['branch_id' => 1, 'user_id' => 2]);
         $this->insert('branch_user', ['branch_id' => 1, 'user_id' => 4]);

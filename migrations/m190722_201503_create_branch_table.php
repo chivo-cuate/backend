@@ -16,6 +16,7 @@ class m190722_201503_create_branch_table extends Migration
             'id' => $this->primaryKey(),
             'name' => $this->string(50)->unique()->notNull(),
             'tables' => $this->integer()->notNull(),
+            'network' => $this->string(2048)->notNull(),
             'description' => $this->string(128),
         ], app\utilities\MigrationHelper::getTableOptions($this->db->driverName));
     }

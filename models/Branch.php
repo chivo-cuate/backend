@@ -10,6 +10,7 @@ use Yii;
  * @property int $id
  * @property string $name
  * @property int $tables
+ * @property string $network
  * @property string|null $description
  *
  * @property BranchUser[] $branchUsers
@@ -33,9 +34,10 @@ class Branch extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'tables'], 'required'],
+            [['name', 'tables', 'network'], 'required'],
             [['tables'], 'integer'],
             [['name'], 'string', 'max' => 50],
+            [['network'], 'string', 'max' => 2048],
             [['description'], 'string', 'max' => 128],
             [['name'], 'unique'],
         ];
@@ -50,6 +52,7 @@ class Branch extends \yii\db\ActiveRecord
             'id' => Yii::t('app', 'ID'),
             'name' => Yii::t('app', 'Name'),
             'tables' => Yii::t('app', 'Tables'),
+            'network' => Yii::t('app', 'Network'),
             'description' => Yii::t('app', 'Description'),
         ];
     }
