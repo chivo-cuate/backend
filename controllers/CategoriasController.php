@@ -75,9 +75,11 @@ class CategoriasController extends MyRestController
                 return ['code' => 'error', 'msg' => 'Datos incorrectos.', 'data' => []];
             }
             $model->setAttributes([
+                'name' => $this->requestParams['item']['name'],
                 'needs_cooking' => $this->requestParams['item']['needs_cooking'],
                 'measure_unit_type_id' => $this->requestParams['item']['measure_unit_type_id']
             ]);
+            $model->validate();
             if (!$model->hasErrors()) {
                 $model->save();
                 return ['code' => 'success', 'msg' => 'Operación realizada con éxito.', 'data' => $this->_getItems()];

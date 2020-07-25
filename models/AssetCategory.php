@@ -34,7 +34,7 @@ class AssetCategory extends \yii\db\ActiveRecord
             [['name', 'measure_unit_type_id'], 'required'],
             [['needs_cooking', 'measure_unit_type_id'], 'integer'],
             [['name'], 'string', 'max' => 255],
-            [['name'], 'unique'],
+            [['name'], 'unique', 'message' => 'Ya existe este elemento.'],
             [['measure_unit_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => MeasureUnitType::className(), 'targetAttribute' => ['measure_unit_type_id' => 'id']],
         ];
     }
